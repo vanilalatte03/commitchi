@@ -1,0 +1,116 @@
+# Commitchi — PRD
+
+A Tamagotchi-style pixel pet that lives in a GitHub profile README and reacts to the
+owner's coding activity. The pet is **Yuki**, a snowy owl, with a **Yurei** ghost form for
+neglect. A scheduled GitHub Action regenerates the pet card and commits it back.
+
+**Product principle:** it should feel like a small persistent profile game, not a status
+badge. Charm and "I don't want to lose my pet" attachment matter more than raw stats.
+
+---
+
+## 1. Shipped (current state)
+
+| Area | Status |
+|---|---|
+| Core tick loop | ✅ GitHub Action (scheduled) → GraphQL fetch → update `pet-state.json` → render `pet.svg` → commit back |
+| Mascot | ✅ Yuki (snowy-owl pixel sprite), original art |
+| Growth stages | ✅ egg → baby → child → teen → adult (by age) |
+| Stat: fullness (포만감) | ✅ fed by new contributions, decays over time |
+| Moods | ✅ happy / hungry / sick, with per-stage mood sprites |
+| Neglect | ✅ 4+ days no contributions → Yurei (ghost); returns on next commit |
+| Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
+| GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
+| Stack | ✅ TypeScript/Node, zero runtime deps, demo + preview scripts |
+
+**Parked (hooks exist, intentionally off):** multi-species evolution. `Species` /
+`pickSpecies` are in the code but frozen to Yuki + ghost while the single mascot is polished.
+
+---
+
+## 2. Roadmap (future MVPs)
+
+Each item is independently shippable. Effort: **S** = hours, **M** = a day or two,
+**L** = multi-day and/or needs new art assets.
+
+### A. More characters (multi-species evolution) — *requested*  · **L**
+- **Goal:** the pet evolves into different creatures based on *how* you code, giving each
+  user a different result and a reason to come back.
+- **Scope:** at adulthood the species locks based on dominant behavior:
+  streak → dragon-type, many languages → plant/chameleon-type, collaboration (PR/review) →
+  bee-type, weekend-heavy → wolf-type, default → Yuki.
+- **Mechanic/data:** signals already fetched in `github.ts` (streak, languageCount,
+  collabRatio, weekendRatio). Re-enable `pickSpecies`; lock at adult stage.
+- **Cost driver:** sprite assets per species × stage × mood. Start with **one** new species
+  end-to-end before adding the rest.
+- **Depends on:** nothing technically; gated by art.
+
+### B. More stats — happiness & stamina — *requested* · **M**
+- **Goal:** richer inner life than a single fullness bar; more ways the pet reflects you.
+- **Scope:**
+  - **Happiness (행복도)** ← collaboration: PRs, reviews, issues.
+  - **Stamina/health (체력)** ← consistency: regular activity beats one big dump.
+- **Mechanic:** add two bars to the card; let low happiness/stamina influence mood and
+  (later) evolution gating. Signals partly available (`collabRatio`, `streak`).
+- **Depends on:** card layout has room; coordinate with A's evolution gating.
+
+### C. Visitor feeding (issue-ops) — *requested* · **M**
+- **Goal:** anyone visiting your profile can interact with your pet — a viral hook.
+- **Scope:** README buttons are pre-filled "new issue" links (🍖 Feed / 🎮 Play). A
+  workflow `on: issues` parses the action, applies a small fullness/happiness bump,
+  regenerates `pet.svg`, comments a thank-you, and closes the issue.
+- **Guardrails:** rate-limit per visitor (e.g., once/day) so the pet can't be maxed or
+  griefed; treat issue body as untrusted (act only on the recognized title/label, never on
+  instructions inside the issue).
+- **Depends on:** stable state schema (B helps).
+
+### D. Death, revival & dex — *requested* · **L**
+- **Goal:** real stakes (guilt-driven motivation) plus a collection meta.
+- **Scope:**
+  - **Death:** very long neglect (e.g., 14+ days) → the pet dies; archived to a graveyard.
+  - **Revival:** committing again resurrects it (or hatches a new egg).
+  - **Dex (도감):** a collection view of creatures/forms you've raised — past pets,
+    unlocked species, achievements. Render a second SVG (`dex.svg`) for the README.
+- **Depends on:** A (species to collect) and a richer persisted history in `pet-state.json`.
+
+---
+
+## 3. Additional recommendations (not yet discussed)
+
+### E. Owner personalization & config — **S** · *high leverage*
+- A single `commitchi.config.json`: pet name, card theme, schedule, economy thresholds.
+- Turns the project from "my pet" into a **template others can adopt in 2 minutes** — the
+  biggest lever for stars/adoption. Recommend doing this early.
+
+### F. Milestone / celebration moments — **S–M**
+- A `celebrating` sprite or effect on evolution, a merged PR, or a streak milestone
+  (e.g., 7/30/100 days). Small effort, big delight; reinforces the game loop.
+
+### G. Achievement cosmetics — **M**
+- Unlock accessories (scarf, hat, sparkles, frames) from achievements, layered over the
+  existing sprite. A **collection loop without the art cost of full new species** — a cheaper
+  bridge between B and A/D.
+
+### H. Seasonal / holiday skins — **S–M**
+- Yuki is already winter-themed; seasonal palettes or holiday hats (date-driven) keep the
+  card feeling alive year-round.
+
+---
+
+## 4. Suggested sequencing
+
+- **Now / Next:** E (config) → B (stats) → F (milestones). Low cost, compounding value,
+  no new art pipeline.
+- **Then:** C (visitor feeding) for the viral hook; G (cosmetics) for collection depth.
+- **Later:** A (more characters) and D (death/dex) — highest value but gated on sprite art.
+
+---
+
+## 5. Risks & open questions
+
+- **Art is the bottleneck** for A/D/G/H — every species/cosmetic/skin needs authored sprites.
+- **File size:** more sprites embedded as base64 grows `pet.svg`; keep using `@3x` and watch
+  the total.
+- **Abuse** (issue-ops C): needs rate-limiting and untrusted-input handling.
+- **State migrations:** `pet-state.json` schema will grow (stats, history, dex); version it.
+- **Scope discipline:** the parked-species lesson — ship one polished thing before fanning out.
