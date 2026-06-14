@@ -3,9 +3,11 @@ import { fetchActivity } from "./github";
 import { applyTick, loadState, saveState } from "./state";
 import { renderSVG } from "./render";
 import { Activity } from "./types";
+import { loadConfig } from "./config";
 
 async function main() {
   const now = new Date();
+  const config = loadConfig();
   const username = process.env.GH_USERNAME;
   const token = process.env.GH_TOKEN;
 
@@ -29,9 +31,9 @@ async function main() {
     };
   }
 
-  const state = applyTick(loadState(now), activity, now);
+  const state = applyTick(loadState(now, config), activity, now, config);
   saveState(state);
-  writeFileSync("pet.svg", renderSVG(state));
+  writeFileSync("pet.svg", renderSVG(state, config));
   console.log(
     `Pet: ${state.stage}/${state.species} · ${state.mood} · fullness ${state.fullness}% · age ${state.ageDays}d. Wrote pet.svg + pet-state.json.`
   );

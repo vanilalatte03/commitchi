@@ -6,7 +6,7 @@ The pet is **Yuki**, an original snowy-owl pixel sprite.
 
 - **Commit** and Yuki gets full and happy.
 - **Go quiet** and Yuki gets hungry, then sick.
-- **Disappear for 4+ days** and Yuki fades into **Yurei** (a ghost) — who returns the moment you commit again.
+- **Disappear for 4+ days by default** and Yuki fades into **Yurei** (a ghost) — who returns the moment you commit again.
 - Yuki also **grows up** over time: egg → baby → child → teen → adult.
 
 A GitHub Action ticks on a schedule, regenerates `pet.svg`, and commits it back so your README always shows the current pet.
@@ -23,7 +23,7 @@ Stages advance purely with age:
 | teen | day 7+ |
 | adult | day 14+ |
 
-Moods (`happy` / `hungry` / `sick`) are driven by fullness and how recently you committed, and each stage has its own mood sprite. Neglect (4+ days with no contributions) shows the Yurei ghost variant.
+Moods (`happy` / `hungry` / `sick`) are driven by fullness and how recently you committed, and each stage has its own mood sprite. Neglect (4+ days with no contributions by default) shows the Yurei ghost variant.
 
 > Multi-species evolution (different creatures per coding pattern) is intentionally **parked** while the single Yuki mascot gets polished. The hooks (`Species`, `pickSpecies`) are still there for later.
 
@@ -51,6 +51,7 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
 
 3. Open the repo's **Actions** tab and run **commitchi tick** once (`workflow_dispatch`) to seed `pet.svg`. After that the schedule takes over.
 4. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
+5. *(Optional)* Add `commitchi.config.json` to customize the pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
 
 ## Run locally
 
@@ -68,22 +69,45 @@ $env:GH_TOKEN    = "ghp_xxx"         # a token with read:user
 npm run build; npm run tick
 ```
 
-## Tuning
+## Configuration
 
-The economy lives in `src/state.ts`:
+Create `commitchi.config.json` at the repo root when you want to customize the defaults:
+
+```json
+{
+  "name": "Yuki",
+  "theme": "winter",
+  "economy": {
+    "feedPerContrib": 12,
+    "decayPerDay": 22,
+    "startFullness": 60
+  },
+  "thresholds": {
+    "hungryFullness": 45,
+    "sickFullness": 15,
+    "neglectDays": 4
+  }
+}
+```
+
+Only the `winter` theme exists today; the field is there so more card themes can be added without changing the config shape.
 
 | Knob | Meaning | Default |
 |---|---|---|
-| `FEED_PER_CONTRIB` | fullness gained per new contribution | 12 |
-| `DECAY_PER_DAY` | fullness lost per day with no feeding | 22 |
-| `START_FULLNESS` | newborn fullness | 60 |
+| `economy.feedPerContrib` | fullness gained per new contribution | 12 |
+| `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
+| `economy.startFullness` | newborn fullness | 60 |
+| `thresholds.hungryFullness` | fullness at/below which Yuki becomes hungry | 45 |
+| `thresholds.sickFullness` | fullness at/below which Yuki becomes sick | 15 |
+| `thresholds.neglectDays` | days without contributions before Yuki becomes Yurei | 4 |
 
-Mood thresholds are in `moodFor()` (same file); stage/neglect thresholds are in `src/evolution.ts` (`STAGE_THRESHOLDS`, `NEGLECT_DAYS`).
+The config file is optional and partial overrides are supported. For example, `{ "name": "Mochi" }` only changes the displayed name.
 
 ## Project layout
 
 ```
 src/
+  config.ts     optional commitchi.config.json loader + validation
   index.ts      orchestrates a tick
   github.ts     GraphQL fetch → contribution activity
   state.ts      load / update / save pet-state.json  (the economy)

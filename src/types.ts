@@ -1,5 +1,7 @@
 export type Mood = "happy" | "hungry" | "sick";
 
+export type Theme = "winter";
+
 // Species expansion (dragon/chameleon/wolf/…) is parked while the default mascot
 // gets polished. For now the world is just Yuki and its neglected ghost form.
 export type Species = "yuki" | "ghost";
@@ -44,4 +46,29 @@ export interface Activity {
   collabRatio: number;
   /** Distinct primary languages across the user's repos. */
   languageCount: number;
+}
+
+export interface EconomyConfig {
+  /** Fullness gained per new contribution. */
+  feedPerContrib: number;
+  /** Fullness lost per elapsed day. */
+  decayPerDay: number;
+  /** Fullness used when a pet is born without existing state. */
+  startFullness: number;
+}
+
+export interface ThresholdConfig {
+  /** At or below this fullness, the pet is hungry. */
+  hungryFullness: number;
+  /** At or below this fullness, or after neglectDays, the pet is sick. */
+  sickFullness: number;
+  /** Whole days without contributions before the pet becomes Yurei. */
+  neglectDays: number;
+}
+
+export interface CommitchiConfig {
+  name: string;
+  theme: Theme;
+  economy: EconomyConfig;
+  thresholds: ThresholdConfig;
 }

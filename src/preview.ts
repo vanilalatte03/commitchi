@@ -1,10 +1,13 @@
 import { mkdirSync, writeFileSync } from "node:fs";
+import { loadConfig } from "./config";
 import { renderSVG } from "./render";
 import { Mood, PetState, Stage } from "./types";
 
+const config = loadConfig();
+
 /** Generate the default mascot asset sheet into ./preview for eyeballing. */
 const base: PetState = {
-  name: "Yuki",
+  name: config.name,
   species: "yuki",
   lockedSpecies: "",
   stage: "adult",
@@ -20,7 +23,7 @@ const base: PetState = {
 mkdirSync("preview", { recursive: true });
 
 const make = (file: string, over: Partial<PetState>) =>
-  writeFileSync(`preview/${file}.svg`, renderSVG({ ...base, ...over }));
+  writeFileSync(`preview/${file}.svg`, renderSVG({ ...base, ...over }, config));
 
 const moods: Mood[] = ["happy", "hungry", "sick"];
 const stages: { stage: Stage; ageDays: number; fullness: number }[] = [
