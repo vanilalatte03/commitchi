@@ -1,9 +1,19 @@
 export type Mood = "happy" | "hungry" | "sick";
 
+// Species expansion (dragon/chameleon/wolf/…) is parked while the default mascot
+// gets polished. For now the world is just Yuki and its neglected ghost form.
+export type Species = "yuki" | "ghost";
+
+export type Stage = "egg" | "baby" | "child" | "teen" | "adult";
+
 /** The pet's persistent memory. Lives in pet-state.json, accumulates across ticks. */
 export interface PetState {
   name: string;
-  species: string;
+  /** Currently displayed species (may be "ghost" while neglected). */
+  species: Species;
+  /** Species frozen at adulthood. "" until the pet reaches the adult stage. */
+  lockedSpecies: Species | "";
+  stage: Stage;
   bornAt: string;
   lastTickAt: string;
   /** 0-100. Driven by commits, decays over time. */
@@ -16,14 +26,22 @@ export interface PetState {
   lastDayCounted: number;
 }
 
-/** A snapshot of the user's recent GitHub activity, distilled to what the pet cares about. */
-export interface DayInfo {
+/** A snapshot of the user's GitHub activity: what the pet eats + how it evolves. */
+export interface Activity {
   /** Most recent day in the contribution calendar (YYYY-MM-DD). */
   todayDate: string;
   /** Contribution count on todayDate. */
   todayCount: number;
-  /** Whole days since the most recent day that had any contributions. 0 = committed today. */
-  daysSinceLastContribution: number;
-  /** Total contributions in the trailing year (for flavor / future levels). */
+  /** Total contributions in the trailing year. */
   totalThisYear: number;
+  /** Whole days since the most recent day that had any contributions. 0 = today. */
+  daysSinceLastContribution: number;
+  /** Current consecutive-day contribution streak ending at the latest day. */
+  streak: number;
+  /** Fraction (0-1) of contributions that fall on Sat/Sun. */
+  weekendRatio: number;
+  /** Fraction (0-1) of work that is collaborative (PRs, reviews, issues). */
+  collabRatio: number;
+  /** Distinct primary languages across the user's repos. */
+  languageCount: number;
 }
