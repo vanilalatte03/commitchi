@@ -1,0 +1,14 @@
+{
+  "name": "Yuki",
+  "theme": "winter",
+  "economy": {
+    "feedPerContrib": 12,
+    "decayPerDay": 22,
+    "startFullness": 60
+  },
+  "thresholds": {
+    "hungryFullness": 45,
+    "sickFullness": 15,
+    "neglectDays": 4
+  }
+}

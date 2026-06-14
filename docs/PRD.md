@@ -18,8 +18,9 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Growth stages | ✅ egg → baby → child → teen → adult (by age) |
 | Stat: fullness (포만감) | ✅ fed by new contributions, decays over time |
 | Moods | ✅ happy / hungry / sick, with per-stage mood sprites |
-| Neglect | ✅ 4+ days no contributions → Yurei (ghost); returns on next commit |
+| Neglect | ✅ 4+ days no contributions by default → Yurei (ghost); returns on next commit |
 | Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
+| Owner config | ✅ optional `commitchi.config.json` for pet name, theme placeholder, economy, and thresholds |
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
 | Stack | ✅ TypeScript/Node, zero runtime deps, demo + preview scripts |
 
@@ -77,21 +78,16 @@ Each item is independently shippable. Effort: **S** = hours, **M** = a day or tw
 
 ## 3. Additional recommendations (not yet discussed)
 
-### E. Owner personalization & config — **S** · *high leverage*
-- A single `commitchi.config.json`: pet name, card theme, schedule, economy thresholds.
-- Turns the project from "my pet" into a **template others can adopt in 2 minutes** — the
-  biggest lever for stars/adoption. Recommend doing this early.
-
-### F. Milestone / celebration moments — **S–M**
+### E. Milestone / celebration moments — **S–M**
 - A `celebrating` sprite or effect on evolution, a merged PR, or a streak milestone
   (e.g., 7/30/100 days). Small effort, big delight; reinforces the game loop.
 
-### G. Achievement cosmetics — **M**
+### F. Achievement cosmetics — **M**
 - Unlock accessories (scarf, hat, sparkles, frames) from achievements, layered over the
   existing sprite. A **collection loop without the art cost of full new species** — a cheaper
   bridge between B and A/D.
 
-### H. Seasonal / holiday skins — **S–M**
+### G. Seasonal / holiday skins — **S–M**
 - Yuki is already winter-themed; seasonal palettes or holiday hats (date-driven) keep the
   card feeling alive year-round.
 
@@ -99,9 +95,9 @@ Each item is independently shippable. Effort: **S** = hours, **M** = a day or tw
 
 ## 4. Suggested sequencing
 
-- **Now / Next:** E (config) → B (stats) → F (milestones). Low cost, compounding value,
+- **Now / Next:** B (stats) → E (milestones). Low cost, compounding value,
   no new art pipeline.
-- **Then:** C (visitor feeding) for the viral hook; G (cosmetics) for collection depth.
+- **Then:** C (visitor feeding) for the viral hook; F (cosmetics) for collection depth.
 - **Later:** A (more characters) and D (death/dex) — highest value but gated on sprite art.
 
 ---

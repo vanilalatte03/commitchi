@@ -10,9 +10,6 @@ const STAGE_THRESHOLDS: { stage: Stage; days: number }[] = [
   { stage: "adult", days: 14 },
 ];
 
-/** How neglected (days without a contribution) before the pet turns into a ghost. */
-export const NEGLECT_DAYS = 4;
-
 export function stageFor(ageDays: number): Stage {
   let result: Stage = "egg";
   for (const { stage, days } of STAGE_THRESHOLDS) {
@@ -30,8 +27,8 @@ export function daysToNextStage(ageDays: number): number | null {
 }
 
 /** Keep the first pass focused on one lovable default mascot. */
-export function pickSpecies(a: Activity): Species {
-  if (a.daysSinceLastContribution >= NEGLECT_DAYS) return "ghost";
+export function pickSpecies(a: Activity, neglectDays: number): Species {
+  if (a.daysSinceLastContribution >= neglectDays) return "ghost";
   return DEFAULT_SPECIES;
 }
 
@@ -55,16 +52,17 @@ export interface Evolution {
 export function resolveEvolution(
   a: Activity,
   ageDays: number,
-  prevLocked: Species | ""
+  prevLocked: Species | "",
+  neglectDays: number
 ): Evolution {
   const stage = stageFor(ageDays);
-  const neglected = a.daysSinceLastContribution >= NEGLECT_DAYS;
+  const neglected = a.daysSinceLastContribution >= neglectDays;
 
   if (prevLocked) {
     return { stage, species: neglected ? "ghost" : DEFAULT_SPECIES, lockedSpecies: DEFAULT_SPECIES };
   }
 
-  const candidate = pickSpecies(a);
+  const candidate = pickSpecies(a, neglectDays);
 
   if (stage === "adult") {
     const locked: Species = candidate === "ghost" ? DEFAULT_SPECIES : candidate;
