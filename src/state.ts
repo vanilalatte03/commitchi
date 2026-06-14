@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { DayInfo, Mood, PetState } from "./types";
+import { Activity, Mood, PetState } from "./types";
+import { resolveEvolution } from "./evolution";
 
 const STATE_PATH = "pet-state.json";
 
@@ -18,8 +19,10 @@ export function loadState(now: Date): PetState {
   }
   const iso = now.toISOString();
   return {
-    name: "Commitchi",
-    species: "owl",
+    name: "Yuki",
+    species: "yuki",
+    lockedSpecies: "",
+    stage: "egg",
     bornAt: iso,
     lastTickAt: iso,
     fullness: START_FULLNESS,
@@ -40,27 +43,33 @@ function moodFor(fullness: number, daysSinceLastContribution: number): Mood {
   return "happy";
 }
 
-/** Advance the pet one tick: decay over elapsed time, then feed on new contributions. */
-export function applyTick(state: PetState, day: DayInfo, now: Date): PetState {
+/** Advance the pet one tick: feed, decay, age, and evolve. Returns the new state. */
+export function applyTick(state: PetState, a: Activity, now: Date): PetState {
   const elapsedDays = (now.getTime() - new Date(state.lastTickAt).getTime()) / DAY_MS;
 
   let fullness = state.fullness - DECAY_PER_DAY * Math.max(0, elapsedDays);
 
   // Feed only on contributions we haven't already counted (handles multiple ticks/day).
   const newContribs =
-    day.todayDate !== state.lastDayDate
-      ? day.todayCount
-      : Math.max(0, day.todayCount - state.lastDayCounted);
+    a.todayDate !== state.lastDayDate
+      ? a.todayCount
+      : Math.max(0, a.todayCount - state.lastDayCounted);
 
   fullness = clamp(fullness + newContribs * FEED_PER_CONTRIB, 0, 100);
+
+  const ageDays = Math.floor((now.getTime() - new Date(state.bornAt).getTime()) / DAY_MS);
+  const evo = resolveEvolution(a, ageDays, state.lockedSpecies);
 
   return {
     ...state,
     fullness: Math.round(fullness),
-    mood: moodFor(fullness, day.daysSinceLastContribution),
-    ageDays: Math.floor((now.getTime() - new Date(state.bornAt).getTime()) / DAY_MS),
-    lastDayDate: day.todayDate,
-    lastDayCounted: day.todayCount,
+    mood: moodFor(fullness, a.daysSinceLastContribution),
+    ageDays,
+    stage: evo.stage,
+    species: evo.species,
+    lockedSpecies: evo.lockedSpecies,
+    lastDayDate: a.todayDate,
+    lastDayCounted: a.todayCount,
     lastTickAt: now.toISOString(),
   };
 }

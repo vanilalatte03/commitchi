@@ -1,43 +1,23 @@
-<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commitchi, a owl that is 기분 좋음, fullness 89%">
-  <title>Commitchi — 기분 좋음</title>
-  <rect x="0.5" y="0.5" width="479" height="199" rx="16" fill="#1b1a2e" stroke="#2e2c47"/>
-  <circle cx="200" cy="28" r="1.6" fill="#4a4570"><animate attributeName="opacity" values="0.3;1;0.3" dur="4s" repeatCount="indefinite"/></circle><circle cx="430" cy="40" r="1.6" fill="#4a4570"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle><circle cx="360" cy="24" r="1.6" fill="#4a4570"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></circle><circle cx="250" cy="160" r="1.6" fill="#4a4570"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle><circle cx="455" cy="120" r="1.6" fill="#4a4570"><animate attributeName="opacity" values="0.3;1;0.3" dur="4s" repeatCount="indefinite"/></circle><circle cx="185" cy="95" r="1.6" fill="#4a4570"><animate attributeName="opacity" values="0.3;1;0.3" dur="4s" repeatCount="indefinite"/></circle>
-  
-    <g transform="translate(96,104)">
-      <animateTransform attributeName="transform" type="translate"
-        values="96,104; 96,98; 96,104" dur="3s" repeatCount="indefinite" calcMode="spline"
-        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
-      <ellipse cx="-12" cy="54" rx="8" ry="4" fill="#EF9F27"/>
-      <ellipse cx="12" cy="54" rx="8" ry="4" fill="#EF9F27"/>
-      <path d="M-34,-30 L-22,-52 L-12,-28 Z" fill="#534AB7"/>
-      <path d="M34,-30 L22,-52 L12,-28 Z" fill="#534AB7"/>
-      <ellipse cx="0" cy="8" rx="42" ry="46" fill="#7F77DD"/>
-      <ellipse cx="-38" cy="10" rx="12" ry="30" fill="#534AB7"/>
-      <ellipse cx="38" cy="10" rx="12" ry="30" fill="#534AB7"/>
-      <ellipse cx="0" cy="18" rx="25" ry="30" fill="#AFA9EC"/>
-      
-      <circle cx="-16" cy="-8" r="15" fill="#ffffff"/>
-      <circle cx="16" cy="-8" r="15" fill="#ffffff"/>
-      <circle cx="-15" cy="-7" r="6" fill="#26215C"/>
-      <circle cx="17" cy="-7" r="6" fill="#26215C"/>
-      <circle cx="-12" cy="-9" r="2" fill="#ffffff"/>
-      <circle cx="20" cy="-9" r="2" fill="#ffffff"/>
-      
-      <rect x="-31" y="-23" width="30" height="22" rx="11" fill="#7F77DD" opacity="0">
-        <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.93;0.965;1" dur="5s" repeatCount="indefinite"/>
-      </rect>
-      <rect x="1" y="-23" width="30" height="22" rx="11" fill="#7F77DD" opacity="0">
-        <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.93;0.965;1" dur="5s" repeatCount="indefinite"/>
-      </rect>
-      <path d="M0,2 L-7,-5 L7,-5 Z" fill="#EF9F27"/>
-      
+<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Yuki, a egg yuki, 기분 좋음, fullness 96%">
+  <title>Yuki — Yuki egg · hatching soon</title>
+  <rect x="0.5" y="0.5" width="479" height="199" rx="16" fill="#141323" stroke="#302D50"/>
+  <path d="M34,27 L35.5,30.5 L39,32 L35.5,33.5 L34,37 L32.5,33.5 L29,32 L32.5,30.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="3.8s" repeatCount="indefinite"/></path><path d="M58,149 L59.5,152.5 L63,154 L59.5,155.5 L58,159 L56.5,155.5 L53,154 L56.5,152.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="4.8s" repeatCount="indefinite"/></path><path d="M165,30 L166.5,33.5 L170,35 L166.5,36.5 L165,40 L163.5,36.5 L160,35 L163.5,33.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="3s" repeatCount="indefinite"/></path><path d="M448,37 L449.5,40.5 L453,42 L449.5,43.5 L448,47 L446.5,43.5 L443,42 L446.5,40.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="3.4s" repeatCount="indefinite"/></path><path d="M430,127 L431.5,130.5 L435,132 L431.5,133.5 L430,137 L428.5,133.5 L425,132 L428.5,130.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="4.2s" repeatCount="indefinite"/></path>
+  <circle cx="112" cy="104" r="68" fill="#2A2453" opacity="0.58"/>
+  <path d="M84,52 h56 M74,68 h76 M64,84 h96 M58,100 h108 M64,116 h96 M74,132 h76 M84,148 h56" stroke="#9DB7D1" stroke-width="1" opacity="0.08"/>
+  <ellipse cx="112" cy="170" rx="33" ry="10" fill="#050611" opacity="0.42"/>
+  <g>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0; 0,-4; 0,0" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+      <image href="data:image/png;base64,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" x="64" y="70" width="96" height="96" preserveAspectRatio="xMidYMid meet"/>
     </g>
-  <text x="172" y="46" fill="#ECEAFB" font-family="'Segoe UI',system-ui,sans-serif" font-size="24" font-weight="600">Commitchi</text>
-  <text x="172" y="68" fill="#A9A3D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">Night Owl · 0일째</text>
-  <text x="172" y="104" fill="#A9A3D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">기분</text>
-  <text x="172" y="126" fill="#ECEAFB" font-family="'Segoe UI',system-ui,sans-serif" font-size="17" font-weight="600">기분 좋음</text>
-  <text x="172" y="158" fill="#A9A3D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">포만감</text>
-  <rect x="172" y="168" width="270" height="12" rx="6" fill="#2e2c47"/>
-  <rect x="172" y="168" width="240" height="12" rx="6" fill="#639922"/>
-  <text x="448" y="178" fill="#ECEAFB" font-family="'Segoe UI',system-ui,sans-serif" font-size="12" text-anchor="end">89%</text>
+  </g>
+  <text x="204" y="44" fill="#F4F1FF" font-family="'Segoe UI',system-ui,sans-serif" font-size="24" font-weight="700">Yuki</text>
+  <text x="204" y="68" fill="#AAA4D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">Yuki egg · hatching soon</text>
+  <text x="204" y="103" fill="#AAA4D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">기분</text>
+  <text x="204" y="127" fill="#F4F1FF" font-family="'Segoe UI',system-ui,sans-serif" font-size="19" font-weight="700">기분 좋음</text>
+  <text x="204" y="153" fill="#AAA4D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">포만감</text>
+  <rect x="204" y="161" width="220" height="12" rx="6" fill="#302D50"/>
+  <rect x="204" y="161" width="211" height="12" rx="6" fill="#6FBA65"/>
+  <text x="448" y="171" fill="#F4F1FF" font-family="'Segoe UI',system-ui,sans-serif" font-size="12" font-weight="600" text-anchor="end">96%</text>
+  <text x="204" y="190" fill="#AAA4D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="12">다음 진화까지 1일 · 0일째</text>
 </svg>
