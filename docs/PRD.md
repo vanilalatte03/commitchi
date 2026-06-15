@@ -21,6 +21,7 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Stat: stamina (체력) | ✅ boosted by steady streaks; large bursts are less efficient |
 | Moods | ✅ happy / hungry / sick, with per-stage mood sprites |
 | Neglect | ✅ 4+ days no contributions by default → Yurei (ghost); returns on next commit |
+| Milestone celebrations | ✅ evolution and 7/30/100-day streak milestones render a one-tick celebration badge + sparkle effect |
 | Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
 | Owner config | ✅ optional `commitchi.config.json` for pet name, theme placeholder, economy, and thresholds |
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
@@ -71,10 +72,6 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
 
 ## 3. Additional recommendations (not yet discussed)
 
-### E. Milestone / celebration moments — **S–M**
-- A `celebrating` sprite or effect on evolution, a merged PR, or a streak milestone
-  (e.g., 7/30/100 days). Small effort, big delight; reinforces the game loop.
-
 ### F. Achievement cosmetics — **M**
 - Unlock accessories (scarf, hat, sparkles, frames) from achievements, layered over the
   existing sprite. A **collection loop without the art cost of full new species** — a cheaper
@@ -88,8 +85,7 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
 
 ## 4. Suggested sequencing
 
-- **Now / Next:** E (milestones). Low cost, compounding value, no new art pipeline.
-- **Then:** C (visitor feeding) for the viral hook; F (cosmetics) for collection depth.
+- **Now / Next:** C (visitor feeding) for the viral hook; F (cosmetics) for collection depth.
 - **Later:** A (more characters) and D (death/dex) — highest value but gated on sprite art.
 
 ---

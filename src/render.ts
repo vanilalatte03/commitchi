@@ -11,6 +11,8 @@ const WINTER_PALETTE = {
   track: "#302D50",
   halo: "#2A2453",
   star: "#F6C85F",
+  celebrationBg: "#F6C85F",
+  celebrationText: "#141323",
   snow: "#9DB7D1",
 };
 
@@ -60,6 +62,42 @@ function stars(palette: Palette): string {
     .join("");
 }
 
+function celebrationEffects(palette: Palette, active: boolean): string {
+  if (!active) return "";
+
+  const sparkles = [
+    [50, 72, 0],
+    [178, 78, 0.35],
+    [66, 140, 0.7],
+    [164, 148, 1.05],
+  ];
+
+  return `<g aria-hidden="true">
+  <circle cx="112" cy="104" r="72" fill="none" stroke="${palette.star}" stroke-width="2" opacity="0.42">
+    <animate attributeName="r" values="62;74;62" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.18;0.52;0.18" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+  ${sparkles
+    .map(
+      ([x, y, delay]) =>
+        `<path d="M${x},${y - 6} L${x + 1.8},${y - 1.8} L${x + 6},${y} L${x + 1.8},${y + 1.8} L${x},${y + 6} L${x - 1.8},${y + 1.8} L${x - 6},${y} L${x - 1.8},${y - 1.8} Z" fill="${palette.star}" opacity="0.78">
+    <animate attributeName="opacity" values="0.15;0.95;0.15" dur="1.8s" begin="${delay}s" repeatCount="indefinite"/>
+  </path>`
+    )
+    .join("")}
+</g>`;
+}
+
+function celebrationBadge(state: PetState, palette: Palette): string {
+  if (!state.celebration) return "";
+
+  const text = escapeText(`축하! ${state.celebration.title}`);
+  return `<g aria-hidden="true">
+  <rect x="30" y="18" width="164" height="28" rx="8" fill="${palette.celebrationBg}" opacity="0.94"/>
+  <text x="112" y="37" fill="${palette.celebrationText}" font-family="'Segoe UI',system-ui,sans-serif" font-size="12" font-weight="700" text-anchor="middle">${text}</text>
+</g>`;
+}
+
 function subtitle(state: PetState): string {
   if (state.stage === "egg") return "Yuki egg · hatching soon";
   if (state.stage === "baby") return "Yuki baby · growing";
@@ -68,6 +106,7 @@ function subtitle(state: PetState): string {
 }
 
 function progressLine(state: PetState): string {
+  if (state.celebration) return state.celebration.detail;
   if (state.species === "ghost") return "커밋을 하면 다시 깨어나요";
   const left = daysToNextStage(state.ageDays);
   return left === null ? "다 자랐어요" : `다음 진화까지 ${left}일`;
@@ -84,8 +123,9 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
   const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state))}`;
+  const celebrationLabel = state.celebration ? `, celebration ${state.celebration.title}` : "";
   const ariaLabel = escapeAttr(
-    `${state.name}, a ${state.stage} ${state.species}, ${MOOD_LABEL[state.mood]}, fullness ${f}%, happiness ${happiness}%, stamina ${stamina}%`
+    `${state.name}, a ${state.stage} ${state.species}, ${MOOD_LABEL[state.mood]}, fullness ${f}%, happiness ${happiness}%, stamina ${stamina}%${celebrationLabel}`
   );
   const moodText = escapeText(MOOD_LABEL[state.mood]);
   const progressText = escapeText(progressLine(state));
@@ -108,6 +148,8 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   ${stars(palette)}
   <circle cx="112" cy="104" r="68" fill="${palette.halo}" opacity="0.58"/>
   <path d="M84,52 h56 M74,68 h76 M64,84 h96 M58,100 h108 M64,116 h96 M74,132 h76 M84,148 h56" stroke="${palette.snow}" stroke-width="1" opacity="0.08"/>
+  ${celebrationEffects(palette, Boolean(state.celebration))}
+  ${celebrationBadge(state, palette)}
   <ellipse cx="112" cy="170" rx="${Math.round(sprite.displaySize * 0.34)}" ry="10" fill="#050611" opacity="0.42"/>
   <g>
     <g>

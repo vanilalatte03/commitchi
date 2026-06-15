@@ -8,6 +8,18 @@ export type Species = "yuki" | "ghost";
 
 export type Stage = "egg" | "baby" | "child" | "teen" | "adult";
 
+export type CelebrationKind = "evolution" | "streak";
+
+export interface CelebrationMoment {
+  kind: CelebrationKind;
+  /** Stable id used so a one-time celebration does not repeat on every tick. */
+  milestoneId: string;
+  /** Short label rendered in the celebration badge. */
+  title: string;
+  /** One-line detail used in the card footer while the celebration is active. */
+  detail: string;
+}
+
 /** The pet's persistent memory. Lives in pet-state.json, accumulates across ticks. */
 export interface PetState {
   name: string;
@@ -25,6 +37,10 @@ export interface PetState {
   /** 0-100. Driven by consistent activity; big bursts are less efficient. */
   stamina: number;
   mood: Mood;
+  /** The milestone being celebrated on this rendered tick, if any. */
+  celebration: CelebrationMoment | null;
+  /** Stable milestone ids that have already been celebrated. */
+  celebratedMilestones: string[];
   ageDays: number;
   /** Date string (YYYY-MM-DD) of the day we last counted contributions for. */
   lastDayDate: string;
