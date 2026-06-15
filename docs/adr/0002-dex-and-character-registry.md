@@ -2,7 +2,10 @@
 
 ## Status
 
-Proposed (draft)
+Accepted. Phase 1 (data-driven character registry: manifest + `catalog.json` +
+`src/characters.ts`, `Species` as id, ghost as a render variant) is implemented and merged
+(#13). The remaining decisions (dex per-user progress, stage display-lock, multi-pet
+roster/switching, contribution CI + `dex:assign`) are accepted direction, not yet built.
 
 ## Context
 

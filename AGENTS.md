@@ -36,7 +36,8 @@ Get-Content -Encoding UTF8 <path>
 - Keep GitHub API logic in `src/github.ts`.
 - Keep state transitions and rules in `src/state.ts` and `src/evolution.ts`.
 - Keep rendering logic in `src/render.ts` and sprite data in `src/sprites.ts`.
-- Keep user-facing strings/localization in `src/i18n.ts`.
+- Keep the character registry (catalog + per-character manifest loading/validation) in `src/characters.ts`. Add a character with data only — a folder under `assets/sprites/<id>/` with `character.json` plus a `catalog.json` entry — not code changes.
+- Keep user-facing strings/localization in `src/i18n.ts` (character display names live in each `character.json`, not here).
 - Add dependencies only when the benefit is clear and the standard library is not enough.
 
 ## Change Guidelines

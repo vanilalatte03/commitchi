@@ -29,8 +29,10 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
 | Stack | ✅ TypeScript/Node, zero runtime deps, demo + preview scripts |
 
-**Parked (hooks exist, intentionally off):** multi-species evolution. `Species` /
-`pickSpecies` are in the code but frozen to Yuki + ghost while the single mascot is polished.
+**Foundation landed:** the character system is data-driven (registry over `catalog.json` +
+per-character `character.json`; `Species` is a registered id, ghost is a render variant).
+See ADR 0002. **Still parked:** shipping more than one character, and coding-pattern-based
+species selection (`pickSpecies` remains off). Only Yuki ships today.
 
 ---
 
