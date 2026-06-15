@@ -10,6 +10,8 @@ The pet is **Yuki**, an original snowy-owl pixel sprite.
   **stamina**.
 - **Disappear for 4+ days by default** and Yuki fades into **Yurei** (a ghost) — who returns the moment you commit again.
 - Yuki also **grows up** over time: egg → baby → child → teen → adult.
+- Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
+  badge and sparkle effect.
 
 A GitHub Action ticks on a schedule, regenerates `pet.svg`, and commits it back so your README always shows the current pet.
 
@@ -36,7 +38,7 @@ and how recently you committed. Each stage has its own mood sprite. Neglect
 ```
 GitHub Actions (scheduled)
   → fetch your contribution activity (GraphQL)
-  → update pet-state.json   (the pet's memory: age, stats, mood, stage)
+  → update pet-state.json   (the pet's memory: age, stats, mood, stage, milestones)
   → render pet.svg          (SVG card + the matching pixel sprite, embedded as a base64 PNG)
   → commit pet.svg + pet-state.json back to the repo
 README embeds pet.svg
@@ -117,7 +119,7 @@ src/
   state.ts      load / update / save pet-state.json  (stats + economy)
   evolution.ts  stage progression + neglect → ghost
   sprites.ts    maps stage/mood → the right pixel sprite, embeds it as base64
-  render.ts     pet.svg card assembly (SVG frame + embedded sprite, bob animation)
+  render.ts     pet.svg card assembly (sprite, bob animation, celebration effects)
   preview.ts    dev-only gallery generator
   types.ts      shared types
 assets/sprites/yuki/         the pixel sprites (PNG)

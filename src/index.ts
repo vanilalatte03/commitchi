@@ -34,8 +34,9 @@ async function main() {
   const state = applyTick(loadState(now, config), activity, now, config);
   saveState(state);
   writeFileSync("pet.svg", renderSVG(state, config));
+  const celebration = state.celebration ? ` · celebrating ${state.celebration.title}` : "";
   console.log(
-    `Pet: ${state.stage}/${state.species} · ${state.mood} · fullness ${state.fullness}% · happiness ${state.happiness}% · stamina ${state.stamina}% · age ${state.ageDays}d. Wrote pet.svg + pet-state.json.`
+    `Pet: ${state.stage}/${state.species} · ${state.mood} · fullness ${state.fullness}% · happiness ${state.happiness}% · stamina ${state.stamina}% · age ${state.ageDays}d${celebration}. Wrote pet.svg + pet-state.json.`
   );
 }
 

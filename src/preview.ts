@@ -17,6 +17,8 @@ const base: PetState = {
   happiness: 72,
   stamina: 76,
   mood: "happy",
+  celebration: null,
+  celebratedMilestones: [],
   ageDays: 18,
   lastDayDate: "",
   lastDayCounted: 0,
@@ -40,7 +42,7 @@ for (const s of stages) {
   make(`stage-${s.stage}`, { ...s, mood: "happy" });
 
   for (const m of moods) {
-  make(`${s.stage}-${m}`, {
+    make(`${s.stage}-${m}`, {
       ...s,
       mood: m,
       fullness: m === "sick" ? 10 : m === "hungry" ? 35 : s.fullness,
@@ -69,6 +71,22 @@ make("neglect-ghost", {
   fullness: 0,
   happiness: 20,
   stamina: 8,
+});
+
+make("celebration-streak", {
+  stage: "adult",
+  ageDays: 30,
+  mood: "happy",
+  fullness: 92,
+  happiness: 88,
+  stamina: 94,
+  celebration: {
+    kind: "streak",
+    milestoneId: "streak:30",
+    title: "30일 연속",
+    detail: "30일 연속 기여를 달성했어요",
+  },
+  celebratedMilestones: ["streak:7", "streak:30"],
 });
 
 console.log("Wrote preview gallery to ./preview/*.svg");
