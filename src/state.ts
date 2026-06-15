@@ -105,9 +105,9 @@ function normalizeVisitorInteractions(value: unknown): Record<string, VisitorInt
   return result;
 }
 
-export function loadState(now: Date, config: CommitchiConfig): PetState {
-  if (existsSync(STATE_PATH)) {
-    const state = JSON.parse(readFileSync(STATE_PATH, "utf8")) as PetState;
+export function loadState(now: Date, config: CommitchiConfig, path = STATE_PATH): PetState {
+  if (existsSync(path)) {
+    const state = JSON.parse(readFileSync(path, "utf8")) as PetState;
     const lockedSpecies = normalizeLockedSpecies(state.lockedSpecies);
     return {
       ...state,
@@ -145,8 +145,8 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
   };
 }
 
-export function saveState(state: PetState): void {
-  writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + "\n");
+export function saveState(state: PetState, path = STATE_PATH): void {
+  writeFileSync(path, JSON.stringify(state, null, 2) + "\n");
 }
 
 function moodFor(
