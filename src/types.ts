@@ -112,6 +112,8 @@ export interface ThresholdConfig {
 export interface CommitchiConfig {
   /** User-chosen individual pet name. Character labels come from character.json. */
   petName: string;
+  /** Active character id to raise until adulthood locks it. Defaults to Yuki. */
+  character: Species;
   /** Language for all card text and visitor comments. Defaults to "ko". */
   language: Language;
   theme: Theme;

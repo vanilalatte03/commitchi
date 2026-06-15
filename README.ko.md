@@ -4,12 +4,12 @@
 
 GitHub 프로필 README 안에 살면서 당신의 커밋을 먹고 자라는 다마고치 스타일 펫이에요.
 
-오너마다 자기 펫에게 개별 이름을 붙일 수 있어요. 고정 시작 종족은 눈올빼미 픽셀 스프라이트인 **Yuki**예요.
+오너마다 자기 펫에게 개별 이름을 붙이고, 키울 등록 캐릭터를 고를 수 있어요. 기본값은 눈올빼미 픽셀 스프라이트인 **Yuki**예요.
 
 - **커밋하면** 펫이 배부르고 행복해져요.
 - **활동이 뜸하면** 펫이 배고파지고, 결국 아파요.
 - 협업(PR·리뷰·이슈)은 펫의 **행복도**를 올리고, 꾸준한 커밋 리듬은 **체력**을 올려요.
-- **기본 4일 이상 사라지면** 펫이 **Yurei**(유령)로 희미해져요 — 다시 커밋하는 순간 돌아와요.
+- **기본 4일 이상 사라지면** 펫이 해당 캐릭터의 유령 형태로 희미해져요 — 다시 커밋하는 순간 돌아와요.
 - 펫은 시간이 지나며 **성장**해요: 알 → 아기 → 어린이 → 청소년 → 성체.
 - 진화와 7/30/100일 연속 기여 마일스톤은 한 틱 동안 **축하** 배지와 반짝임 효과를 띄워요.
 
@@ -27,9 +27,9 @@ GitHub Action이 스케줄에 맞춰 틱을 돌려 `pet.svg`를 새로 만들고
 | 청소년 (teen) | 7일차+ |
 | 성체 (adult) | 14일차+ |
 
-기분(`기분 좋음` / `배고픔` / `아파요`)은 포만감·행복도·체력과 가장 최근 커밋 시점에 따라 정해져요. 각 단계마다 고유한 기분 스프라이트가 있어요. 방치(기본 4일 이상 기여 없음) 시에는 Yurei 유령 변형이 표시돼요.
+기분(`기분 좋음` / `배고픔` / `아파요`)은 포만감·행복도·체력과 가장 최근 커밋 시점에 따라 정해져요. 각 단계마다 고유한 기분 스프라이트가 있어요. 방치(기본 4일 이상 기여 없음) 시에는 활성 캐릭터의 유령 변형이 표시돼요.
 
-> 캐릭터 시스템은 이제 **데이터 주도**(`catalog.json` + 캐릭터별 `character.json` 레지스트리)라, 새 캐릭터를 데이터로 추가할 수 있어요. 현재 출시된 건 **Yuki** 하나뿐이고, 멀티 캐릭터 도감과 커뮤니티 기여 캐릭터가 다음 방향이에요([ADR 0002](docs/adr/0002-dex-and-character-registry.md) 참고). 코딩 패턴 기반 종족 선택(`pickSpecies`)은 계속 보류예요.
+> 캐릭터 시스템은 **데이터 주도**(`catalog.json` + 캐릭터별 `character.json` 레지스트리)라, 새 캐릭터를 데이터로 추가할 수 있어요. config 기반 캐릭터 선택은 지금 사용할 수 있고, 코딩 패턴 기반 종족 선택(`pickSpecies`)은 나중의 특수/한정 캐릭터 규칙을 위해 보류되어 있어요.
 
 ## 동작 방식
 
@@ -66,7 +66,7 @@ README가 pet.svg 를 임베드
    상호작용 이슈를 닫은 뒤 갱신된 `pet.svg` / `pet-state.json`을 커밋해요.
    성공한 방문은 카드에 `냠냠!`이나 `신난다!` 같은 한 틱짜리 반응을 보여줘요.
 5. *(선택)* **비공개** 기여까지 세려면 `read:user` 권한의 PAT를 만들어 `PET_TOKEN`이라는 저장소 시크릿으로 추가하세요. 없으면 기본 `GITHUB_TOKEN`이 공개 기여를 커버해요.
-6. *(선택)* 개별 펫 이름과 이코노미를 바꾸려면 `commitchi.config.json`을 추가하세요. 파일이 없으면 Commitchi는 `commitchi.config.example.json`에 보이는 기본값을 사용해요.
+6. *(선택)* 개별 펫 이름, 활성 캐릭터, 이코노미를 바꾸려면 `commitchi.config.json`을 추가하세요. 파일이 없으면 Commitchi는 `commitchi.config.example.json`에 보이는 기본값을 사용해요.
 
 ## 로컬에서 실행
 
@@ -92,6 +92,7 @@ npm run build; npm run tick
 ```json
 {
   "petName": "Mochi",
+  "character": "yuki",
   "language": "ko",
   "theme": "winter",
   "economy": {
@@ -109,13 +110,15 @@ npm run build; npm run tick
 }
 ```
 
-`petName`은 카드 상단에 보이는 사용자 지정 이름이에요. 종족 라벨은 현재 스프라이트 라인에서 Yuki로 고정되며, 방치된 유령 형태에는 Yurei가 쓰여요.
+`petName`은 카드 상단에 보이는 사용자 지정 이름이에요.
+`character`는 키울 등록 캐릭터를 고릅니다. 성체 전에는 값을 바꾸면 같은 단일 펫 상태가 해당 캐릭터로 리스킨되고, 성체가 되는 순간 현재 캐릭터가 `lockedSpecies`에 저장되어 이후 config 변경으로 다 자란 펫이 바뀌지 않아요. 키울 캐릭터는 `catalog.json`에 등록된 id 중에서 고르면 돼요.
 `language`는 카드의 **모든** 텍스트와 방문자 댓글을 완전 한국어(`"ko"`) 또는 완전 영어(`"en"`)로 전환해요 — 섞이지 않아요. 기본값은 `"ko"`예요.
 현재는 `winter` 테마만 있지만, 설정 형태를 바꾸지 않고도 카드 테마를 더 추가할 수 있도록 필드를 남겨 뒀어요.
 
 | 항목 | 의미 | 기본값 |
 |---|---|---|
 | `petName` | 표시되는 개별 펫 이름; 구버전 `name` 키도 허용 | `Mochi` |
+| `character` | 성체 락 전까지 키울 활성 등록 캐릭터 | `yuki` |
 | `language` | 카드 + 댓글 언어: `"ko"`(완전 한국어) 또는 `"en"`(완전 영어) | `ko` |
 | `economy.feedPerContrib` | 새 기여 1건당 오르는 포만감 | 12 |
 | `economy.decayPerDay` | 먹이 없이 하루당 줄어드는 포만감 | 22 |
@@ -147,7 +150,7 @@ src/
   types.ts      공용 타입
 catalog.json                 도감 레지스트리: 도감 번호 → 캐릭터 id (Yuki = #1)
 assets/sprites/<id>/character.json  캐릭터별 매니페스트 (id, displayName, ghostName, author, license)
-assets/sprites/yuki/         픽셀 스프라이트 (PNG) + character.json
+assets/sprites/<id>/         픽셀 스프라이트 (PNG) + character.json
 .github/workflows/tick.yml   스케줄 잡
 .github/workflows/visitor.yml 이슈 생성 시 방문자 상호작용
 ```

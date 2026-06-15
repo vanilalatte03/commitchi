@@ -10,7 +10,7 @@ const s = getStrings(config.language);
 /** Generate the default mascot asset sheet into ./preview for eyeballing. */
 const base: PetState = {
   name: config.petName,
-  species: "yuki",
+  species: config.character,
   isGhost: false,
   lockedSpecies: "",
   stage: "adult",
@@ -68,7 +68,6 @@ for (const m of moods) {
 }
 
 make("neglect-ghost", {
-  species: "yuki",
   isGhost: true,
   stage: "adult",
   ageDays: 20,

@@ -1,8 +1,8 @@
 # Commitchi — PRD
 
 A Tamagotchi-style pixel pet that lives in a GitHub profile README and reacts to the
-owner's coding activity. The owner names their individual pet, while the fixed starter
-species is **Yuki**, a snowy owl, with a **Yurei** ghost form for neglect. A scheduled
+owner's coding activity. The owner names their individual pet and can choose a registered
+character to raise; the default is **Yuki**. A scheduled
 GitHub Action regenerates the pet card and commits it back.
 
 **Product principle:** it should feel like a small persistent profile game, not a status
@@ -15,24 +15,24 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Area | Status |
 |---|---|
 | Core tick loop | ✅ GitHub Action (scheduled) → GraphQL fetch → update `pet-state.json` → render `pet.svg` → commit back |
-| Mascot | ✅ user-named pet using the fixed Yuki species sprite line, original art |
+| Characters | ✅ user-named pet using registered character sprite lines; any catalog character selectable via config, `yuki` by default |
 | Growth stages | ✅ egg → baby → child → teen → adult (by age) |
 | Stat: fullness (포만감) | ✅ fed by new contributions, decays over time |
 | Stat: happiness (행복도) | ✅ boosted by collaborative activity ratio (PRs, reviews, issues), decays over time |
 | Stat: stamina (체력) | ✅ boosted by steady streaks; large bursts are less efficient, decays over time |
 | Moods | ✅ happy / hungry / sick, with per-stage mood sprites |
-| Neglect | ✅ 4+ days no contributions by default → Yurei (ghost); returns on next commit |
+| Neglect | ✅ 4+ days no contributions by default → active character's ghost variant; returns on next commit |
 | Milestone celebrations | ✅ evolution and 7/30/100-day streak milestones render a one-tick celebration badge + sparkle effect |
 | Visitor feeding (issue-ops) | ✅ README Feed/Play issue links → `on: issues` workflow → title-only parser → once/day visitor rate limit → one-tick reaction badge/detail → comment + close |
 | Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
-| Owner config | ✅ optional `commitchi.config.json` for individual pet name, theme placeholder, stat economy/decay, and thresholds |
+| Owner config | ✅ optional `commitchi.config.json` for individual pet name, active character, theme placeholder, stat economy/decay, and thresholds |
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
 | Stack | ✅ TypeScript/Node, zero runtime deps, demo + preview scripts |
 
 **Foundation landed:** the character system is data-driven (registry over `catalog.json` +
 per-character `character.json`; `Species` is a registered id, ghost is a render variant).
-See ADR 0002. **Still parked:** shipping more than one character, and coding-pattern-based
-species selection (`pickSpecies` remains off). Only Yuki ships today.
+See ADR 0002. **Still parked:** coding-pattern-based species selection (`pickSpecies`
+remains off) and per-character persistent rosters.
 
 ---
 
