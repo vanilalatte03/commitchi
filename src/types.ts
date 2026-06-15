@@ -10,6 +10,8 @@ export type Stage = "egg" | "baby" | "child" | "teen" | "adult";
 
 export type CelebrationKind = "evolution" | "streak";
 
+export type VisitorAction = "feed" | "play";
+
 export interface CelebrationMoment {
   kind: CelebrationKind;
   /** Stable id used so a one-time celebration does not repeat on every tick. */
@@ -18,6 +20,16 @@ export interface CelebrationMoment {
   title: string;
   /** One-line detail used in the card footer while the celebration is active. */
   detail: string;
+}
+
+/** Per-visitor issue-op rate limit state. */
+export interface VisitorInteractionRecord {
+  /** Date string (YYYY-MM-DD) of the visitor's most recent interaction. */
+  lastInteractionDate: string;
+  /** Total accepted interactions from this visitor. */
+  totalInteractions: number;
+  feedCount: number;
+  playCount: number;
 }
 
 /** The pet's persistent memory. Lives in pet-state.json, accumulates across ticks. */
@@ -46,6 +58,8 @@ export interface PetState {
   lastDayDate: string;
   /** How many contributions on lastDayDate we have already fed the pet. */
   lastDayCounted: number;
+  /** Issue-op visitor interactions keyed by lowercase GitHub login. */
+  visitorInteractions: Record<string, VisitorInteractionRecord>;
 }
 
 /** A snapshot of the user's GitHub activity: what the pet eats + how it evolves. */

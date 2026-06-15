@@ -2,6 +2,7 @@ node_modules/
 dist/
 preview/
 package-lock.json
+interaction-result.json
 
 # Full-resolution source sheets used to slice sprites — not needed at runtime.
 # The runtime only reads assets/sprites/yuki/*.png

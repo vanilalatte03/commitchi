@@ -22,6 +22,7 @@ const base: PetState = {
   ageDays: 18,
   lastDayDate: "",
   lastDayCounted: 0,
+  visitorInteractions: {},
 };
 
 mkdirSync("preview", { recursive: true });
