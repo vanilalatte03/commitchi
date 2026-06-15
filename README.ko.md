@@ -151,4 +151,9 @@ assets/sprites/yuki/         픽셀 스프라이트 (PNG)
 > `pet-state.json`은 이 템플릿에 **커밋되지 않아요** — 펫은 첫 실행 때 태어나고, 이후 GitHub Actions가 생성된 상태를 사용자의 저장소에 커밋해요. 나중에 Commitchi를 업데이트할 때는 저장소의 `pet-state.json`을 유지해야 펫이 처음부터 다시 시작하지 않아요.
 > 그 전까지 커밋된 `pet.svg`는 알 자리표시자일 뿐이에요.
 
-MIT.
+## 라이선스
+
+- 소스 코드: [MIT](./LICENSE)
+- 캐릭터/스프라이트 아트: [CC BY 4.0](./LICENSE-ASSETS.md)
+
+직접 만든 캐릭터를 추가하고 싶다면 [CONTRIBUTING.md](./CONTRIBUTING.md)를 참고하세요.
