@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { getCharacterSpriteDir } from "./characters";
 import { Mood, Species, Stage } from "./types";
 
 export const DEFAULT_SPECIES: Species = "yuki";
@@ -16,7 +17,7 @@ export interface SpriteAsset extends SpriteSpec {
   href: string;
 }
 
-const SPRITE_DIR = join(process.cwd(), "assets", "sprites", "yuki");
+const SPRITE_DIR = getCharacterSpriteDir(DEFAULT_SPECIES);
 
 // We embed the "@3x" variants: ~192px, display-optimized PNGs (~8-10KB each).
 // They are crisp at our ~158px display size and keep pet.svg ~20x smaller than

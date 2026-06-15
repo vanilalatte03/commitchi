@@ -2,7 +2,12 @@
   "project": "commitchi",
   "phase": "1-character-registry",
   "steps": [
-    { "step": 0, "name": "manifest-and-catalog", "status": "pending" },
+    {
+      "step": 0,
+      "name": "manifest-and-catalog",
+      "status": "completed",
+      "summary": "Yuki 매니페스트와 도감 카탈로그를 시드하고 캐릭터 레지스트리 로더를 추가했다."
+    },
     { "step": 1, "name": "registry-driven-sprites", "status": "pending" },
     { "step": 2, "name": "species-id-and-ghost-variant", "status": "pending" }
   ]
