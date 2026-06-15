@@ -17,8 +17,9 @@ Use original pixel-art pet sprites as the character art. The generated README ca
 SVG (text, status bars, dates, and GitHub rendering need to stay dynamic), and the
 character is a crafted pixel sprite embedded into that SVG.
 
-The first (and currently only) creature is **Yuki**, a snowy owl, with a **Yurei** ghost
-variant for neglect. The provided Yuki sprites are treated as original project art.
+The first (and currently only) species is **Yuki**, a snowy owl, with a **Yurei** ghost
+variant for neglect. The owner can give their individual pet a separate name. The provided
+Yuki sprites are treated as original project art.
 
 ## Sprite set
 
