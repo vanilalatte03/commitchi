@@ -1,5 +1,6 @@
 import { appendFileSync, writeFileSync } from "node:fs";
 import { loadConfig } from "./config";
+import { getStrings, Strings } from "./i18n";
 import { renderSVG } from "./render";
 import {
   applyVisitorInteraction,
@@ -31,24 +32,22 @@ function actionLabel(action: VisitorAction): string {
   return action === "feed" ? "Feed" : "Play";
 }
 
-function appliedComment(action: VisitorAction, actor: string, petName: string): string {
+function appliedComment(action: VisitorAction, actor: string, petName: string, s: Strings): string {
   const bonus = VISITOR_ACTION_BONUS[action];
+  const label = s.visitor.statLabel;
   const parts =
     action === "feed"
-      ? [`포만감 +${bonus.fullness}`, `행복도 +${bonus.happiness}`]
-      : [`행복도 +${bonus.happiness}`, `포만감 +${bonus.fullness}`];
-  if (bonus.stamina) parts.push(`체력 +${bonus.stamina}`);
+      ? [`${label.fullness} +${bonus.fullness}`, `${label.happiness} +${bonus.happiness}`]
+      : [`${label.happiness} +${bonus.happiness}`, `${label.fullness} +${bonus.fullness}`];
+  if (bonus.stamina) parts.push(`${label.stamina} +${bonus.stamina}`);
   const stats = parts.join(", ");
-  const intro =
-    action === "feed"
-      ? `🍖 @${actor}님이 ${petName}에게 밥을 줬어요.`
-      : `🎮 @${actor}님이 ${petName}와 같이 놀아줬어요.`;
+  const intro = s.visitor.appliedIntro(action, actor, petName);
 
-  return `${intro}\n\n${stats}. 내일 또 돌봐줄 수 있어요.`;
+  return s.visitor.appliedComment(intro, stats);
 }
 
-function rateLimitedComment(actor: string, petName: string): string {
-  return `@${actor}님, ${petName}는 오늘 이미 돌봄을 받았어요.\n\n내일 다시 도와주세요.`;
+function rateLimitedComment(actor: string, petName: string, s: Strings): string {
+  return s.visitor.rateLimited(actor, petName);
 }
 
 function writeGithubOutputs(result: InteractionResultFile): void {
@@ -72,12 +71,19 @@ function writeResult(result: InteractionResultFile): void {
   writeGithubOutputs(result);
 }
 
+// Config-independent: this fires on every opened issue, so it must not depend on
+// commitchi.config.json parsing (and the workflow never posts it anyway).
+const IGNORED_COMMENT = "This issue title is not a Commitchi visitor action, so no pet state changed.";
+
 function main(): void {
   const now = new Date();
   const title = process.env.ISSUE_TITLE ?? process.argv.slice(2).join(" ");
   const actor = (process.env.ISSUE_AUTHOR ?? process.env.GITHUB_ACTOR ?? "").trim();
   const action = parseInteractionTitle(title);
 
+  // Parse the title before touching config: visitor.yml runs on every opened
+  // issue, so an unrelated issue must take the ignore path even if the config
+  // is malformed.
   if (!action) {
     const result: InteractionResultFile = {
       recognized: false,
@@ -85,7 +91,7 @@ function main(): void {
       applied: false,
       action: null,
       actor,
-      comment: "This issue title is not a Commitchi visitor action, so no pet state changed.",
+      comment: IGNORED_COMMENT,
     };
     writeResult(result);
     console.log("Ignored issue: title is not a Commitchi visitor action.");
@@ -95,6 +101,7 @@ function main(): void {
   if (!actor) throw new Error("ISSUE_AUTHOR or GITHUB_ACTOR is required for visitor actions.");
 
   const config = loadConfig();
+  const s = getStrings(config.language);
   const update = applyVisitorInteraction(loadState(now, config), action, actor, now, config);
 
   if (update.applied) {
@@ -109,8 +116,8 @@ function main(): void {
     action,
     actor: update.actor,
     comment: update.applied
-      ? appliedComment(action, update.actor, update.state.name)
-      : rateLimitedComment(update.actor, update.state.name),
+      ? appliedComment(action, update.actor, update.state.name, s)
+      : rateLimitedComment(update.actor, update.state.name, s),
   };
 
   writeResult(result);

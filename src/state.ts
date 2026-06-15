@@ -10,24 +10,12 @@ import {
   VisitorInteractionRecord,
 } from "./types";
 import { resolveEvolution } from "./evolution";
+import { getStrings, Strings } from "./i18n";
 
 const STATE_PATH = "pet-state.json";
 
 const DAY_MS = 86_400_000;
 const STREAK_MILESTONES = [7, 30, 100];
-
-const STAGE_CELEBRATION_LABEL: Record<Stage, string> = {
-  egg: "Egg",
-  baby: "Baby",
-  child: "Child",
-  teen: "Teen",
-  adult: "Adult",
-};
-
-const VISITOR_REACTION_TITLES: Record<VisitorAction, string[]> = {
-  feed: ["냠냠!", "잘 먹었어!"],
-  play: ["신난다!", "행복 충전!"],
-};
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
@@ -90,7 +78,7 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
     const state = JSON.parse(readFileSync(STATE_PATH, "utf8")) as PetState;
     return {
       ...state,
-      name: config.name,
+      name: config.petName,
       fullness: normalizeStat(state.fullness, config.economy.startFullness),
       happiness: normalizeStat(state.happiness, config.economy.startFullness),
       stamina: normalizeStat(state.stamina, config.economy.startFullness),
@@ -101,7 +89,7 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
   }
   const iso = now.toISOString();
   return {
-    name: config.name,
+    name: config.petName,
     species: "yuki",
     lockedSpecies: "",
     stage: "egg",
@@ -142,48 +130,50 @@ function moodFor(
   return "happy";
 }
 
-function evolutionCelebration(stage: Stage): CelebrationMoment | null {
+function evolutionCelebration(stage: Stage, s: Strings): CelebrationMoment | null {
   if (stage === "egg") return null;
-  const label = STAGE_CELEBRATION_LABEL[stage];
+  const { title, detail } = s.evolutionCelebration(s.stage[stage]);
   return {
     kind: "evolution",
     milestoneId: `evolution:${stage}`,
-    title: `${label} 진화`,
-    detail: `새로운 ${label} 단계가 열렸어요`,
+    title,
+    detail,
   };
 }
 
-function streakCelebration(streak: number, seen: Set<string>): CelebrationMoment | null {
+function streakCelebration(streak: number, seen: Set<string>, s: Strings): CelebrationMoment | null {
   const newest = [...STREAK_MILESTONES]
     .reverse()
     .find((days) => streak >= days && !seen.has(`streak:${days}`));
 
   if (!newest) return null;
 
+  const { title, detail } = s.streakCelebration(newest);
   return {
     kind: "streak",
     milestoneId: `streak:${newest}`,
-    title: `${newest}일 연속`,
-    detail: `${newest}일 연속 기여를 달성했어요`,
+    title,
+    detail,
   };
 }
 
 function resolveCelebration(
   previous: PetState,
   nextStage: Stage,
-  streak: number
+  streak: number,
+  s: Strings
 ): { celebration: CelebrationMoment | null; celebratedMilestones: string[] } {
   const seen = new Set(previous.celebratedMilestones);
 
   if (previous.stage !== nextStage) {
-    const celebration = evolutionCelebration(nextStage);
+    const celebration = evolutionCelebration(nextStage, s);
     if (celebration && !seen.has(celebration.milestoneId)) {
       seen.add(celebration.milestoneId);
       return { celebration, celebratedMilestones: [...seen] };
     }
   }
 
-  const celebration = streakCelebration(streak, seen);
+  const celebration = streakCelebration(streak, seen, s);
   if (celebration) {
     const days = Number(celebration.milestoneId.split(":")[1]);
     for (const milestone of STREAK_MILESTONES) {
@@ -206,14 +196,14 @@ function stableIndex(seed: string, length: number): number {
 function visitorCelebration(
   action: VisitorAction,
   actor: string,
-  today: string
+  today: string,
+  s: Strings
 ): CelebrationMoment {
-  const titles = VISITOR_REACTION_TITLES[action];
+  const titles = s.visitorReactionTitles[action];
   const title = titles[stableIndex(`${action}:${actor}:${today}`, titles.length)];
-  const detail =
-    action === "feed"
-      ? `@${actor}님이 밥을 줬어요 · 포만감 +${VISITOR_ACTION_BONUS.feed.fullness}`
-      : `@${actor}님이 같이 놀아줬어요 · 행복도 +${VISITOR_ACTION_BONUS.play.happiness}`;
+  const bonus =
+    action === "feed" ? VISITOR_ACTION_BONUS.feed.fullness : VISITOR_ACTION_BONUS.play.happiness;
+  const detail = s.visitorCelebrationDetail(action, actor, bonus);
 
   return {
     kind: "visitor",
@@ -276,11 +266,11 @@ export function applyTick(
   const celebration =
     evo.species === "ghost"
       ? { celebration: null, celebratedMilestones: state.celebratedMilestones }
-      : resolveCelebration(state, evo.stage, a.streak);
+      : resolveCelebration(state, evo.stage, a.streak, getStrings(config.language));
 
   return {
     ...state,
-    name: config.name,
+    name: config.petName,
     fullness: Math.round(fullness),
     happiness: Math.round(happiness),
     stamina: Math.round(stamina),
@@ -352,12 +342,12 @@ export function applyVisitorInteraction(
   return {
     state: {
       ...state,
-      name: config.name,
+      name: config.petName,
       fullness: Math.round(fullness),
       happiness: Math.round(happiness),
       stamina: Math.round(stamina),
       mood: moodAfterVisitorInteraction(state, fullness, happiness, stamina, config),
-      celebration: visitorCelebration(action, actorKey, today),
+      celebration: visitorCelebration(action, actorKey, today, getStrings(config.language)),
       visitorInteractions,
       lastTickAt: now.toISOString(),
     },

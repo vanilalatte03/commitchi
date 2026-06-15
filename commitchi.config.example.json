@@ -1,5 +1,6 @@
 {
-  "name": "Yuki",
+  "petName": "Mochi",
+  "language": "ko",
   "theme": "winter",
   "economy": {
     "feedPerContrib": 12,

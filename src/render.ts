@@ -1,6 +1,7 @@
 import { DEFAULT_CONFIG } from "./config";
 import { CommitchiConfig, PetState, Theme } from "./types";
-import { SPECIES_LABEL, STAGE_LABEL, spriteFor } from "./sprites";
+import { spriteFor } from "./sprites";
+import { getStrings, Strings } from "./i18n";
 import { daysToNextStage } from "./evolution";
 
 const WINTER_PALETTE = {
@@ -27,8 +28,6 @@ const XML_TEXT_ESCAPES: Record<string, string> = {
   "<": "&lt;",
   ">": "&gt;",
 };
-
-const MOOD_LABEL = { happy: "기분 좋음", hungry: "배고픔", sick: "아파요" } as const;
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
@@ -88,13 +87,13 @@ function celebrationEffects(palette: Palette, active: boolean): string {
 </g>`;
 }
 
-function celebrationBadge(state: PetState, palette: Palette): string {
+function celebrationBadge(state: PetState, palette: Palette, s: Strings): string {
   if (!state.celebration) return "";
 
   const label =
     state.celebration.kind === "visitor"
       ? state.celebration.title
-      : `축하! ${state.celebration.title}`;
+      : s.celebrationBadge(state.celebration.title);
   const text = escapeText(label);
   return `<g aria-hidden="true">
   <rect x="30" y="18" width="164" height="28" rx="8" fill="${palette.celebrationBg}" opacity="0.94"/>
@@ -102,22 +101,23 @@ function celebrationBadge(state: PetState, palette: Palette): string {
 </g>`;
 }
 
-function subtitle(state: PetState): string {
-  if (state.stage === "egg") return "Yuki egg · hatching soon";
-  if (state.stage === "baby") return "Yuki baby · growing";
-  if (state.species === "ghost") return "Yurei · waiting for commits";
-  return `${SPECIES_LABEL[state.species]} · ${STAGE_LABEL[state.stage]}`;
+function subtitle(state: PetState, s: Strings): string {
+  if (state.stage === "egg") return s.subtitle.egg;
+  if (state.stage === "baby") return s.subtitle.baby;
+  if (state.species === "ghost") return s.subtitle.ghost;
+  return s.subtitle.default(s.species[state.species], s.stage[state.stage]);
 }
 
-function progressLine(state: PetState): string {
+function progressLine(state: PetState, s: Strings): string {
   if (state.celebration) return state.celebration.detail;
-  if (state.species === "ghost") return "커밋을 하면 다시 깨어나요";
+  if (state.species === "ghost") return s.progress.ghost;
   const left = daysToNextStage(state.ageDays);
-  return left === null ? "다 자랐어요" : `다음 진화까지 ${left}일`;
+  return left === null ? s.progress.fullyGrown : s.progress.daysToNext(left);
 }
 
 export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CONFIG): string {
   const palette = THEME_PALETTES[config.theme];
+  const s = getStrings(config.language);
   const f = Math.round(state.fullness);
   const happiness = Math.round(state.happiness);
   const stamina = Math.round(state.stamina);
@@ -126,18 +126,26 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   const sprite = spriteFor(state.stage, state.species, state.mood);
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
-  const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state))}`;
-  const celebrationLabel = state.celebration ? `, celebration ${state.celebration.title}` : "";
+  const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, s))}`;
   const ariaLabel = escapeAttr(
-    `${state.name}, a ${state.stage} ${state.species}, ${MOOD_LABEL[state.mood]}, fullness ${f}%, happiness ${happiness}%, stamina ${stamina}%${celebrationLabel}`
+    s.aria({
+      name: state.name,
+      stage: s.stage[state.stage],
+      species: s.species[state.species],
+      mood: s.mood[state.mood],
+      fullness: f,
+      happiness,
+      stamina,
+      celebration: state.celebration ? state.celebration.title : null,
+    })
   );
-  const moodText = escapeText(MOOD_LABEL[state.mood]);
-  const progressText = escapeText(progressLine(state));
+  const moodText = escapeText(s.mood[state.mood]);
+  const progressText = escapeText(progressLine(state, s));
   const footerText =
     state.celebration?.kind === "visitor"
       ? progressText
-      : `${progressText} · ${state.ageDays}일째`;
-  const subtitleText = escapeText(subtitle(state));
+      : s.footer(progressText, state.ageDays);
+  const subtitleText = escapeText(subtitle(state, s));
   const nameText = escapeText(state.name);
   const t = (x: number, y: number, fill: string, size: number, weight = "400", extra = "") =>
     `<text x="${x}" y="${y}" fill="${fill}" font-family="'Segoe UI',system-ui,sans-serif" font-size="${size}"${weight !== "400" ? ` font-weight="${weight}"` : ""}${extra}>`;
@@ -150,14 +158,14 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   ${t(448, y, palette.textMain, 11, "600", ' text-anchor="end"')}${safeValue}%</text>`;
   };
 
-  return `<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${ariaLabel}">
+  const svg = `<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${ariaLabel}">
   <title>${titleText}</title>
   <rect x="0.5" y="0.5" width="479" height="199" rx="16" fill="${palette.card}" stroke="${palette.cardEdge}"/>
   ${stars(palette)}
   <circle cx="112" cy="104" r="68" fill="${palette.halo}" opacity="0.58"/>
   <path d="M84,52 h56 M74,68 h76 M64,84 h96 M58,100 h108 M64,116 h96 M74,132 h76 M84,148 h56" stroke="${palette.snow}" stroke-width="1" opacity="0.08"/>
   ${celebrationEffects(palette, Boolean(state.celebration))}
-  ${celebrationBadge(state, palette)}
+  ${celebrationBadge(state, palette, s)}
   <ellipse cx="112" cy="170" rx="${Math.round(sprite.displaySize * 0.34)}" ry="10" fill="#050611" opacity="0.42"/>
   <g>
     <g>
@@ -167,12 +175,17 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   </g>
   ${t(204, 44, palette.textMain, 24, "700")}${nameText}</text>
   ${t(204, 68, palette.textMuted, 13)}${subtitleText}</text>
-  ${t(204, 94, palette.textMuted, 12)}기분</text>
+  ${t(204, 94, palette.textMuted, 12)}${escapeText(s.moodHeading)}</text>
   ${t(244, 94, palette.textMain, 14, "700")}${moodText}</text>
-  ${statRow("포만감", f, 121)}
-  ${statRow("행복도", happiness, 148)}
-  ${statRow("체력", stamina, 175)}
+  ${statRow(s.stat.fullness, f, 121)}
+  ${statRow(s.stat.happiness, happiness, 148)}
+  ${statRow(s.stat.stamina, stamina, 175)}
   ${t(204, 194, palette.textMuted, 10)}${footerText}</text>
 </svg>
 `;
+
+  // Inactive celebration blocks interpolate to "", leaving whitespace-only lines.
+  // Strip trailing whitespace and collapse the resulting blank lines so the
+  // committed pet.svg stays clean (git diff --check) and tidy.
+  return svg.replace(/[ \t]+$/gm, "").replace(/\n{2,}/g, "\n");
 }

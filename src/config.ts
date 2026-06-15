@@ -1,10 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
-import { CommitchiConfig, EconomyConfig, ThresholdConfig, Theme } from "./types";
+import { CommitchiConfig, EconomyConfig, Language, ThresholdConfig, Theme } from "./types";
 
 export const CONFIG_PATH = "commitchi.config.json";
 
 export const DEFAULT_CONFIG: CommitchiConfig = {
-  name: "Yuki",
+  petName: "Mochi",
+  language: "ko",
   theme: "winter",
   economy: {
     feedPerContrib: 12,
@@ -34,13 +35,15 @@ function readSection(
   return value;
 }
 
-function readName(source: Record<string, unknown>): string {
-  if (!("name" in source)) return DEFAULT_CONFIG.name;
-  const value = source.name;
-  if (typeof value !== "string") throw new Error(`${CONFIG_PATH}: name must be a string.`);
+function readPetName(source: Record<string, unknown>): string {
+  const key = "petName" in source ? "petName" : "name";
+  if (!(key in source)) return DEFAULT_CONFIG.petName;
+
+  const value = source[key];
+  if (typeof value !== "string") throw new Error(`${CONFIG_PATH}: ${key} must be a string.`);
   const name = value.trim();
-  if (!name) throw new Error(`${CONFIG_PATH}: name must not be empty.`);
-  if (name.length > 24) throw new Error(`${CONFIG_PATH}: name must be 24 characters or fewer.`);
+  if (!name) throw new Error(`${CONFIG_PATH}: ${key} must not be empty.`);
+  if (name.length > 24) throw new Error(`${CONFIG_PATH}: ${key} must be 24 characters or fewer.`);
   return name;
 }
 
@@ -50,6 +53,14 @@ function readTheme(source: Record<string, unknown>): Theme {
     throw new Error(`${CONFIG_PATH}: theme must be "winter".`);
   }
   return source.theme;
+}
+
+function readLanguage(source: Record<string, unknown>): Language {
+  if (!("language" in source)) return DEFAULT_CONFIG.language;
+  if (source.language !== "ko" && source.language !== "en") {
+    throw new Error(`${CONFIG_PATH}: language must be "ko" or "en".`);
+  }
+  return source.language;
 }
 
 function readNumber(
@@ -144,7 +155,8 @@ export function loadConfig(path = CONFIG_PATH): CommitchiConfig {
   if (!isRecord(parsed)) throw new Error(`${path}: root value must be an object.`);
 
   return {
-    name: readName(parsed),
+    petName: readPetName(parsed),
+    language: readLanguage(parsed),
     theme: readTheme(parsed),
     economy: readEconomy(parsed),
     thresholds: readThresholds(parsed),
