@@ -1,10 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
-import { CommitchiConfig, EconomyConfig, Language, ThresholdConfig, Theme } from "./types";
+import { getCharacter } from "./characters";
+import { DEFAULT_SPECIES } from "./sprites";
+import { CommitchiConfig, EconomyConfig, Language, Species, ThresholdConfig, Theme } from "./types";
 
 export const CONFIG_PATH = "commitchi.config.json";
 
 export const DEFAULT_CONFIG: CommitchiConfig = {
   petName: "Mochi",
+  character: DEFAULT_SPECIES,
   language: "ko",
   theme: "winter",
   economy: {
@@ -45,6 +48,29 @@ function readPetName(source: Record<string, unknown>): string {
   if (!name) throw new Error(`${CONFIG_PATH}: ${key} must not be empty.`);
   if (name.length > 24) throw new Error(`${CONFIG_PATH}: ${key} must be 24 characters or fewer.`);
   return name;
+}
+
+function readCharacter(source: Record<string, unknown>): Species {
+  if (!("character" in source)) return DEFAULT_CONFIG.character;
+
+  const value = source.character;
+  if (typeof value !== "string") throw new Error(`${CONFIG_PATH}: character must be a string.`);
+
+  const character = value.trim();
+  if (!character) throw new Error(`${CONFIG_PATH}: character must not be empty.`);
+
+  try {
+    getCharacter(character);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes(`unknown character "${character}"`)) {
+      throw new Error(
+        `${CONFIG_PATH}: character "${character}" is not a registered character (see catalog.json).`
+      );
+    }
+    throw error;
+  }
+
+  return character;
 }
 
 function readTheme(source: Record<string, unknown>): Theme {
@@ -156,6 +182,7 @@ export function loadConfig(path = CONFIG_PATH): CommitchiConfig {
 
   return {
     petName: readPetName(parsed),
+    character: readCharacter(parsed),
     language: readLanguage(parsed),
     theme: readTheme(parsed),
     economy: readEconomy(parsed),

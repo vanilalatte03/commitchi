@@ -26,7 +26,7 @@ export function daysToNextStage(ageDays: number): number | null {
   return null;
 }
 
-/** Keep the first pass focused on one lovable default mascot. */
+/** Parked hook for future special/limited character selection rules. */
 export function pickSpecies(_a: Activity, _neglectDays: number): Species {
   return DEFAULT_SPECIES;
 }
@@ -46,15 +46,16 @@ export interface Evolution {
  *
  * Rules:
  *  - Stage advances purely with age.
- *  - Species expansion is intentionally frozen while the default mascot gets polished.
- *  - A neglected pet shows the active character's resting ghost variant, then returns
- *    to the character's normal sprites once the owner starts committing again.
+ *  - Before adulthood, config.character is the active character.
+ *  - At adulthood, the current active character is locked.
+ *  - After adulthood, the lock wins over later config changes.
  */
 export function resolveEvolution(
   a: Activity,
   ageDays: number,
   prevLocked: Species | "",
-  neglectDays: number
+  neglectDays: number,
+  activeCharacter: Species
 ): Evolution {
   const stage = stageFor(ageDays);
   const neglected = a.daysSinceLastContribution >= neglectDays;
@@ -63,7 +64,7 @@ export function resolveEvolution(
     return { stage, species: prevLocked, isGhost: neglected, lockedSpecies: prevLocked };
   }
 
-  const candidate = pickSpecies(a, neglectDays);
+  const candidate = activeCharacter;
 
   if (stage === "adult") {
     return { stage, species: candidate, isGhost: neglected, lockedSpecies: candidate };

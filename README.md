@@ -4,8 +4,8 @@
 
 A Tamagotchi-style pet that lives in your GitHub profile README and feeds on your commits.
 
-Each owner can name their own individual pet. The fixed starter species is **Yuki**, an
-original snowy-owl pixel sprite.
+Each owner can name their own individual pet and choose which registered character to
+raise. The default is **Yuki**, an original snowy-owl pixel sprite.
 
 - **Commit** and your pet gets full and happy.
 - **Go quiet** and your pet gets hungry, then sick.
@@ -13,7 +13,7 @@ original snowy-owl pixel sprite.
   **stamina**.
 - Visitors can help once per day with **Feed** / **Play** issue links; Commitchi applies
   the care action, replies, closes the issue, and updates the pet card.
-- **Disappear for 4+ days by default** and your pet fades into **Yurei** (a ghost) — who returns the moment you commit again.
+- **Disappear for 4+ days by default** and your pet fades into that character's ghost form — who returns the moment you commit again.
 - Your pet also **grows up** over time: egg → baby → child → teen → adult.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
   badge and sparkle effect.
@@ -34,9 +34,10 @@ Stages advance purely with age:
 
 Moods (`happy` / `hungry` / `sick`) are driven by fullness, happiness, stamina,
 and how recently you committed. Each stage has its own mood sprite. Neglect
-(4+ days with no contributions by default) shows the Yurei ghost variant.
+(4+ days with no contributions by default) shows the active character's ghost
+variant.
 
-> The character system is now **data-driven** (a registry over `catalog.json` + per-character `character.json`), so new characters can be added as data. Only **Yuki** ships today; a multi-character dex and community-contributed characters are the next direction (see [ADR 0002](docs/adr/0002-dex-and-character-registry.md)). Coding-pattern-based species selection (`pickSpecies`) stays parked.
+> The character system is **data-driven** (a registry over `catalog.json` + per-character `character.json`), so new characters can be added as data. Config-based character selection is available today; coding-pattern-based species selection (`pickSpecies`) stays parked for later special/limited character rules.
 
 ## How it works
 
@@ -74,7 +75,7 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
    closes the interaction issue, and commits the updated `pet.svg` / `pet-state.json`.
    Successful visits show a one-tick reaction such as `Yum!` or `So fun!` on the card.
 5. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
-6. *(Optional)* Add `commitchi.config.json` to customize the individual pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
+6. *(Optional)* Add `commitchi.config.json` to customize the individual pet name, active character, and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
 
 ## Run locally
 
@@ -100,6 +101,7 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 ```json
 {
   "petName": "Mochi",
+  "character": "yuki",
   "language": "ko",
   "theme": "winter",
   "economy": {
@@ -117,8 +119,11 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 }
 ```
 
-`petName` is the user-chosen name shown at the top of the card. The species label stays
-fixed as Yuki for the current sprite line, with Yurei used for the neglected ghost form.
+`petName` is the user-chosen name shown at the top of the card.
+`character` chooses the registered character to raise. Before adulthood, changing it
+reskins the same single pet state; when the pet reaches adult, the current character is
+stored in `lockedSpecies`, so later config changes do not replace the grown pet. Pick any
+character id listed in `catalog.json`.
 `language` switches **all** card text and visitor comments between fully Korean (`"ko"`)
 and fully English (`"en"`) — no mixing. It defaults to `"ko"`.
 Only the `winter` theme exists today; the field is there so more card themes can be added without changing the config shape.
@@ -126,6 +131,7 @@ Only the `winter` theme exists today; the field is there so more card themes can
 | Knob | Meaning | Default |
 |---|---|---|
 | `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
+| `character` | active registered character to raise until adulthood locks it | `yuki` |
 | `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
@@ -158,7 +164,7 @@ src/
   types.ts      shared types
 catalog.json                 dex registry: dex number → character id (Yuki = #1)
 assets/sprites/<id>/character.json  per-character manifest (id, displayName, ghostName, author, license)
-assets/sprites/yuki/         the pixel sprites (PNG) + character.json
+assets/sprites/<id>/         the pixel sprites (PNG) + character.json
 .github/workflows/tick.yml   the scheduled job
 .github/workflows/visitor.yml issue-opened visitor interactions
 ```

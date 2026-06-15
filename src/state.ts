@@ -58,12 +58,6 @@ function isRegisteredSpecies(species: string): boolean {
   }
 }
 
-function normalizeSpecies(value: unknown): Species {
-  const species = typeof value === "string" ? value.trim() : "";
-  if (!species || isLegacyGhostSpecies(species)) return DEFAULT_SPECIES;
-  return isRegisteredSpecies(species) ? species : DEFAULT_SPECIES;
-}
-
 function normalizeGhostVariant(value: unknown, legacySpecies: unknown): boolean {
   if (typeof value === "boolean") return value;
   return isLegacyGhostSpecies(legacySpecies);
@@ -114,12 +108,13 @@ function normalizeVisitorInteractions(value: unknown): Record<string, VisitorInt
 export function loadState(now: Date, config: CommitchiConfig): PetState {
   if (existsSync(STATE_PATH)) {
     const state = JSON.parse(readFileSync(STATE_PATH, "utf8")) as PetState;
+    const lockedSpecies = normalizeLockedSpecies(state.lockedSpecies);
     return {
       ...state,
       name: config.petName,
-      species: normalizeSpecies(state.species),
+      species: lockedSpecies || config.character,
       isGhost: normalizeGhostVariant(state.isGhost, state.species),
-      lockedSpecies: normalizeLockedSpecies(state.lockedSpecies),
+      lockedSpecies,
       fullness: normalizeStat(state.fullness, config.economy.startFullness),
       happiness: normalizeStat(state.happiness, config.economy.startFullness),
       stamina: normalizeStat(state.stamina, config.economy.startFullness),
@@ -131,7 +126,7 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
   const iso = now.toISOString();
   return {
     name: config.petName,
-    species: DEFAULT_SPECIES,
+    species: config.character,
     isGhost: false,
     lockedSpecies: "",
     stage: "egg",
@@ -304,7 +299,13 @@ export function applyTick(
   );
 
   const ageDays = Math.floor((now.getTime() - new Date(state.bornAt).getTime()) / DAY_MS);
-  const evo = resolveEvolution(a, ageDays, state.lockedSpecies, config.thresholds.neglectDays);
+  const evo = resolveEvolution(
+    a,
+    ageDays,
+    state.lockedSpecies,
+    config.thresholds.neglectDays,
+    config.character
+  );
   const celebration =
     evo.isGhost
       ? { celebration: null, celebratedMilestones: state.celebratedMilestones }
