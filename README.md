@@ -163,4 +163,9 @@ assets/sprites/yuki/         the pixel sprites (PNG)
 > Commitchi later, keep your repo's `pet-state.json` so the pet does not restart.
 > The committed `pet.svg` is just an egg placeholder until then.
 
-MIT.
+## License
+
+- Source code: [MIT](./LICENSE)
+- Character/sprite art: [CC BY 4.0](./LICENSE-ASSETS.md)
+
+Want to add your own character? See [CONTRIBUTING.md](./CONTRIBUTING.md).
