@@ -36,7 +36,7 @@ Moods (`happy` / `hungry` / `sick`) are driven by fullness, happiness, stamina,
 and how recently you committed. Each stage has its own mood sprite. Neglect
 (4+ days with no contributions by default) shows the Yurei ghost variant.
 
-> Multi-species evolution (different creatures per coding pattern) is intentionally **parked** while the single Yuki mascot gets polished. The hooks (`Species`, `pickSpecies`) are still there for later.
+> The character system is now **data-driven** (a registry over `catalog.json` + per-character `character.json`), so new characters can be added as data. Only **Yuki** ships today; a multi-character dex and community-contributed characters are the next direction (see [ADR 0002](docs/adr/0002-dex-and-character-registry.md)). Coding-pattern-based species selection (`pickSpecies`) stays parked.
 
 ## How it works
 
@@ -147,13 +147,18 @@ src/
   visitor.ts    issue-op visitor feeding/play CLI
   github.ts     GraphQL fetch → contribution activity
   state.ts      load / update / save pet-state.json  (stats + economy)
-  evolution.ts  stage progression + neglect → ghost
-  sprites.ts    maps stage/mood → the right pixel sprite, embeds it as base64
+  evolution.ts  stage progression + neglect → ghost variant
+  characters.ts data-driven character registry: loads + validates catalog.json
+                and each assets/sprites/<id>/character.json
+  sprites.ts    maps stage/mood → the right pixel sprite (per character), embeds as base64
   render.ts     pet.svg card assembly (sprite, bob animation, celebration effects)
-  i18n.ts       Korean / English bundles for all user-facing text
+  i18n.ts       Korean / English bundles for generic UI text (character names come
+                from character.json)
   preview.ts    dev-only gallery generator
   types.ts      shared types
-assets/sprites/yuki/         the pixel sprites (PNG)
+catalog.json                 dex registry: dex number → character id (Yuki = #1)
+assets/sprites/<id>/character.json  per-character manifest (id, displayName, ghostName, author, license)
+assets/sprites/yuki/         the pixel sprites (PNG) + character.json
 .github/workflows/tick.yml   the scheduled job
 .github/workflows/visitor.yml issue-opened visitor interactions
 ```

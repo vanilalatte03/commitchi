@@ -29,7 +29,7 @@ GitHub Action이 스케줄에 맞춰 틱을 돌려 `pet.svg`를 새로 만들고
 
 기분(`기분 좋음` / `배고픔` / `아파요`)은 포만감·행복도·체력과 가장 최근 커밋 시점에 따라 정해져요. 각 단계마다 고유한 기분 스프라이트가 있어요. 방치(기본 4일 이상 기여 없음) 시에는 Yurei 유령 변형이 표시돼요.
 
-> 다종족 진화(코딩 패턴별 다른 생물)는 단일 Yuki 마스코트를 다듬는 동안 의도적으로 **보류**되어 있어요. 훅(`Species`, `pickSpecies`)은 나중을 위해 그대로 남아 있어요.
+> 캐릭터 시스템은 이제 **데이터 주도**(`catalog.json` + 캐릭터별 `character.json` 레지스트리)라, 새 캐릭터를 데이터로 추가할 수 있어요. 현재 출시된 건 **Yuki** 하나뿐이고, 멀티 캐릭터 도감과 커뮤니티 기여 캐릭터가 다음 방향이에요([ADR 0002](docs/adr/0002-dex-and-character-registry.md) 참고). 코딩 패턴 기반 종족 선택(`pickSpecies`)은 계속 보류예요.
 
 ## 동작 방식
 
@@ -137,13 +137,17 @@ src/
   visitor.ts    이슈-op 방문자 밥주기/놀아주기 CLI
   github.ts     GraphQL fetch → 기여 활동
   state.ts      pet-state.json 로드/갱신/저장 (스탯 + 이코노미)
-  evolution.ts  단계 진행 + 방치 → 유령
-  sprites.ts    단계/기분 → 알맞은 픽셀 스프라이트 매핑, base64 임베드
+  evolution.ts  단계 진행 + 방치 → 유령 변형
+  characters.ts 데이터 주도 캐릭터 레지스트리: catalog.json과 각
+                assets/sprites/<id>/character.json 로드·검증
+  sprites.ts    단계/기분 → 알맞은 픽셀 스프라이트(캐릭터별) 매핑, base64 임베드
   render.ts     pet.svg 카드 조립 (스프라이트, 둥실 애니메이션, 축하 효과)
-  i18n.ts       모든 사용자 노출 문구의 한국어/영어 번들
+  i18n.ts       일반 UI 문구의 한국어/영어 번들 (캐릭터 이름은 character.json에서)
   preview.ts    개발 전용 갤러리 생성기
   types.ts      공용 타입
-assets/sprites/yuki/         픽셀 스프라이트 (PNG)
+catalog.json                 도감 레지스트리: 도감 번호 → 캐릭터 id (Yuki = #1)
+assets/sprites/<id>/character.json  캐릭터별 매니페스트 (id, displayName, ghostName, author, license)
+assets/sprites/yuki/         픽셀 스프라이트 (PNG) + character.json
 .github/workflows/tick.yml   스케줄 잡
 .github/workflows/visitor.yml 이슈 생성 시 방문자 상호작용
 ```

@@ -100,5 +100,9 @@ watermark, busy background, scenery, harsh outline, inconsistent scale, off-mode
    (`egg` has no mood variants; the adult default is `adult-happy`. `baby.png` /
    `child.png` / `teen.png` are the happy/default mood for those stages.)
 3. Produce the optimized `@3x` variants (~192px) — those are what the renderer embeds.
-4. Drop them under `assets/sprites/<creature>/`.
+4. Drop them under `assets/sprites/<id>/`, alongside a `character.json` manifest
+   (`id`, `displayName`, `ghostName`, `author`, `license`), and add a `catalog.json` entry.
+   The character registry (`src/characters.ts`) discovers and validates them — no code
+   changes needed. See [CONTRIBUTING.md](../CONTRIBUTING.md) and
+   [ADR 0002](adr/0002-dex-and-character-registry.md) for the full contract.
 5. Keep the full-resolution masters and source sheets under `assets/source/` (gitignored).
