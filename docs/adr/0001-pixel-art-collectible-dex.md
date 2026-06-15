@@ -25,6 +25,9 @@ Yuki sprites are treated as original project art.
 
 - Growth stages: egg, baby, child, teen, adult.
 - Mood variants (happy / hungry / sick) per stage, plus a Yurei ghost variant for neglect.
+  Every non-egg stage gets its own hungry/sick sprite (not just adult) so the pet's state
+  is readable from the art before reading the labels. Egg uses one neutral sprite; egg
+  mood variants are deferred.
 - Adult displays ~140–160px in the README card (sprites are ~192px source).
 
 ## Rendering
@@ -35,6 +38,20 @@ Yuki sprites are treated as original project art.
 
 Relative or external image references inside an SVG don't survive GitHub's image proxy, so
 a self-contained (base64) SVG is what renders reliably.
+
+## Asset handling
+
+When sprites come from supplied source sheets:
+
+- Crop the supplied sprite panel directly from the sheet — cropping is allowed only to
+  isolate the panel.
+- Do not redraw, repaint, erase the background, reinterpret pixels, or downsample to a
+  hand-made low-resolution version.
+- The card renders the cropped PNG as-is; source crops may carry their original dark panel
+  background, so the card background should stay visually compatible.
+
+> Consolidates the earlier "Stage Mood Sprite Variants" note, which had mistakenly reused
+> the ADR 0002 number (ADR 0002 is the Dex / Character Registry decision).
 
 ## Consequences
 
