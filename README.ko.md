@@ -48,14 +48,18 @@ README가 pet.svg 를 임베드
 
 ## 설정 방법
 
-1. 이 프로젝트를 **프로필 저장소**(`<your-username>/<your-username>`)나, Action이 커밋을 되돌려줄 수 있는 아무 저장소에 넣으세요.
+1. 이 저장소에서 **Use this template**을 눌러 본인 계정 아래에 프로필 저장소
+   (`<your-username>/<your-username>`)를 만드세요.
 2. 프로필 `README.md`에 펫을 임베드하세요:
 
    ```md
    ![my pet](./pet.svg)
    ```
 
-3. 저장소의 **Actions** 탭에서 **commitchi tick**을 한 번 실행(`workflow_dispatch`)해 `pet.svg`를 초기 생성하세요. 이후엔 스케줄이 이어받아요.
+   템플릿에는 `pet-state.json`이 들어 있지 않아서, 새 저장소는 fresh egg에서 시작해요.
+   첫 실행 전까지 커밋된 `pet.svg`는 기본 Yuki 알 자리표시자예요.
+3. 본인 저장소의 **Actions** 탭에서 **commitchi tick**을 한 번 실행(`workflow_dispatch`)해
+   라이브 `pet.svg`와 `pet-state.json`을 초기 생성하세요. 이후엔 스케줄 워크플로가 본인 저장소에서 자동 실행돼요.
 4. 펫 근처에 방문자 상호작용 버튼을 추가하세요. 프로필 README라면 실제 프로필 저장소 URL을 쓰세요:
 
    ```md

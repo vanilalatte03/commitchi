@@ -58,14 +58,20 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
 
 ## Setup
 
-1. Put this project in your **profile repo** (`<your-username>/<your-username>`), or any repo whose Action can commit back.
+1. Click **Use this template** on this repository and create your profile repo
+   (`<your-username>/<your-username>`) under your own account.
 2. Embed the pet in your profile `README.md`:
 
    ```md
    ![my pet](./pet.svg)
    ```
 
-3. Open the repo's **Actions** tab and run **commitchi tick** once (`workflow_dispatch`) to seed `pet.svg`. After that the schedule takes over.
+   The template does not include `pet-state.json`, so your repo starts from a
+   fresh egg. Until your first run, the committed `pet.svg` is only the default
+   Yuki egg placeholder.
+3. Open your repo's **Actions** tab and run **commitchi tick** once
+   (`workflow_dispatch`) to seed your live `pet.svg` and `pet-state.json`.
+   After that, the scheduled workflow runs automatically in your repo.
 4. Add visitor interaction buttons near the pet. For a profile README, use your actual
    profile repo URL:
 

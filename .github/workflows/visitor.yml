@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   interact:
+    if: github.repository != 'vanilalatte03/commitchi'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
