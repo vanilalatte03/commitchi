@@ -6,6 +6,8 @@ The pet is **Yuki**, an original snowy-owl pixel sprite.
 
 - **Commit** and Yuki gets full and happy.
 - **Go quiet** and Yuki gets hungry, then sick.
+- Collaborative work raises Yuki's **happiness**, while steady commit rhythm raises
+  **stamina**.
 - **Disappear for 4+ days by default** and Yuki fades into **Yurei** (a ghost) — who returns the moment you commit again.
 - Yuki also **grows up** over time: egg → baby → child → teen → adult.
 
@@ -23,7 +25,9 @@ Stages advance purely with age:
 | teen | day 7+ |
 | adult | day 14+ |
 
-Moods (`happy` / `hungry` / `sick`) are driven by fullness and how recently you committed, and each stage has its own mood sprite. Neglect (4+ days with no contributions by default) shows the Yurei ghost variant.
+Moods (`happy` / `hungry` / `sick`) are driven by fullness, happiness, stamina,
+and how recently you committed. Each stage has its own mood sprite. Neglect
+(4+ days with no contributions by default) shows the Yurei ghost variant.
 
 > Multi-species evolution (different creatures per coding pattern) is intentionally **parked** while the single Yuki mascot gets polished. The hooks (`Species`, `pickSpecies`) are still there for later.
 
@@ -32,7 +36,7 @@ Moods (`happy` / `hungry` / `sick`) are driven by fullness and how recently you 
 ```
 GitHub Actions (scheduled)
   → fetch your contribution activity (GraphQL)
-  → update pet-state.json   (the pet's memory: age, fullness, mood, stage)
+  → update pet-state.json   (the pet's memory: age, stats, mood, stage)
   → render pet.svg          (SVG card + the matching pixel sprite, embedded as a base64 PNG)
   → commit pet.svg + pet-state.json back to the repo
 README embeds pet.svg
@@ -96,9 +100,9 @@ Only the `winter` theme exists today; the field is there so more card themes can
 |---|---|---|
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
-| `economy.startFullness` | newborn fullness | 60 |
-| `thresholds.hungryFullness` | fullness at/below which Yuki becomes hungry | 45 |
-| `thresholds.sickFullness` | fullness at/below which Yuki becomes sick | 15 |
+| `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
+| `thresholds.hungryFullness` | stat level at/below which Yuki becomes hungry | 45 |
+| `thresholds.sickFullness` | stat level at/below which Yuki becomes sick | 15 |
 | `thresholds.neglectDays` | days without contributions before Yuki becomes Yurei | 4 |
 
 The config file is optional and partial overrides are supported. For example, `{ "name": "Mochi" }` only changes the displayed name.
@@ -110,7 +114,7 @@ src/
   config.ts     optional commitchi.config.json loader + validation
   index.ts      orchestrates a tick
   github.ts     GraphQL fetch → contribution activity
-  state.ts      load / update / save pet-state.json  (the economy)
+  state.ts      load / update / save pet-state.json  (stats + economy)
   evolution.ts  stage progression + neglect → ghost
   sprites.ts    maps stage/mood → the right pixel sprite, embeds it as base64
   render.ts     pet.svg card assembly (SVG frame + embedded sprite, bob animation)

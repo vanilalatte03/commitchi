@@ -8,10 +8,22 @@ const DAY_MS = 86_400_000;
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
+function normalizeStat(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.round(clamp(value, 0, 100))
+    : fallback;
+}
+
 export function loadState(now: Date, config: CommitchiConfig): PetState {
   if (existsSync(STATE_PATH)) {
     const state = JSON.parse(readFileSync(STATE_PATH, "utf8")) as PetState;
-    return { ...state, name: config.name };
+    return {
+      ...state,
+      name: config.name,
+      fullness: normalizeStat(state.fullness, config.economy.startFullness),
+      happiness: normalizeStat(state.happiness, config.economy.startFullness),
+      stamina: normalizeStat(state.stamina, config.economy.startFullness),
+    };
   }
   const iso = now.toISOString();
   return {
@@ -22,6 +34,8 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
     bornAt: iso,
     lastTickAt: iso,
     fullness: config.economy.startFullness,
+    happiness: config.economy.startFullness,
+    stamina: config.economy.startFullness,
     mood: "happy",
     ageDays: 0,
     lastDayDate: "",
@@ -35,16 +49,19 @@ export function saveState(state: PetState): void {
 
 function moodFor(
   fullness: number,
+  happiness: number,
+  stamina: number,
   daysSinceLastContribution: number,
   config: CommitchiConfig
 ): Mood {
+  const lowestStat = Math.min(fullness, happiness, stamina);
   if (
     daysSinceLastContribution >= config.thresholds.neglectDays ||
-    fullness <= config.thresholds.sickFullness
+    lowestStat <= config.thresholds.sickFullness
   ) {
     return "sick";
   }
-  if (fullness <= config.thresholds.hungryFullness) return "hungry";
+  if (lowestStat <= config.thresholds.hungryFullness) return "hungry";
   return "happy";
 }
 
@@ -67,6 +84,19 @@ export function applyTick(
 
   fullness = clamp(fullness + newContribs * config.economy.feedPerContrib, 0, 100);
 
+  const elapsedDecayDays = Math.max(0, elapsedDays);
+  const happinessGain = newContribs > 0 ? newContribs * (2 + a.collabRatio * 6) : 0;
+  const happiness = clamp(state.happiness - elapsedDecayDays * 5 + happinessGain, 0, 100);
+
+  const consistencyGain =
+    newContribs > 0 ? 8 + Math.min(18, Math.max(0, a.streak) * 2) : 0;
+  const burstPenalty = Math.max(0, newContribs - 6) * 2;
+  const stamina = clamp(
+    state.stamina - elapsedDecayDays * 4 + consistencyGain - burstPenalty,
+    0,
+    100
+  );
+
   const ageDays = Math.floor((now.getTime() - new Date(state.bornAt).getTime()) / DAY_MS);
   const evo = resolveEvolution(a, ageDays, state.lockedSpecies, config.thresholds.neglectDays);
 
@@ -74,7 +104,9 @@ export function applyTick(
     ...state,
     name: config.name,
     fullness: Math.round(fullness),
-    mood: moodFor(fullness, a.daysSinceLastContribution, config),
+    happiness: Math.round(happiness),
+    stamina: Math.round(stamina),
+    mood: moodFor(fullness, happiness, stamina, a.daysSinceLastContribution, config),
     ageDays,
     stage: evo.stage,
     species: evo.species,

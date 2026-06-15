@@ -28,9 +28,11 @@ const XML_TEXT_ESCAPES: Record<string, string> = {
 
 const MOOD_LABEL = { happy: "기분 좋음", hungry: "배고픔", sick: "아파요" } as const;
 
-function barColor(f: number): string {
-  if (f >= 60) return "#6FBA65";
-  if (f >= 25) return "#E2A33B";
+const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+
+function barColor(value: number): string {
+  if (value >= 60) return "#6FBA65";
+  if (value >= 25) return "#E2A33B";
   return "#E46A6A";
 }
 
@@ -74,7 +76,8 @@ function progressLine(state: PetState): string {
 export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CONFIG): string {
   const palette = THEME_PALETTES[config.theme];
   const f = Math.round(state.fullness);
-  const barW = Math.round((220 * f) / 100);
+  const happiness = Math.round(state.happiness);
+  const stamina = Math.round(state.stamina);
   const ghostFloat = state.species === "ghost" && state.stage !== "egg" && state.stage !== "baby";
   const bob = ghostFloat ? "0,-8" : "0,-4";
   const sprite = spriteFor(state.stage, state.species, state.mood);
@@ -82,7 +85,7 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   const spriteY = Math.round(166 - sprite.displaySize);
   const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state))}`;
   const ariaLabel = escapeAttr(
-    `${state.name}, a ${state.stage} ${state.species}, ${MOOD_LABEL[state.mood]}, fullness ${f}%`
+    `${state.name}, a ${state.stage} ${state.species}, ${MOOD_LABEL[state.mood]}, fullness ${f}%, happiness ${happiness}%, stamina ${stamina}%`
   );
   const moodText = escapeText(MOOD_LABEL[state.mood]);
   const progressText = escapeText(progressLine(state));
@@ -90,6 +93,14 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   const nameText = escapeText(state.name);
   const t = (x: number, y: number, fill: string, size: number, weight = "400", extra = "") =>
     `<text x="${x}" y="${y}" fill="${fill}" font-family="'Segoe UI',system-ui,sans-serif" font-size="${size}"${weight !== "400" ? ` font-weight="${weight}"` : ""}${extra}>`;
+  const statRow = (label: string, value: number, y: number) => {
+    const safeValue = Math.round(clamp(value, 0, 100));
+    const barW = Math.round((148 * safeValue) / 100);
+    return `${t(204, y, palette.textMuted, 12)}${label}</text>
+  <rect x="276" y="${y - 9}" width="148" height="8" rx="4" fill="${palette.track}"/>
+  <rect x="276" y="${y - 9}" width="${barW}" height="8" rx="4" fill="${barColor(safeValue)}"/>
+  ${t(448, y, palette.textMain, 11, "600", ' text-anchor="end"')}${safeValue}%</text>`;
+  };
 
   return `<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${ariaLabel}">
   <title>${titleText}</title>
@@ -106,13 +117,12 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   </g>
   ${t(204, 44, palette.textMain, 24, "700")}${nameText}</text>
   ${t(204, 68, palette.textMuted, 13)}${subtitleText}</text>
-  ${t(204, 103, palette.textMuted, 13)}기분</text>
-  ${t(204, 127, palette.textMain, 19, "700")}${moodText}</text>
-  ${t(204, 153, palette.textMuted, 13)}포만감</text>
-  <rect x="204" y="161" width="220" height="12" rx="6" fill="${palette.track}"/>
-  <rect x="204" y="161" width="${barW}" height="12" rx="6" fill="${barColor(f)}"/>
-  ${t(448, 171, palette.textMain, 12, "600", ' text-anchor="end"')}${f}%</text>
-  ${t(204, 190, palette.textMuted, 12)}${progressText} · ${state.ageDays}일째</text>
+  ${t(204, 94, palette.textMuted, 12)}기분</text>
+  ${t(244, 94, palette.textMain, 14, "700")}${moodText}</text>
+  ${statRow("포만감", f, 121)}
+  ${statRow("행복도", happiness, 148)}
+  ${statRow("체력", stamina, 175)}
+  ${t(204, 194, palette.textMuted, 10)}${progressText} · ${state.ageDays}일째</text>
 </svg>
 `;
 }

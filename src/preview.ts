@@ -14,6 +14,8 @@ const base: PetState = {
   bornAt: "",
   lastTickAt: "",
   fullness: 80,
+  happiness: 72,
+  stamina: 76,
   mood: "happy",
   ageDays: 18,
   lastDayDate: "",
@@ -38,10 +40,12 @@ for (const s of stages) {
   make(`stage-${s.stage}`, { ...s, mood: "happy" });
 
   for (const m of moods) {
-    make(`${s.stage}-${m}`, {
+  make(`${s.stage}-${m}`, {
       ...s,
       mood: m,
       fullness: m === "sick" ? 10 : m === "hungry" ? 35 : s.fullness,
+      happiness: m === "sick" ? 18 : m === "hungry" ? 42 : 72,
+      stamina: m === "sick" ? 14 : m === "hungry" ? 44 : 76,
     });
   }
 }
@@ -52,6 +56,8 @@ for (const m of moods) {
     ageDays: 20,
     mood: m,
     fullness: m === "sick" ? 10 : m === "hungry" ? 35 : 80,
+    happiness: m === "sick" ? 18 : m === "hungry" ? 42 : 72,
+    stamina: m === "sick" ? 14 : m === "hungry" ? 44 : 76,
   });
 }
 
@@ -61,6 +67,8 @@ make("neglect-ghost", {
   ageDays: 20,
   mood: "sick",
   fullness: 0,
+  happiness: 20,
+  stamina: 8,
 });
 
 console.log("Wrote preview gallery to ./preview/*.svg");

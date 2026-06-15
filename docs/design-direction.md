@@ -6,7 +6,7 @@ Commitchi should feel like a small collectible pet people want to keep in their 
 
 The next direction is retro monster-pet pixel art:
 
-- Render the README card, text, progress bars, and dynamic state with generated SVG.
+- Render the README card, text, stat bars, and dynamic state with generated SVG.
 - Render the pet as a small original pixel-art sprite.
 - Use the visual language of 90s handheld monster-raising RPGs as inspiration.
 - Do not copy Pokemon characters, silhouettes, names, palettes, or exact UI.
@@ -25,7 +25,7 @@ pet.svg
 │  ├─ card frame
 │  ├─ name and labels
 │  ├─ mood text
-│  ├─ fullness bar
+│  ├─ fullness / happiness / stamina bars
 │  └─ simple pixel-friendly effects
 └─ pixel character sprite
    ├─ egg / baby / child / teen / adult
@@ -136,7 +136,7 @@ Recommended changes:
 - Keep a dark game-panel background.
 - Use restrained UI text so the sprite carries the emotion.
 - Consider a subtle pixel-grid or tile background only if it stays quiet.
-- Keep the fullness bar clean and readable.
+- Keep the stat bars clean and readable.
 - Avoid glossy modern mascot-card styling.
 
 The card should read as:
