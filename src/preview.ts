@@ -11,6 +11,7 @@ const s = getStrings(config.language);
 const base: PetState = {
   name: config.petName,
   species: "yuki",
+  isGhost: false,
   lockedSpecies: "",
   stage: "adult",
   bornAt: "",
@@ -67,7 +68,8 @@ for (const m of moods) {
 }
 
 make("neglect-ghost", {
-  species: "ghost",
+  species: "yuki",
+  isGhost: true,
   stage: "adult",
   ageDays: 20,
   mood: "sick",

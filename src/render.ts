@@ -1,8 +1,9 @@
 import { DEFAULT_CONFIG } from "./config";
-import { CommitchiConfig, isGhostSpecies, PetState, Species, Theme } from "./types";
+import { CommitchiConfig, PetState, Species, Theme } from "./types";
 import { DEFAULT_SPECIES, spriteFor } from "./sprites";
 import { getStrings, Strings } from "./i18n";
 import { daysToNextStage } from "./evolution";
+import { getCharacter, RegisteredCharacter } from "./characters";
 
 const WINTER_PALETTE = {
   card: "#141323",
@@ -45,15 +46,13 @@ function escapeAttr(value: string): string {
   return escapeText(value).replace(/"/g, "&quot;");
 }
 
-function activeCharacterId(state: PetState): Species {
-  if (!isGhostSpecies(state.species)) return state.species || DEFAULT_SPECIES;
-  return state.lockedSpecies && !isGhostSpecies(state.lockedSpecies)
-    ? state.lockedSpecies
-    : DEFAULT_SPECIES;
-}
-
-function speciesLabel(species: Species, s: Strings): string {
-  return s.species[species] ?? species;
+function activeCharacter(species: Species): RegisteredCharacter {
+  const id = species || DEFAULT_SPECIES;
+  try {
+    return getCharacter(id);
+  } catch {
+    return getCharacter(DEFAULT_SPECIES);
+  }
 }
 
 function stars(palette: Palette): string {
@@ -112,16 +111,16 @@ function celebrationBadge(state: PetState, palette: Palette, s: Strings): string
 </g>`;
 }
 
-function subtitle(state: PetState, s: Strings): string {
-  if (state.stage === "egg") return s.subtitle.egg;
-  if (state.stage === "baby") return s.subtitle.baby;
-  if (isGhostSpecies(state.species)) return s.subtitle.ghost;
-  return s.subtitle.default(speciesLabel(state.species, s), s.stage[state.stage]);
+function subtitle(state: PetState, character: RegisteredCharacter, s: Strings): string {
+  if (state.stage === "egg") return s.subtitle.egg(character.displayName);
+  if (state.stage === "baby") return s.subtitle.baby(character.displayName);
+  if (state.isGhost) return s.subtitle.ghost(character.ghostName);
+  return s.subtitle.default(character.displayName, s.stage[state.stage]);
 }
 
 function progressLine(state: PetState, s: Strings): string {
   if (state.celebration) return state.celebration.detail;
-  if (isGhostSpecies(state.species)) return s.progress.ghost;
+  if (state.isGhost) return s.progress.ghost;
   const left = daysToNextStage(state.ageDays);
   return left === null ? s.progress.fullyGrown : s.progress.daysToNext(left);
 }
@@ -129,21 +128,22 @@ function progressLine(state: PetState, s: Strings): string {
 export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CONFIG): string {
   const palette = THEME_PALETTES[config.theme];
   const s = getStrings(config.language);
+  const character = activeCharacter(state.species);
   const f = Math.round(state.fullness);
   const happiness = Math.round(state.happiness);
   const stamina = Math.round(state.stamina);
-  const ghost = isGhostSpecies(state.species);
+  const ghost = state.isGhost;
   const ghostFloat = ghost && state.stage !== "egg" && state.stage !== "baby";
   const bob = ghostFloat ? "0,-8" : "0,-4";
-  const sprite = spriteFor(state.stage, activeCharacterId(state), state.mood, ghost);
+  const sprite = spriteFor(state.stage, character.id, state.mood, ghost);
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
-  const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, s))}`;
+  const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, character, s))}`;
   const ariaLabel = escapeAttr(
     s.aria({
       name: state.name,
       stage: s.stage[state.stage],
-      species: speciesLabel(state.species, s),
+      species: ghost ? character.ghostName : character.displayName,
       mood: s.mood[state.mood],
       fullness: f,
       happiness,
@@ -157,7 +157,7 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
     state.celebration?.kind === "visitor"
       ? progressText
       : s.footer(progressText, state.ageDays);
-  const subtitleText = escapeText(subtitle(state, s));
+  const subtitleText = escapeText(subtitle(state, character, s));
   const nameText = escapeText(state.name);
   const t = (x: number, y: number, fill: string, size: number, weight = "400", extra = "") =>
     `<text x="${x}" y="${y}" fill="${fill}" font-family="'Segoe UI',system-ui,sans-serif" font-size="${size}"${weight !== "400" ? ` font-weight="${weight}"` : ""}${extra}>`;

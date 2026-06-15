@@ -14,6 +14,11 @@
       "status": "completed",
       "summary": "Species를 캐릭터 id 문자열로 일반화하고 스프라이트 해석을 캐릭터 레지스트리 기반으로 전환했다."
     },
-    { "step": 2, "name": "species-id-and-ghost-variant", "status": "pending" }
+    {
+      "step": 2,
+      "name": "species-id-and-ghost-variant",
+      "status": "completed",
+      "summary": "ghost를 활성 캐릭터의 방치 변형으로 분리하고 표시명을 캐릭터 매니페스트 기반으로 전환했으며 레거시 species 값을 기본 캐릭터로 정규화했다."
+    }
   ]
 }
