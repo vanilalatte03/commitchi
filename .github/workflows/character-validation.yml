@@ -1,0 +1,30 @@
+name: character validation
+
+# Technical-contract gate for character contributions. Runs on PRs that touch
+# character assets/data. Does NOT judge art/originality/appropriateness — that is
+# the human review gate (see MODERATION.md).
+on:
+  pull_request:
+    paths:
+      - "assets/sprites/**"
+      - "catalog.json"
+      - "src/characters.ts"
+      - "src/sprites.ts"
+      - "src/validate-characters.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - run: npm run validate:characters
