@@ -1,25 +1,22 @@
-import { Language, Mood, Species, Stage, VisitorAction } from "./types";
+import { Language, Mood, Stage, VisitorAction } from "./types";
 
 /**
  * All user-facing text lives here, keyed by language. The rest of the codebase
  * pulls a `Strings` bundle via `getStrings(config.language)` so the rendered pet
  * card and visitor comments come out fully in one language — no mixing.
- *
- * Proper names (Yuki, Yurei) stay identical across languages on purpose.
  */
 export interface Strings {
   mood: Record<Mood, string>;
   stage: Record<Stage, string>;
-  species: Record<Species, string>;
   /** Heading shown above the mood value on the card. */
   moodHeading: string;
   stat: { fullness: string; happiness: string; stamina: string };
   /** Wraps a milestone title in the celebration badge (e.g. "Hooray! 7-day streak"). */
   celebrationBadge: (title: string) => string;
   subtitle: {
-    egg: string;
-    baby: string;
-    ghost: string;
+    egg: (species: string) => string;
+    baby: (species: string) => string;
+    ghost: (ghostName: string) => string;
     default: (species: string, stage: string) => string;
   };
   progress: {
@@ -54,14 +51,13 @@ export interface Strings {
 const ko: Strings = {
   mood: { happy: "기분 좋음", hungry: "배고픔", sick: "아파요" },
   stage: { egg: "알", baby: "아기", child: "어린이", teen: "청소년", adult: "성체" },
-  species: { yuki: "Yuki", ghost: "Yurei" },
   moodHeading: "기분",
   stat: { fullness: "포만감", happiness: "행복도", stamina: "체력" },
   celebrationBadge: (title) => `축하! ${title}`,
   subtitle: {
-    egg: "Yuki 알 · 곧 부화해요",
-    baby: "Yuki 아기 · 자라는 중",
-    ghost: "Yurei · 커밋을 기다리는 중",
+    egg: (species) => `${species} 알 · 곧 부화해요`,
+    baby: (species) => `${species} 아기 · 자라는 중`,
+    ghost: (ghostName) => `${ghostName} · 커밋을 기다리는 중`,
     default: (species, stage) => `${species} · ${stage}`,
   },
   progress: {
@@ -105,14 +101,13 @@ const ko: Strings = {
 const en: Strings = {
   mood: { happy: "Happy", hungry: "Hungry", sick: "Sick" },
   stage: { egg: "Egg", baby: "Baby", child: "Child", teen: "Teen", adult: "Adult" },
-  species: { yuki: "Yuki", ghost: "Yurei" },
   moodHeading: "Mood",
   stat: { fullness: "Fullness", happiness: "Happiness", stamina: "Stamina" },
   celebrationBadge: (title) => `Hooray! ${title}`,
   subtitle: {
-    egg: "Yuki egg · hatching soon",
-    baby: "Yuki baby · growing",
-    ghost: "Yurei · waiting for commits",
+    egg: (species) => `${species} egg · hatching soon`,
+    baby: (species) => `${species} baby · growing`,
+    ghost: (ghostName) => `${ghostName} · waiting for commits`,
     default: (species, stage) => `${species} · ${stage}`,
   },
   progress: {

@@ -5,9 +5,8 @@ export type Language = "ko" | "en";
 
 export type Theme = "winter";
 
-// Species expansion (dragon/chameleon/wolf/…) is parked while the default mascot
-// gets polished. For now the world is just Yuki and its neglected ghost form.
-export type Species = "yuki" | "ghost";
+/** Registered character id. */
+export type Species = string;
 
 export type Stage = "egg" | "baby" | "child" | "teen" | "adult";
 
@@ -39,9 +38,11 @@ export interface VisitorInteractionRecord {
 export interface PetState {
   /** User-chosen individual pet name, distinct from the fixed species label. */
   name: string;
-  /** Currently displayed species (may be "ghost" while neglected). */
+  /** Active character id. */
   species: Species;
-  /** Species frozen at adulthood. "" until the pet reaches the adult stage. */
+  /** Whether the active character is rendered as its neglect ghost variant. */
+  isGhost: boolean;
+  /** Character id frozen at adulthood. "" until the pet reaches the adult stage. */
   lockedSpecies: Species | "";
   stage: Stage;
   bornAt: string;
@@ -104,12 +105,12 @@ export interface ThresholdConfig {
   hungryFullness: number;
   /** At or below this lowest stat value, or after neglectDays, the pet is sick. */
   sickFullness: number;
-  /** Whole days without contributions before the pet becomes Yurei. */
+  /** Whole days without contributions before the pet becomes its ghost variant. */
   neglectDays: number;
 }
 
 export interface CommitchiConfig {
-  /** User-chosen individual pet name. Species labels stay fixed in sprites.ts. */
+  /** User-chosen individual pet name. Character labels come from character.json. */
   petName: string;
   /** Language for all card text and visitor comments. Defaults to "ko". */
   language: Language;
