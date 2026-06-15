@@ -1,26 +1,22 @@
 {
-  "name": "Yuki",
+  "name": "Mochi",
   "species": "yuki",
   "lockedSpecies": "",
   "stage": "egg",
   "bornAt": "2026-06-15T04:25:22.089Z",
-  "lastTickAt": "2026-06-15T04:25:22.089Z",
+  "lastTickAt": "2026-06-15T12:18:30.116Z",
   "fullness": 100,
   "happiness": 100,
-  "stamina": 76,
+  "stamina": 69,
   "mood": "happy",
-  "celebration": {
-    "kind": "streak",
-    "milestoneId": "streak:30",
-    "title": "30일 연속",
-    "detail": "30일 연속 기여를 달성했어요"
-  },
+  "celebration": null,
   "celebratedMilestones": [
     "streak:7",
     "streak:30"
   ],
   "ageDays": 0,
   "lastDayDate": "2026-06-15",
-  "lastDayCounted": 11,
-  "visitorInteractions": {}
+  "lastDayCounted": 33,
+  "visitorInteractions": {},
+  "isGhost": false
 }
