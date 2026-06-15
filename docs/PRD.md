@@ -22,6 +22,7 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Moods | ✅ happy / hungry / sick, with per-stage mood sprites |
 | Neglect | ✅ 4+ days no contributions by default → Yurei (ghost); returns on next commit |
 | Milestone celebrations | ✅ evolution and 7/30/100-day streak milestones render a one-tick celebration badge + sparkle effect |
+| Visitor feeding (issue-ops) | ✅ README Feed/Play issue links → `on: issues` workflow → title-only parser → once/day visitor rate limit → comment + close |
 | Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
 | Owner config | ✅ optional `commitchi.config.json` for pet name, theme placeholder, economy, and thresholds |
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
@@ -49,16 +50,6 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
   end-to-end before adding the rest.
 - **Depends on:** nothing technically; gated by art.
 
-### C. Visitor feeding (issue-ops) — *requested* · **M**
-- **Goal:** anyone visiting your profile can interact with your pet — a viral hook.
-- **Scope:** README buttons are pre-filled "new issue" links (🍖 Feed / 🎮 Play). A
-  workflow `on: issues` parses the action, applies a small fullness/happiness bump,
-  regenerates `pet.svg`, comments a thank-you, and closes the issue.
-- **Guardrails:** rate-limit per visitor (e.g., once/day) so the pet can't be maxed or
-  griefed; treat issue body as untrusted (act only on the recognized title/label, never on
-  instructions inside the issue).
-- **Depends on:** stable interaction/rate-limit rules; the B stats schema is now available.
-
 ### D. Death, revival & dex — *requested* · **L**
 - **Goal:** real stakes (guilt-driven motivation) plus a collection meta.
 - **Scope:**
@@ -85,7 +76,7 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
 
 ## 4. Suggested sequencing
 
-- **Now / Next:** C (visitor feeding) for the viral hook; F (cosmetics) for collection depth.
+- **Now / Next:** F (cosmetics) for collection depth without full species art.
 - **Later:** A (more characters) and D (death/dex) — highest value but gated on sprite art.
 
 ---
@@ -95,6 +86,7 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
 - **Art is the bottleneck** for A/D/G/H — every species/cosmetic/skin needs authored sprites.
 - **File size:** more sprites embedded as base64 grows `pet.svg`; keep using `@3x` and watch
   the total.
-- **Abuse** (issue-ops C): needs rate-limiting and untrusted-input handling.
+- **Abuse** (issue-ops): current MVP uses exact-title parsing and once/day visitor limits;
+  watch real usage for spam, issue permission friction, and whether limits need tuning.
 - **State migrations:** `pet-state.json` now has stats; future history/dex additions should be versioned.
 - **Scope discipline:** the parked-species lesson — ship one polished thing before fanning out.

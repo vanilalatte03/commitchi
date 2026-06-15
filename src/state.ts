@@ -1,5 +1,14 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { Activity, CelebrationMoment, CommitchiConfig, Mood, PetState, Stage } from "./types";
+import {
+  Activity,
+  CelebrationMoment,
+  CommitchiConfig,
+  Mood,
+  PetState,
+  Stage,
+  VisitorAction,
+  VisitorInteractionRecord,
+} from "./types";
 import { resolveEvolution } from "./evolution";
 
 const STATE_PATH = "pet-state.json";
@@ -17,6 +26,14 @@ const STAGE_CELEBRATION_LABEL: Record<Stage, string> = {
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
+export const VISITOR_ACTION_BONUS: Record<
+  VisitorAction,
+  { fullness: number; happiness: number; stamina: number }
+> = {
+  feed: { fullness: 18, happiness: 4, stamina: 0 },
+  play: { fullness: 3, happiness: 16, stamina: 3 },
+};
+
 function normalizeStat(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value)
     ? Math.round(clamp(value, 0, 100))
@@ -26,6 +43,41 @@ function normalizeStat(value: unknown, fallback: number): number {
 function normalizeMilestones(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return [...new Set(value.filter((item): item is string => typeof item === "string"))];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeVisitorInteractions(value: unknown): Record<string, VisitorInteractionRecord> {
+  if (!isRecord(value)) return {};
+
+  const result: Record<string, VisitorInteractionRecord> = {};
+  for (const [rawKey, rawRecord] of Object.entries(value)) {
+    if (!isRecord(rawRecord)) continue;
+
+    const key = rawKey.trim().toLowerCase();
+    const lastInteractionDate = rawRecord.lastInteractionDate;
+    if (!key || typeof lastInteractionDate !== "string") continue;
+
+    result[key] = {
+      lastInteractionDate,
+      totalInteractions:
+        typeof rawRecord.totalInteractions === "number" && Number.isFinite(rawRecord.totalInteractions)
+          ? Math.max(0, Math.floor(rawRecord.totalInteractions))
+          : 1,
+      feedCount:
+        typeof rawRecord.feedCount === "number" && Number.isFinite(rawRecord.feedCount)
+          ? Math.max(0, Math.floor(rawRecord.feedCount))
+          : 0,
+      playCount:
+        typeof rawRecord.playCount === "number" && Number.isFinite(rawRecord.playCount)
+          ? Math.max(0, Math.floor(rawRecord.playCount))
+          : 0,
+    };
+  }
+
+  return result;
 }
 
 export function loadState(now: Date, config: CommitchiConfig): PetState {
@@ -39,6 +91,7 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
       stamina: normalizeStat(state.stamina, config.economy.startFullness),
       celebration: null,
       celebratedMilestones: normalizeMilestones(state.celebratedMilestones),
+      visitorInteractions: normalizeVisitorInteractions(state.visitorInteractions),
     };
   }
   const iso = now.toISOString();
@@ -58,6 +111,7 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
     ageDays: 0,
     lastDayDate: "",
     lastDayCounted: 0,
+    visitorInteractions: {},
   };
 }
 
@@ -136,6 +190,25 @@ function resolveCelebration(
   return { celebration: null, celebratedMilestones: [...seen] };
 }
 
+/**
+ * Decay stats by the time elapsed since the last tick. Returns the (unclamped)
+ * decayed values so callers can add their own gains before clamping. Shared by
+ * applyTick and visitor interactions so both advance state to `now` consistently.
+ */
+function decayStats(
+  state: PetState,
+  now: Date,
+  config: CommitchiConfig
+): { elapsedDays: number; fullness: number; happiness: number; stamina: number } {
+  const elapsedDays = Math.max(0, (now.getTime() - new Date(state.lastTickAt).getTime()) / DAY_MS);
+  return {
+    elapsedDays,
+    fullness: state.fullness - config.economy.decayPerDay * elapsedDays,
+    happiness: state.happiness - elapsedDays * 5,
+    stamina: state.stamina - elapsedDays * 4,
+  };
+}
+
 /** Advance the pet one tick: feed, decay, age, and evolve. Returns the new state. */
 export function applyTick(
   state: PetState,
@@ -143,9 +216,7 @@ export function applyTick(
   now: Date,
   config: CommitchiConfig
 ): PetState {
-  const elapsedDays = (now.getTime() - new Date(state.lastTickAt).getTime()) / DAY_MS;
-
-  let fullness = state.fullness - config.economy.decayPerDay * Math.max(0, elapsedDays);
+  const decayed = decayStats(state, now, config);
 
   // Feed only on contributions we haven't already counted (handles multiple ticks/day).
   const newContribs =
@@ -153,17 +224,16 @@ export function applyTick(
       ? a.todayCount
       : Math.max(0, a.todayCount - state.lastDayCounted);
 
-  fullness = clamp(fullness + newContribs * config.economy.feedPerContrib, 0, 100);
+  const fullness = clamp(decayed.fullness + newContribs * config.economy.feedPerContrib, 0, 100);
 
-  const elapsedDecayDays = Math.max(0, elapsedDays);
   const happinessGain = newContribs > 0 ? newContribs * (2 + a.collabRatio * 6) : 0;
-  const happiness = clamp(state.happiness - elapsedDecayDays * 5 + happinessGain, 0, 100);
+  const happiness = clamp(decayed.happiness + happinessGain, 0, 100);
 
   const consistencyGain =
     newContribs > 0 ? 8 + Math.min(18, Math.max(0, a.streak) * 2) : 0;
   const burstPenalty = Math.max(0, newContribs - 6) * 2;
   const stamina = clamp(
-    state.stamina - elapsedDecayDays * 4 + consistencyGain - burstPenalty,
+    decayed.stamina + consistencyGain - burstPenalty,
     0,
     100
   );
@@ -191,5 +261,76 @@ export function applyTick(
     lastDayDate: a.todayDate,
     lastDayCounted: a.todayCount,
     lastTickAt: now.toISOString(),
+  };
+}
+
+export interface VisitorInteractionUpdate {
+  state: PetState;
+  applied: boolean;
+  reason: "applied" | "rate_limited";
+  action: VisitorAction;
+  actor: string;
+}
+
+function moodAfterVisitorInteraction(
+  state: PetState,
+  fullness: number,
+  happiness: number,
+  stamina: number,
+  config: CommitchiConfig
+): Mood {
+  if (state.species === "ghost") return "sick";
+  return moodFor(fullness, happiness, stamina, 0, config);
+}
+
+/** Apply a visitor issue-op action. Visitors may help at most once per UTC day. */
+export function applyVisitorInteraction(
+  state: PetState,
+  action: VisitorAction,
+  actor: string,
+  now: Date,
+  config: CommitchiConfig
+): VisitorInteractionUpdate {
+  const actorKey = actor.trim().toLowerCase();
+  if (!actorKey) throw new Error("Visitor interaction requires a GitHub actor.");
+
+  const today = now.toISOString().slice(0, 10);
+  const previous = state.visitorInteractions[actorKey];
+  if (previous?.lastInteractionDate === today) {
+    return { state, applied: false, reason: "rate_limited", action, actor: actorKey };
+  }
+
+  const bonus = VISITOR_ACTION_BONUS[action];
+  // Decay elapsed time first so a visit can't erase pending hunger/happiness/stamina loss.
+  const decayed = decayStats(state, now, config);
+  const fullness = clamp(decayed.fullness + bonus.fullness, 0, 100);
+  const happiness = clamp(decayed.happiness + bonus.happiness, 0, 100);
+  const stamina = clamp(decayed.stamina + bonus.stamina, 0, 100);
+  const visitorInteractions = {
+    ...state.visitorInteractions,
+    [actorKey]: {
+      lastInteractionDate: today,
+      totalInteractions: (previous?.totalInteractions ?? 0) + 1,
+      feedCount: (previous?.feedCount ?? 0) + (action === "feed" ? 1 : 0),
+      playCount: (previous?.playCount ?? 0) + (action === "play" ? 1 : 0),
+    },
+  };
+
+  return {
+    state: {
+      ...state,
+      name: config.name,
+      fullness: Math.round(fullness),
+      happiness: Math.round(happiness),
+      stamina: Math.round(stamina),
+      mood: moodAfterVisitorInteraction(state, fullness, happiness, stamina, config),
+      celebration: null,
+      visitorInteractions,
+      lastTickAt: now.toISOString(),
+    },
+    applied: true,
+    reason: "applied",
+    action,
+    actor: actorKey,
   };
 }

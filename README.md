@@ -8,6 +8,8 @@ The pet is **Yuki**, an original snowy-owl pixel sprite.
 - **Go quiet** and Yuki gets hungry, then sick.
 - Collaborative work raises Yuki's **happiness**, while steady commit rhythm raises
   **stamina**.
+- Visitors can help once per day with **Feed** / **Play** issue links; Commitchi applies
+  the care action, replies, closes the issue, and updates the pet card.
 - **Disappear for 4+ days by default** and Yuki fades into **Yurei** (a ghost) — who returns the moment you commit again.
 - Yuki also **grows up** over time: egg → baby → child → teen → adult.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
@@ -56,14 +58,26 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
    ```
 
 3. Open the repo's **Actions** tab and run **commitchi tick** once (`workflow_dispatch`) to seed `pet.svg`. After that the schedule takes over.
-4. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
-5. *(Optional)* Add `commitchi.config.json` to customize the pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
+4. Add visitor interaction buttons near the pet. For a profile README, use your actual
+   profile repo URL:
+
+   ```md
+   [🍖 Feed](https://github.com/YOUR_USERNAME/YOUR_USERNAME/issues/new?title=commitchi%3A%20feed)
+   [🎮 Play](https://github.com/YOUR_USERNAME/YOUR_USERNAME/issues/new?title=commitchi%3A%20play)
+   ```
+
+   Commitchi only acts on the exact issue titles `commitchi: feed` and `commitchi: play`.
+   It ignores issue body text, lets each visitor help once per UTC day, comments a response,
+   closes the interaction issue, and commits the updated `pet.svg` / `pet-state.json`.
+5. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
+6. *(Optional)* Add `commitchi.config.json` to customize the pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
 
 ## Run locally
 
 ```bash
 npm install
 npm run demo      # DEMO mode: sample data → writes pet.svg + pet-state.json
+npm run visitor   # issue-op mode: reads ISSUE_TITLE + ISSUE_AUTHOR, updates the pet if recognized
 npm run preview   # renders every stage + mood (+ ghost) to ./preview/*.svg
 ```
 
@@ -115,6 +129,7 @@ The config file is optional and partial overrides are supported. For example, `{
 src/
   config.ts     optional commitchi.config.json loader + validation
   index.ts      orchestrates a tick
+  visitor.ts    issue-op visitor feeding/play CLI
   github.ts     GraphQL fetch → contribution activity
   state.ts      load / update / save pet-state.json  (stats + economy)
   evolution.ts  stage progression + neglect → ghost
@@ -124,6 +139,7 @@ src/
   types.ts      shared types
 assets/sprites/yuki/         the pixel sprites (PNG)
 .github/workflows/tick.yml   the scheduled job
+.github/workflows/visitor.yml issue-opened visitor interactions
 ```
 
 > `pet-state.json` is **not committed** in this template — the pet is born on its first run.
