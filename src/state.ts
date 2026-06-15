@@ -3,14 +3,16 @@ import {
   Activity,
   CelebrationMoment,
   CommitchiConfig,
+  DexEntry,
   Mood,
   PetState,
+  SaveState,
   Species,
   Stage,
   VisitorAction,
   VisitorInteractionRecord,
 } from "./types";
-import { resolveEvolution } from "./evolution";
+import { laterStage, resolveEvolution } from "./evolution";
 import { getStrings, Strings } from "./i18n";
 import { DEFAULT_SPECIES } from "./sprites";
 import { getCharacter } from "./characters";
@@ -70,6 +72,37 @@ function normalizeLockedSpecies(value: unknown): Species | "" {
   return isRegisteredSpecies(species) ? species : DEFAULT_SPECIES;
 }
 
+function normalizeSpeciesId(value: unknown): Species | null {
+  const species = typeof value === "string" ? value.trim() : "";
+  if (!species || isLegacyGhostSpecies(species)) return null;
+  return isRegisteredSpecies(species) ? species : null;
+}
+
+function normalizeStage(value: unknown, fallback: Stage): Stage {
+  return value === "egg" ||
+    value === "baby" ||
+    value === "child" ||
+    value === "teen" ||
+    value === "adult"
+    ? value
+    : fallback;
+}
+
+function normalizeMood(value: unknown, fallback: Mood): Mood {
+  return value === "happy" || value === "hungry" || value === "sick" ? value : fallback;
+}
+
+function normalizeText(value: unknown, fallback: string): string {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text || fallback;
+}
+
+function normalizeCount(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.max(0, Math.floor(value))
+    : 0;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -105,28 +138,11 @@ function normalizeVisitorInteractions(value: unknown): Record<string, VisitorInt
   return result;
 }
 
-export function loadState(now: Date, config: CommitchiConfig, path = STATE_PATH): PetState {
-  if (existsSync(path)) {
-    const state = JSON.parse(readFileSync(path, "utf8")) as PetState;
-    const lockedSpecies = normalizeLockedSpecies(state.lockedSpecies);
-    return {
-      ...state,
-      name: config.petName,
-      species: lockedSpecies || config.character,
-      isGhost: normalizeGhostVariant(state.isGhost, state.species),
-      lockedSpecies,
-      fullness: normalizeStat(state.fullness, config.economy.startFullness),
-      happiness: normalizeStat(state.happiness, config.economy.startFullness),
-      stamina: normalizeStat(state.stamina, config.economy.startFullness),
-      celebration: null,
-      celebratedMilestones: normalizeMilestones(state.celebratedMilestones),
-      visitorInteractions: normalizeVisitorInteractions(state.visitorInteractions),
-    };
-  }
+function freshPet(now: Date, config: CommitchiConfig, species: Species): PetState {
   const iso = now.toISOString();
   return {
     name: config.petName,
-    species: config.character,
+    species,
     isGhost: false,
     lockedSpecies: "",
     stage: "egg",
@@ -145,8 +161,201 @@ export function loadState(now: Date, config: CommitchiConfig, path = STATE_PATH)
   };
 }
 
-export function saveState(state: PetState, path = STATE_PATH): void {
+function normalizePetState(
+  value: unknown,
+  now: Date,
+  config: CommitchiConfig,
+  rosterSpecies: Species,
+  isActive: boolean
+): PetState {
+  if (!isRecord(value)) return freshPet(now, config, rosterSpecies);
+
+  const fallback = freshPet(now, config, rosterSpecies);
+  const lockedSpecies = normalizeLockedSpecies(value.lockedSpecies);
+  const bornAt = normalizeText(value.bornAt, fallback.bornAt);
+
+  return {
+    name: isActive ? config.petName : normalizeText(value.name, config.petName),
+    species: lockedSpecies || rosterSpecies,
+    isGhost: normalizeGhostVariant(value.isGhost, value.species),
+    lockedSpecies,
+    stage: normalizeStage(value.stage, fallback.stage),
+    bornAt,
+    lastTickAt: normalizeText(value.lastTickAt, fallback.lastTickAt),
+    fullness: normalizeStat(value.fullness, config.economy.startFullness),
+    happiness: normalizeStat(value.happiness, config.economy.startFullness),
+    stamina: normalizeStat(value.stamina, config.economy.startFullness),
+    mood: normalizeMood(value.mood, fallback.mood),
+    celebration: null,
+    celebratedMilestones: normalizeMilestones(value.celebratedMilestones),
+    ageDays: normalizeCount(value.ageDays),
+    lastDayDate: typeof value.lastDayDate === "string" ? value.lastDayDate : "",
+    lastDayCounted: normalizeCount(value.lastDayCounted),
+    visitorInteractions: normalizeVisitorInteractions(value.visitorInteractions),
+  };
+}
+
+function legacyRosterSpecies(value: Record<string, unknown>): Species {
+  const lockedSpecies = normalizeLockedSpecies(value.lockedSpecies);
+  if (lockedSpecies) return lockedSpecies;
+  return normalizeSpeciesId(value.species) ?? DEFAULT_SPECIES;
+}
+
+function dexEntryForPet(pet: PetState, existing?: DexEntry): DexEntry {
+  return {
+    firstSeenAt: existing?.firstSeenAt ?? pet.bornAt,
+    maxStage: existing ? laterStage(existing.maxStage, pet.stage) : pet.stage,
+  };
+}
+
+function normalizeDex(
+  value: unknown,
+  pets: Record<Species, PetState>,
+  now: Date
+): Record<Species, DexEntry> {
+  const fallbackIso = now.toISOString();
+  const dex: Record<Species, DexEntry> = {};
+
+  if (isRecord(value)) {
+    for (const [rawSpecies, rawEntry] of Object.entries(value)) {
+      const species = normalizeSpeciesId(rawSpecies);
+      if (!species) continue;
+
+      const pet = pets[species];
+      const fallbackStage = pet?.stage ?? "egg";
+      const fallbackFirstSeenAt = pet?.bornAt ?? fallbackIso;
+
+      if (!isRecord(rawEntry)) {
+        dex[species] = { firstSeenAt: fallbackFirstSeenAt, maxStage: fallbackStage };
+        continue;
+      }
+
+      dex[species] = {
+        firstSeenAt: normalizeText(rawEntry.firstSeenAt, fallbackFirstSeenAt),
+        maxStage: normalizeStage(rawEntry.maxStage, fallbackStage),
+      };
+    }
+  }
+
+  for (const [species, pet] of Object.entries(pets)) {
+    dex[species] = dexEntryForPet(pet, dex[species]);
+  }
+
+  return dex;
+}
+
+function migrateLegacyState(
+  value: Record<string, unknown>,
+  now: Date,
+  config: CommitchiConfig
+): SaveState {
+  const active = config.character;
+  const species = legacyRosterSpecies(value);
+  const pets: Record<Species, PetState> = {
+    [species]: normalizePetState(value, now, config, species, species === active),
+  };
+
+  if (!pets[active]) {
+    pets[active] = freshPet(now, config, active);
+  }
+
+  return {
+    schemaVersion: 2,
+    active,
+    pets,
+    dex: normalizeDex(undefined, pets, now),
+  };
+}
+
+function normalizeSaveState(value: Record<string, unknown>, now: Date, config: CommitchiConfig): SaveState {
+  const previousActive = normalizeSpeciesId(value.active);
+  const active = config.character;
+  const pets: Record<Species, PetState> = {};
+  const rawPets = value.pets;
+
+  if (isRecord(rawPets)) {
+    for (const [rawSpecies, rawPet] of Object.entries(rawPets)) {
+      const species = normalizeSpeciesId(rawSpecies);
+      if (!species) continue;
+      pets[species] = normalizePetState(rawPet, now, config, species, species === active);
+    }
+  }
+
+  const activeCreated = !pets[active];
+  if (activeCreated) {
+    pets[active] = freshPet(now, config, active);
+  } else {
+    pets[active] = {
+      ...pets[active],
+      name: config.petName,
+      species: pets[active].lockedSpecies || active,
+    };
+  }
+
+  if (activeCreated || previousActive !== active) {
+    pets[active] = { ...pets[active], lastTickAt: now.toISOString() };
+  }
+
+  return {
+    schemaVersion: 2,
+    active,
+    pets,
+    dex: normalizeDex(value.dex, pets, now),
+  };
+}
+
+export function loadState(now: Date, config: CommitchiConfig, path = STATE_PATH): SaveState {
+  if (!existsSync(path)) {
+    const active = config.character;
+    const pets = { [active]: freshPet(now, config, active) };
+    return {
+      schemaVersion: 2,
+      active,
+      pets,
+      dex: normalizeDex(undefined, pets, now),
+    };
+  }
+
+  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+  if (!isRecord(parsed)) {
+    const active = config.character;
+    const pets = { [active]: freshPet(now, config, active) };
+    return {
+      schemaVersion: 2,
+      active,
+      pets,
+      dex: normalizeDex(undefined, pets, now),
+    };
+  }
+
+  return parsed.schemaVersion === 2
+    ? normalizeSaveState(parsed, now, config)
+    : migrateLegacyState(parsed, now, config);
+}
+
+export function saveState(state: SaveState, path = STATE_PATH): void {
   writeFileSync(path, JSON.stringify(state, null, 2) + "\n");
+}
+
+export function getActivePet(save: SaveState): PetState {
+  const pet = save.pets[save.active];
+  if (!pet) throw new Error(`pet-state.json: active pet "${save.active}" is missing.`);
+  return pet;
+}
+
+export function setActivePet(save: SaveState, pet: PetState): SaveState {
+  const existing = save.dex[save.active];
+  return {
+    ...save,
+    pets: {
+      ...save.pets,
+      [save.active]: pet,
+    },
+    dex: {
+      ...save.dex,
+      [save.active]: dexEntryForPet(pet, existing),
+    },
+  };
 }
 
 function moodFor(

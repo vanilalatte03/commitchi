@@ -5,9 +5,11 @@ import { DEFAULT_CONFIG } from "../src/config";
 import type {
   Activity,
   CommitchiConfig,
+  DexEntry,
   EconomyConfig,
   Language,
   PetState,
+  SaveState,
   Species,
   Theme,
   ThresholdConfig,
@@ -75,6 +77,30 @@ export function makeState(
     lastDayCounted: 0,
     visitorInteractions: {},
     ...overrides,
+  };
+}
+
+export function makeSave(
+  overrides: Partial<SaveState> = {},
+  config = makeConfig()
+): SaveState {
+  const active = overrides.active ?? config.character;
+  const activeConfig = { ...config, character: active };
+  const pets = overrides.pets ?? { [active]: makeState({}, activeConfig) };
+  const dex =
+    overrides.dex ??
+    (Object.fromEntries(
+      Object.entries(pets).map(([species, pet]) => [
+        species,
+        { firstSeenAt: pet.bornAt, maxStage: pet.stage },
+      ])
+    ) as Record<Species, DexEntry>);
+
+  return {
+    schemaVersion: 2,
+    active,
+    pets,
+    dex,
   };
 }
 

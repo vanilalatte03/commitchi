@@ -4,8 +4,10 @@ import { getStrings, Strings } from "./i18n";
 import { renderSVG } from "./render";
 import {
   applyVisitorInteraction,
+  getActivePet,
   loadState,
   saveState,
+  setActivePet,
   VISITOR_ACTION_BONUS,
 } from "./state";
 import { VisitorAction } from "./types";
@@ -102,10 +104,11 @@ function main(): void {
 
   const config = loadConfig();
   const s = getStrings(config.language);
-  const update = applyVisitorInteraction(loadState(now, config), action, actor, now, config);
+  const save = loadState(now, config);
+  const update = applyVisitorInteraction(getActivePet(save), action, actor, now, config);
 
   if (update.applied) {
-    saveState(update.state);
+    saveState(setActivePet(save, update.state));
     writeFileSync("pet.svg", renderSVG(update.state, config));
   }
 

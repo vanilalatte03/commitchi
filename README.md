@@ -5,7 +5,9 @@
 A Tamagotchi-style pet that lives in your GitHub profile README and feeds on your commits.
 
 Each owner can name their own individual pet and choose which registered character to
-raise. The default is **Yuki**, an original snowy-owl pixel sprite.
+raise. Changing the configured character switches the active pet in your roster: the
+previous pet freezes where it was, and switching back resumes it. The default is **Yuki**,
+an original snowy-owl pixel sprite.
 
 - **Commit** and your pet gets full and happy.
 - **Go quiet** and your pet gets hungry, then sick.
@@ -15,6 +17,7 @@ raise. The default is **Yuki**, an original snowy-owl pixel sprite.
   the care action, replies, closes the issue, and updates the pet card.
 - **Disappear for 4+ days by default** and your pet fades into that character's ghost form — who returns the moment you commit again.
 - Your pet also **grows up** over time: egg → baby → child → teen → adult.
+- Raised characters fill your personal dex progress as they reach later stages.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
   badge and sparkle effect.
 
@@ -44,7 +47,7 @@ variant.
 ```
 GitHub Actions (scheduled)
   → fetch your contribution activity (GraphQL)
-  → update pet-state.json   (the pet's memory: age, stats, mood, stage, milestones)
+  → update pet-state.json   (roster memory: active pet, stats, stage, milestones, dex)
   → render pet.svg          (SVG card + the matching pixel sprite, embedded as a base64 PNG)
   → commit pet.svg + pet-state.json back to the repo
 README embeds pet.svg
@@ -120,10 +123,11 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 ```
 
 `petName` is the user-chosen name shown at the top of the card.
-`character` chooses the registered character to raise. Before adulthood, changing it
-reskins the same single pet state; when the pet reaches adult, the current character is
-stored in `lockedSpecies`, so later config changes do not replace the grown pet. Pick any
-character id listed in `catalog.json`.
+`character` chooses the active registered character to raise. Changing it switches to
+that character's roster pet: an existing pet resumes from its frozen state, while a
+newly chosen character starts as an egg. Inactive pets do not decay, and your personal
+dex records how far each character has been raised. Pick any character id listed in
+`catalog.json`.
 `language` switches **all** card text and visitor comments between fully Korean (`"ko"`)
 and fully English (`"en"`) — no mixing. It defaults to `"ko"`.
 Only the `winter` theme exists today; the field is there so more card themes can be added without changing the config shape.
@@ -131,7 +135,7 @@ Only the `winter` theme exists today; the field is there so more card themes can
 | Knob | Meaning | Default |
 |---|---|---|
 | `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
-| `character` | active registered character to raise until adulthood locks it | `yuki` |
+| `character` | active registered character; changing it switches roster pets | `yuki` |
 | `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
@@ -140,7 +144,7 @@ Only the `winter` theme exists today; the field is there so more card themes can
 | `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
 | `thresholds.hungryFullness` | stat level at/below which the pet becomes hungry | 45 |
 | `thresholds.sickFullness` | stat level at/below which the pet becomes sick | 15 |
-| `thresholds.neglectDays` | days without contributions before the pet becomes Yurei | 4 |
+| `thresholds.neglectDays` | days without contributions before the active pet becomes a ghost | 4 |
 
 The config file is optional and partial overrides are supported. For example, `{ "petName": "Bori" }` only changes the displayed pet name.
 
@@ -169,9 +173,10 @@ assets/sprites/<id>/         the pixel sprites (PNG) + character.json
 .github/workflows/visitor.yml issue-opened visitor interactions
 ```
 
-> `pet-state.json` is **not committed** in this template — the pet is born on its first run,
-> then GitHub Actions commits that generated state into the user's own repo. When updating
-> Commitchi later, keep your repo's `pet-state.json` so the pet does not restart.
+> `pet-state.json` is **not committed** in this template — the first run creates the
+> roster and active pet, then GitHub Actions commits that generated state into the user's
+> own repo. When updating Commitchi later, keep your repo's `pet-state.json` so roster and
+> dex progress do not restart.
 > The committed `pet.svg` is just an egg placeholder until then.
 
 ## License

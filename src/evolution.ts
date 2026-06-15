@@ -26,6 +26,14 @@ export function daysToNextStage(ageDays: number): number | null {
   return null;
 }
 
+function stageRank(stage: Stage): number {
+  return STAGE_THRESHOLDS.findIndex((entry) => entry.stage === stage);
+}
+
+export function laterStage(a: Stage, b: Stage): Stage {
+  return stageRank(a) >= stageRank(b) ? a : b;
+}
+
 /** Parked hook for future special/limited character selection rules. */
 export function pickSpecies(_a: Activity, _neglectDays: number): Species {
   return DEFAULT_SPECIES;
