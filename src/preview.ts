@@ -90,4 +90,34 @@ make("celebration-streak", {
   celebratedMilestones: ["streak:7", "streak:30"],
 });
 
+make("visitor-feed", {
+  stage: "child",
+  ageDays: 5,
+  mood: "happy",
+  fullness: 72,
+  happiness: 64,
+  stamina: 61,
+  celebration: {
+    kind: "visitor",
+    milestoneId: "visitor:feed:preview:octocat",
+    title: "냠냠!",
+    detail: "@octocat님이 밥을 줬어요 · 포만감 +18",
+  },
+});
+
+make("visitor-play", {
+  stage: "teen",
+  ageDays: 10,
+  mood: "happy",
+  fullness: 58,
+  happiness: 82,
+  stamina: 66,
+  celebration: {
+    kind: "visitor",
+    milestoneId: "visitor:play:preview:octocat",
+    title: "신난다!",
+    detail: "@octocat님이 같이 놀아줬어요 · 행복도 +16",
+  },
+});
+
 console.log("Wrote preview gallery to ./preview/*.svg");

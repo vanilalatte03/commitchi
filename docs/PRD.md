@@ -17,14 +17,14 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Mascot | ✅ Yuki (snowy-owl pixel sprite), original art |
 | Growth stages | ✅ egg → baby → child → teen → adult (by age) |
 | Stat: fullness (포만감) | ✅ fed by new contributions, decays over time |
-| Stat: happiness (행복도) | ✅ boosted by collaborative activity ratio (PRs, reviews, issues) |
-| Stat: stamina (체력) | ✅ boosted by steady streaks; large bursts are less efficient |
+| Stat: happiness (행복도) | ✅ boosted by collaborative activity ratio (PRs, reviews, issues), decays over time |
+| Stat: stamina (체력) | ✅ boosted by steady streaks; large bursts are less efficient, decays over time |
 | Moods | ✅ happy / hungry / sick, with per-stage mood sprites |
 | Neglect | ✅ 4+ days no contributions by default → Yurei (ghost); returns on next commit |
 | Milestone celebrations | ✅ evolution and 7/30/100-day streak milestones render a one-tick celebration badge + sparkle effect |
-| Visitor feeding (issue-ops) | ✅ README Feed/Play issue links → `on: issues` workflow → title-only parser → once/day visitor rate limit → comment + close |
+| Visitor feeding (issue-ops) | ✅ README Feed/Play issue links → `on: issues` workflow → title-only parser → once/day visitor rate limit → one-tick reaction badge/detail → comment + close |
 | Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
-| Owner config | ✅ optional `commitchi.config.json` for pet name, theme placeholder, economy, and thresholds |
+| Owner config | ✅ optional `commitchi.config.json` for pet name, theme placeholder, stat economy/decay, and thresholds |
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
 | Stack | ✅ TypeScript/Node, zero runtime deps, demo + preview scripts |
 
@@ -63,10 +63,9 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
 
 ## 3. Additional recommendations (not yet discussed)
 
-### F. Achievement cosmetics — **M**
-- Unlock accessories (scarf, hat, sparkles, frames) from achievements, layered over the
-  existing sprite. A **collection loop without the art cost of full new species** — a cheaper
-  bridge between B and A/D.
+### F. Achievement cosmetics — **very low priority** · **M**
+- Deferred. Cosmetic overlays are not a near-term MVP; revisit only after the core pet loop
+  and larger collection direction are settled, and only with final transparent overlay assets.
 
 ### G. Seasonal / holiday skins — **S–M**
 - Yuki is already winter-themed; seasonal palettes or holiday hats (date-driven) keep the
@@ -76,8 +75,9 @@ Each remaining item is independently shippable. Effort: **S** = hours, **M** = a
 
 ## 4. Suggested sequencing
 
-- **Now / Next:** F (cosmetics) for collection depth without full species art.
+- **Now / Next:** validate C (visitor feeding) in real profile usage before adding another loop.
 - **Later:** A (more characters) and D (death/dex) — highest value but gated on sprite art.
+- **Very late / backlog:** F (achievement cosmetics) and G (seasonal skins).
 
 ---
 

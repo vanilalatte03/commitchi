@@ -91,7 +91,11 @@ function celebrationEffects(palette: Palette, active: boolean): string {
 function celebrationBadge(state: PetState, palette: Palette): string {
   if (!state.celebration) return "";
 
-  const text = escapeText(`축하! ${state.celebration.title}`);
+  const label =
+    state.celebration.kind === "visitor"
+      ? state.celebration.title
+      : `축하! ${state.celebration.title}`;
+  const text = escapeText(label);
   return `<g aria-hidden="true">
   <rect x="30" y="18" width="164" height="28" rx="8" fill="${palette.celebrationBg}" opacity="0.94"/>
   <text x="112" y="37" fill="${palette.celebrationText}" font-family="'Segoe UI',system-ui,sans-serif" font-size="12" font-weight="700" text-anchor="middle">${text}</text>
@@ -129,6 +133,10 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   );
   const moodText = escapeText(MOOD_LABEL[state.mood]);
   const progressText = escapeText(progressLine(state));
+  const footerText =
+    state.celebration?.kind === "visitor"
+      ? progressText
+      : `${progressText} · ${state.ageDays}일째`;
   const subtitleText = escapeText(subtitle(state));
   const nameText = escapeText(state.name);
   const t = (x: number, y: number, fill: string, size: number, weight = "400", extra = "") =>
@@ -164,7 +172,7 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   ${statRow("포만감", f, 121)}
   ${statRow("행복도", happiness, 148)}
   ${statRow("체력", stamina, 175)}
-  ${t(204, 194, palette.textMuted, 10)}${progressText} · ${state.ageDays}일째</text>
+  ${t(204, 194, palette.textMuted, 10)}${footerText}</text>
 </svg>
 `;
 }

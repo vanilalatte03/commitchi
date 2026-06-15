@@ -8,7 +8,7 @@ export type Species = "yuki" | "ghost";
 
 export type Stage = "egg" | "baby" | "child" | "teen" | "adult";
 
-export type CelebrationKind = "evolution" | "streak";
+export type CelebrationKind = "evolution" | "streak" | "visitor";
 
 export type VisitorAction = "feed" | "play";
 
@@ -87,6 +87,10 @@ export interface EconomyConfig {
   feedPerContrib: number;
   /** Fullness lost per elapsed day. */
   decayPerDay: number;
+  /** Happiness lost per elapsed day. */
+  happinessDecayPerDay: number;
+  /** Stamina lost per elapsed day. */
+  staminaDecayPerDay: number;
   /** Fullness used when a pet is born without existing state. */
   startFullness: number;
 }

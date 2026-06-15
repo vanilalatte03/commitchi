@@ -35,20 +35,20 @@ function appliedComment(action: VisitorAction, actor: string, petName: string): 
   const bonus = VISITOR_ACTION_BONUS[action];
   const parts =
     action === "feed"
-      ? [`fullness +${bonus.fullness}`, `happiness +${bonus.happiness}`]
-      : [`happiness +${bonus.happiness}`, `fullness +${bonus.fullness}`];
-  if (bonus.stamina) parts.push(`stamina +${bonus.stamina}`);
+      ? [`포만감 +${bonus.fullness}`, `행복도 +${bonus.happiness}`]
+      : [`행복도 +${bonus.happiness}`, `포만감 +${bonus.fullness}`];
+  if (bonus.stamina) parts.push(`체력 +${bonus.stamina}`);
   const stats = parts.join(", ");
   const intro =
     action === "feed"
-      ? `🍖 @${actor} fed ${petName}.`
-      : `🎮 @${actor} played with ${petName}.`;
+      ? `🍖 @${actor}님이 ${petName}에게 밥을 줬어요.`
+      : `🎮 @${actor}님이 ${petName}와 같이 놀아줬어요.`;
 
-  return `${intro}\n\nApplied ${stats}. Come back tomorrow to help again.`;
+  return `${intro}\n\n${stats}. 내일 또 돌봐줄 수 있어요.`;
 }
 
 function rateLimitedComment(actor: string, petName: string): string {
-  return `@${actor}, ${petName} already got a visit from you today.\n\nCome back tomorrow to help again.`;
+  return `@${actor}님, ${petName}는 오늘 이미 돌봄을 받았어요.\n\n내일 다시 도와주세요.`;
 }
 
 function writeGithubOutputs(result: InteractionResultFile): void {

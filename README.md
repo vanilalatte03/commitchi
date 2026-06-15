@@ -69,6 +69,7 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
    Commitchi only acts on the exact issue titles `commitchi: feed` and `commitchi: play`.
    It ignores issue body text, lets each visitor help once per UTC day, comments a response,
    closes the interaction issue, and commits the updated `pet.svg` / `pet-state.json`.
+   Successful visits show a one-tick reaction such as `냠냠!` or `신난다!` on the card.
 5. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
 6. *(Optional)* Add `commitchi.config.json` to customize the pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
 
@@ -100,6 +101,8 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
+    "happinessDecayPerDay": 5,
+    "staminaDecayPerDay": 4,
     "startFullness": 60
   },
   "thresholds": {
@@ -116,6 +119,8 @@ Only the `winter` theme exists today; the field is there so more card themes can
 |---|---|---|
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
+| `economy.happinessDecayPerDay` | happiness lost per elapsed day | 5 |
+| `economy.staminaDecayPerDay` | stamina lost per elapsed day | 4 |
 | `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
 | `thresholds.hungryFullness` | stat level at/below which Yuki becomes hungry | 45 |
 | `thresholds.sickFullness` | stat level at/below which Yuki becomes sick | 15 |
@@ -142,7 +147,9 @@ assets/sprites/yuki/         the pixel sprites (PNG)
 .github/workflows/visitor.yml issue-opened visitor interactions
 ```
 
-> `pet-state.json` is **not committed** in this template — the pet is born on its first run.
+> `pet-state.json` is **not committed** in this template — the pet is born on its first run,
+> then GitHub Actions commits that generated state into the user's own repo. When updating
+> Commitchi later, keep your repo's `pet-state.json` so the pet does not restart.
 > The committed `pet.svg` is just an egg placeholder until then.
 
 MIT.

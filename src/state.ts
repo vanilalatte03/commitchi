@@ -24,6 +24,11 @@ const STAGE_CELEBRATION_LABEL: Record<Stage, string> = {
   adult: "Adult",
 };
 
+const VISITOR_REACTION_TITLES: Record<VisitorAction, string[]> = {
+  feed: ["냠냠!", "잘 먹었어!"],
+  play: ["신난다!", "행복 충전!"],
+};
+
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
 export const VISITOR_ACTION_BONUS: Record<
@@ -190,6 +195,34 @@ function resolveCelebration(
   return { celebration: null, celebratedMilestones: [...seen] };
 }
 
+function stableIndex(seed: string, length: number): number {
+  let hash = 0;
+  for (const ch of seed) {
+    hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  }
+  return hash % length;
+}
+
+function visitorCelebration(
+  action: VisitorAction,
+  actor: string,
+  today: string
+): CelebrationMoment {
+  const titles = VISITOR_REACTION_TITLES[action];
+  const title = titles[stableIndex(`${action}:${actor}:${today}`, titles.length)];
+  const detail =
+    action === "feed"
+      ? `@${actor}님이 밥을 줬어요 · 포만감 +${VISITOR_ACTION_BONUS.feed.fullness}`
+      : `@${actor}님이 같이 놀아줬어요 · 행복도 +${VISITOR_ACTION_BONUS.play.happiness}`;
+
+  return {
+    kind: "visitor",
+    milestoneId: `visitor:${action}:${today}:${actor}`,
+    title,
+    detail,
+  };
+}
+
 /**
  * Decay stats by the time elapsed since the last tick. Returns the (unclamped)
  * decayed values so callers can add their own gains before clamping. Shared by
@@ -204,8 +237,8 @@ function decayStats(
   return {
     elapsedDays,
     fullness: state.fullness - config.economy.decayPerDay * elapsedDays,
-    happiness: state.happiness - elapsedDays * 5,
-    stamina: state.stamina - elapsedDays * 4,
+    happiness: state.happiness - config.economy.happinessDecayPerDay * elapsedDays,
+    stamina: state.stamina - config.economy.staminaDecayPerDay * elapsedDays,
   };
 }
 
@@ -324,7 +357,7 @@ export function applyVisitorInteraction(
       happiness: Math.round(happiness),
       stamina: Math.round(stamina),
       mood: moodAfterVisitorInteraction(state, fullness, happiness, stamina, config),
-      celebration: null,
+      celebration: visitorCelebration(action, actorKey, today),
       visitorInteractions,
       lastTickAt: now.toISOString(),
     },

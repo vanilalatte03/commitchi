@@ -9,6 +9,8 @@ export const DEFAULT_CONFIG: CommitchiConfig = {
   economy: {
     feedPerContrib: 12,
     decayPerDay: 22,
+    happinessDecayPerDay: 5,
+    staminaDecayPerDay: 4,
     startFullness: 60,
   },
   thresholds: {
@@ -81,6 +83,24 @@ function readEconomy(source: Record<string, unknown>): EconomyConfig {
       min: 0,
       max: 100,
     }),
+    happinessDecayPerDay: readNumber(
+      economy,
+      "happinessDecayPerDay",
+      DEFAULT_CONFIG.economy.happinessDecayPerDay,
+      {
+        min: 0,
+        max: 100,
+      }
+    ),
+    staminaDecayPerDay: readNumber(
+      economy,
+      "staminaDecayPerDay",
+      DEFAULT_CONFIG.economy.staminaDecayPerDay,
+      {
+        min: 0,
+        max: 100,
+      }
+    ),
     startFullness: readNumber(economy, "startFullness", DEFAULT_CONFIG.economy.startFullness, {
       min: 0,
       max: 100,

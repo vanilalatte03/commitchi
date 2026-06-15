@@ -4,6 +4,8 @@
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
+    "happinessDecayPerDay": 5,
+    "staminaDecayPerDay": 4,
     "startFullness": 60
   },
   "thresholds": {
