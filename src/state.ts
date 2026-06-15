@@ -3,14 +3,17 @@ import {
   Activity,
   CelebrationMoment,
   CommitchiConfig,
+  isGhostSpecies,
   Mood,
   PetState,
+  Species,
   Stage,
   VisitorAction,
   VisitorInteractionRecord,
 } from "./types";
 import { resolveEvolution } from "./evolution";
 import { getStrings, Strings } from "./i18n";
+import { DEFAULT_SPECIES } from "./sprites";
 
 const STATE_PATH = "pet-state.json";
 
@@ -36,6 +39,17 @@ function normalizeStat(value: unknown, fallback: number): number {
 function normalizeMilestones(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return [...new Set(value.filter((item): item is string => typeof item === "string"))];
+}
+
+function normalizeSpecies(value: unknown): Species {
+  const species = typeof value === "string" ? value.trim() : "";
+  return species || DEFAULT_SPECIES;
+}
+
+function normalizeLockedSpecies(value: unknown): Species | "" {
+  const species = typeof value === "string" ? value.trim() : "";
+  if (!species) return "";
+  return isGhostSpecies(species) ? DEFAULT_SPECIES : species;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -79,6 +93,8 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
     return {
       ...state,
       name: config.petName,
+      species: normalizeSpecies(state.species),
+      lockedSpecies: normalizeLockedSpecies(state.lockedSpecies),
       fullness: normalizeStat(state.fullness, config.economy.startFullness),
       happiness: normalizeStat(state.happiness, config.economy.startFullness),
       stamina: normalizeStat(state.stamina, config.economy.startFullness),
@@ -90,7 +106,7 @@ export function loadState(now: Date, config: CommitchiConfig): PetState {
   const iso = now.toISOString();
   return {
     name: config.petName,
-    species: "yuki",
+    species: DEFAULT_SPECIES,
     lockedSpecies: "",
     stage: "egg",
     bornAt: iso,
@@ -264,7 +280,7 @@ export function applyTick(
   const ageDays = Math.floor((now.getTime() - new Date(state.bornAt).getTime()) / DAY_MS);
   const evo = resolveEvolution(a, ageDays, state.lockedSpecies, config.thresholds.neglectDays);
   const celebration =
-    evo.species === "ghost"
+    isGhostSpecies(evo.species)
       ? { celebration: null, celebratedMilestones: state.celebratedMilestones }
       : resolveCelebration(state, evo.stage, a.streak, getStrings(config.language));
 
@@ -302,7 +318,7 @@ function moodAfterVisitorInteraction(
   stamina: number,
   config: CommitchiConfig
 ): Mood {
-  if (state.species === "ghost") return "sick";
+  if (isGhostSpecies(state.species)) return "sick";
   return moodFor(fullness, happiness, stamina, 0, config);
 }
 

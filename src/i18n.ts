@@ -1,4 +1,4 @@
-import { Language, Mood, Species, Stage, VisitorAction } from "./types";
+import { Language, Mood, Stage, VisitorAction } from "./types";
 
 /**
  * All user-facing text lives here, keyed by language. The rest of the codebase
@@ -10,7 +10,7 @@ import { Language, Mood, Species, Stage, VisitorAction } from "./types";
 export interface Strings {
   mood: Record<Mood, string>;
   stage: Record<Stage, string>;
-  species: Record<Species, string>;
+  species: Record<string, string>;
   /** Heading shown above the mood value on the card. */
   moodHeading: string;
   stat: { fullness: string; happiness: string; stamina: string };

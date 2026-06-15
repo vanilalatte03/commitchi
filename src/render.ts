@@ -1,6 +1,6 @@
 import { DEFAULT_CONFIG } from "./config";
-import { CommitchiConfig, PetState, Theme } from "./types";
-import { spriteFor } from "./sprites";
+import { CommitchiConfig, isGhostSpecies, PetState, Species, Theme } from "./types";
+import { DEFAULT_SPECIES, spriteFor } from "./sprites";
 import { getStrings, Strings } from "./i18n";
 import { daysToNextStage } from "./evolution";
 
@@ -43,6 +43,17 @@ function escapeText(value: string): string {
 
 function escapeAttr(value: string): string {
   return escapeText(value).replace(/"/g, "&quot;");
+}
+
+function activeCharacterId(state: PetState): Species {
+  if (!isGhostSpecies(state.species)) return state.species || DEFAULT_SPECIES;
+  return state.lockedSpecies && !isGhostSpecies(state.lockedSpecies)
+    ? state.lockedSpecies
+    : DEFAULT_SPECIES;
+}
+
+function speciesLabel(species: Species, s: Strings): string {
+  return s.species[species] ?? species;
 }
 
 function stars(palette: Palette): string {
@@ -104,13 +115,13 @@ function celebrationBadge(state: PetState, palette: Palette, s: Strings): string
 function subtitle(state: PetState, s: Strings): string {
   if (state.stage === "egg") return s.subtitle.egg;
   if (state.stage === "baby") return s.subtitle.baby;
-  if (state.species === "ghost") return s.subtitle.ghost;
-  return s.subtitle.default(s.species[state.species], s.stage[state.stage]);
+  if (isGhostSpecies(state.species)) return s.subtitle.ghost;
+  return s.subtitle.default(speciesLabel(state.species, s), s.stage[state.stage]);
 }
 
 function progressLine(state: PetState, s: Strings): string {
   if (state.celebration) return state.celebration.detail;
-  if (state.species === "ghost") return s.progress.ghost;
+  if (isGhostSpecies(state.species)) return s.progress.ghost;
   const left = daysToNextStage(state.ageDays);
   return left === null ? s.progress.fullyGrown : s.progress.daysToNext(left);
 }
@@ -121,9 +132,10 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   const f = Math.round(state.fullness);
   const happiness = Math.round(state.happiness);
   const stamina = Math.round(state.stamina);
-  const ghostFloat = state.species === "ghost" && state.stage !== "egg" && state.stage !== "baby";
+  const ghost = isGhostSpecies(state.species);
+  const ghostFloat = ghost && state.stage !== "egg" && state.stage !== "baby";
   const bob = ghostFloat ? "0,-8" : "0,-4";
-  const sprite = spriteFor(state.stage, state.species, state.mood);
+  const sprite = spriteFor(state.stage, activeCharacterId(state), state.mood, ghost);
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
   const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, s))}`;
@@ -131,7 +143,7 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
     s.aria({
       name: state.name,
       stage: s.stage[state.stage],
-      species: s.species[state.species],
+      species: speciesLabel(state.species, s),
       mood: s.mood[state.mood],
       fullness: f,
       happiness,

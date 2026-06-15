@@ -8,7 +8,12 @@
       "status": "completed",
       "summary": "Yuki 매니페스트와 도감 카탈로그를 시드하고 캐릭터 레지스트리 로더를 추가했다."
     },
-    { "step": 1, "name": "registry-driven-sprites", "status": "pending" },
+    {
+      "step": 1,
+      "name": "registry-driven-sprites",
+      "status": "completed",
+      "summary": "Species를 캐릭터 id 문자열로 일반화하고 스프라이트 해석을 캐릭터 레지스트리 기반으로 전환했다."
+    },
     { "step": 2, "name": "species-id-and-ghost-variant", "status": "pending" }
   ]
 }

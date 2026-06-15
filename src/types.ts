@@ -5,9 +5,14 @@ export type Language = "ko" | "en";
 
 export type Theme = "winter";
 
-// Species expansion (dragon/chameleon/wolf/…) is parked while the default mascot
-// gets polished. For now the world is just Yuki and its neglected ghost form.
-export type Species = "yuki" | "ghost";
+/** Registered character id. "ghost" remains as a legacy display state until step 2. */
+export type Species = string;
+
+export const GHOST_SPECIES = "ghost";
+
+export function isGhostSpecies(species: Species): boolean {
+  return species === GHOST_SPECIES;
+}
 
 export type Stage = "egg" | "baby" | "child" | "teen" | "adult";
 

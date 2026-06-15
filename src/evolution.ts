@@ -1,4 +1,4 @@
-import { Activity, Species, Stage } from "./types";
+import { Activity, GHOST_SPECIES, isGhostSpecies, Species, Stage } from "./types";
 import { DEFAULT_SPECIES } from "./sprites";
 
 /** Age in days at which each stage begins. */
@@ -27,8 +27,7 @@ export function daysToNextStage(ageDays: number): number | null {
 }
 
 /** Keep the first pass focused on one lovable default mascot. */
-export function pickSpecies(a: Activity, neglectDays: number): Species {
-  if (a.daysSinceLastContribution >= neglectDays) return "ghost";
+export function pickSpecies(_a: Activity, _neglectDays: number): Species {
   return DEFAULT_SPECIES;
 }
 
@@ -59,15 +58,16 @@ export function resolveEvolution(
   const neglected = a.daysSinceLastContribution >= neglectDays;
 
   if (prevLocked) {
-    return { stage, species: neglected ? "ghost" : DEFAULT_SPECIES, lockedSpecies: DEFAULT_SPECIES };
+    const locked = isGhostSpecies(prevLocked) ? DEFAULT_SPECIES : prevLocked;
+    return { stage, species: neglected ? GHOST_SPECIES : locked, lockedSpecies: locked };
   }
 
   const candidate = pickSpecies(a, neglectDays);
 
   if (stage === "adult") {
-    const locked: Species = candidate === "ghost" ? DEFAULT_SPECIES : candidate;
-    return { stage, species: neglected ? "ghost" : locked, lockedSpecies: locked };
+    const locked: Species = isGhostSpecies(candidate) ? DEFAULT_SPECIES : candidate;
+    return { stage, species: neglected ? GHOST_SPECIES : locked, lockedSpecies: locked };
   }
 
-  return { stage, species: candidate, lockedSpecies: "" };
+  return { stage, species: neglected ? GHOST_SPECIES : candidate, lockedSpecies: "" };
 }

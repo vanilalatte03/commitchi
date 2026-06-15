@@ -17,8 +17,6 @@ export interface SpriteAsset extends SpriteSpec {
   href: string;
 }
 
-const SPRITE_DIR = getCharacterSpriteDir(DEFAULT_SPECIES);
-
 // We embed the "@3x" variants: ~192px, display-optimized PNGs (~8-10KB each).
 // They are crisp at our ~158px display size and keep pet.svg ~20x smaller than
 // the full-resolution source sprites.
@@ -61,24 +59,25 @@ function variantFile(file: string): string {
   return file.replace(/\.png$/, `${VARIANT_SUFFIX}.png`);
 }
 
-function spriteDataUri(file: string): string {
-  const cached = dataUriCache.get(file);
+function spriteDataUri(species: Species, file: string): string {
+  const cacheKey = `${species}:${file}`;
+  const cached = dataUriCache.get(cacheKey);
   if (cached) return cached;
 
-  const path = join(SPRITE_DIR, variantFile(file));
+  const path = join(getCharacterSpriteDir(species), variantFile(file));
   if (!existsSync(path)) {
     throw new Error(`Missing sprite asset: ${path}`);
   }
 
   const encoded = readFileSync(path).toString("base64");
   const href = `data:image/png;base64,${encoded}`;
-  dataUriCache.set(file, href);
+  dataUriCache.set(cacheKey, href);
   return href;
 }
 
-export function spriteFor(stage: Stage, species: Species, mood: Mood): SpriteAsset {
+export function spriteFor(stage: Stage, species: Species, mood: Mood, ghost = false): SpriteAsset {
   const spec =
-    species === "ghost" && stage !== "egg"
+    ghost && stage !== "egg"
       ? GHOST_SPRITE
       : stage === "adult"
         ? ADULT_MOOD_SPRITES[mood]
@@ -86,6 +85,6 @@ export function spriteFor(stage: Stage, species: Species, mood: Mood): SpriteAss
 
   return {
     ...spec,
-    href: spriteDataUri(spec.file),
+    href: spriteDataUri(species, spec.file),
   };
 }
