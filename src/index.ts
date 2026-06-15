@@ -35,7 +35,7 @@ async function main() {
   saveState(state);
   writeFileSync("pet.svg", renderSVG(state, config));
   console.log(
-    `Pet: ${state.stage}/${state.species} · ${state.mood} · fullness ${state.fullness}% · age ${state.ageDays}d. Wrote pet.svg + pet-state.json.`
+    `Pet: ${state.stage}/${state.species} · ${state.mood} · fullness ${state.fullness}% · happiness ${state.happiness}% · stamina ${state.stamina}% · age ${state.ageDays}d. Wrote pet.svg + pet-state.json.`
   );
 }
 

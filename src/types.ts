@@ -20,6 +20,10 @@ export interface PetState {
   lastTickAt: string;
   /** 0-100. Driven by commits, decays over time. */
   fullness: number;
+  /** 0-100. Driven by collaborative work such as PRs, reviews, and issues. */
+  happiness: number;
+  /** 0-100. Driven by consistent activity; big bursts are less efficient. */
+  stamina: number;
   mood: Mood;
   ageDays: number;
   /** Date string (YYYY-MM-DD) of the day we last counted contributions for. */
@@ -58,9 +62,9 @@ export interface EconomyConfig {
 }
 
 export interface ThresholdConfig {
-  /** At or below this fullness, the pet is hungry. */
+  /** At or below this lowest stat value, the pet is hungry. */
   hungryFullness: number;
-  /** At or below this fullness, or after neglectDays, the pet is sick. */
+  /** At or below this lowest stat value, or after neglectDays, the pet is sick. */
   sickFullness: number;
   /** Whole days without contributions before the pet becomes Yurei. */
   neglectDays: number;
