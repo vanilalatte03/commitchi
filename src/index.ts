@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { fetchActivity } from "./github";
-import { applyTick, loadState, saveState } from "./state";
+import { applyTick, getActivePet, loadState, saveState, setActivePet } from "./state";
 import { renderSVG } from "./render";
 import { Activity } from "./types";
 import { loadConfig } from "./config";
@@ -31,12 +31,13 @@ async function main() {
     };
   }
 
-  const state = applyTick(loadState(now, config), activity, now, config);
-  saveState(state);
-  writeFileSync("pet.svg", renderSVG(state, config));
-  const celebration = state.celebration ? ` · celebrating ${state.celebration.title}` : "";
+  const save = loadState(now, config);
+  const ticked = applyTick(getActivePet(save), activity, now, config);
+  saveState(setActivePet(save, ticked));
+  writeFileSync("pet.svg", renderSVG(ticked, config));
+  const celebration = ticked.celebration ? ` · celebrating ${ticked.celebration.title}` : "";
   console.log(
-    `Pet: ${state.stage}/${state.species} · ${state.mood} · fullness ${state.fullness}% · happiness ${state.happiness}% · stamina ${state.stamina}% · age ${state.ageDays}d${celebration}. Wrote pet.svg + pet-state.json.`
+    `Pet: ${ticked.stage}/${ticked.species} · ${ticked.mood} · fullness ${ticked.fullness}% · happiness ${ticked.happiness}% · stamina ${ticked.stamina}% · age ${ticked.ageDays}d${celebration}. Wrote pet.svg + pet-state.json.`
   );
 }
 

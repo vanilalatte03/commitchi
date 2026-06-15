@@ -4,10 +4,20 @@ import { test } from "node:test";
 import {
   applyTick,
   applyVisitorInteraction,
+  getActivePet,
   loadState,
+  setActivePet,
   VISITOR_ACTION_BONUS,
 } from "../src/state";
-import { makeActivity, makeConfig, makeState, withTempDir, writeJson, writeText } from "./helpers";
+import {
+  makeActivity,
+  makeConfig,
+  makeSave,
+  makeState,
+  withTempDir,
+  writeJson,
+  writeText,
+} from "./helpers";
 
 const DAY_MS = 86_400_000;
 const NOW = new Date("2026-01-15T00:00:00.000Z");
@@ -311,20 +321,24 @@ test("loadState returns a fresh egg when the state file is missing", () => {
     const path = join(dir, "missing-state.json");
     const config = makeConfig({ petName: "Nova", character: "nari" });
 
-    const state = loadState(NOW, config, path);
+    const save = loadState(NOW, config, path);
+    const state = getActivePet(save);
+    assert.equal(save.schemaVersion, 2);
+    assert.equal(save.active, "nari");
     assert.equal(state.name, "Nova");
     assert.equal(state.species, "nari");
     assert.equal(state.stage, "egg");
     assert.equal(state.isGhost, false);
     assert.equal(state.bornAt, NOW.toISOString());
     assert.equal(state.lastTickAt, NOW.toISOString());
+    assert.deepEqual(save.dex.nari, { firstSeenAt: NOW.toISOString(), maxStage: "egg" });
   });
 });
 
 test("loadState normalizes legacy ghost species to ghost variant on the configured species", () => {
   withTempDir((dir) => {
     const path = join(dir, "state.json");
-    const config = makeConfig({ character: "nari" });
+    const config = makeConfig({ character: "yuki" });
     const legacy: Record<string, unknown> = {
       ...makeState({ species: "ghost" }, config),
       species: "ghost",
@@ -332,26 +346,32 @@ test("loadState normalizes legacy ghost species to ghost variant on the configur
     delete legacy.isGhost;
     writeJson(path, legacy);
 
-    const state = loadState(NOW, config, path);
-    assert.equal(state.species, "nari");
+    const save = loadState(NOW, config, path);
+    const state = getActivePet(save);
+    assert.equal(state.species, "yuki");
     assert.equal(state.isGhost, true);
   });
 });
 
-test("loadState gives lockedSpecies priority over the configured character", () => {
+test("loadState migrates legacy locked pets without replacing them with the configured character", () => {
   withTempDir((dir) => {
     const config = makeConfig({ character: "nari" });
     const lockedPath = join(dir, "locked.json");
     writeJson(lockedPath, makeState({ species: "nari", lockedSpecies: "yuki" }, config));
 
     const locked = loadState(NOW, config, lockedPath);
-    assert.equal(locked.species, "yuki");
-    assert.equal(locked.lockedSpecies, "yuki");
+    assert.equal(locked.active, "nari");
+    assert.equal(getActivePet(locked).species, "nari");
+    assert.equal(getActivePet(locked).stage, "egg");
+    assert.equal(locked.pets.yuki.species, "yuki");
+    assert.equal(locked.pets.yuki.lockedSpecies, "yuki");
 
     const unlockedPath = join(dir, "unlocked.json");
     writeJson(unlockedPath, makeState({ species: "yuki", lockedSpecies: "" }, config));
     const unlocked = loadState(NOW, config, unlockedPath);
-    assert.equal(unlocked.species, "nari");
+    assert.equal(unlocked.active, "nari");
+    assert.equal(getActivePet(unlocked).species, "nari");
+    assert.equal(unlocked.pets.yuki.species, "yuki");
   });
 });
 
@@ -371,9 +391,141 @@ test("loadState clamps out-of-range stats and falls back for unusable stats", ()
     ).replace('"happiness": 0', '"happiness": 1e999');
     writeText(path, `${raw}\n`);
 
-    const state = loadState(NOW, config, path);
+    const state = getActivePet(loadState(NOW, config, path));
     assert.equal(state.fullness, 100);
     assert.equal(state.happiness, 60);
     assert.equal(state.stamina, 0);
   });
+});
+
+test("loadState migrates v1 state into a v2 roster without resetting the existing pet", () => {
+  withTempDir((dir) => {
+    const path = join(dir, "state.json");
+    const config = makeConfig({ character: "yuki" });
+    const legacy = makeState(
+      {
+        stage: "child",
+        bornAt: daysBefore(5),
+        lastTickAt: daysBefore(1),
+        fullness: 33,
+        happiness: 44,
+        stamina: 55,
+        ageDays: 5,
+      },
+      config
+    );
+    writeJson(path, legacy);
+
+    const save = loadState(NOW, config, path);
+    const pet = getActivePet(save);
+    assert.equal(save.schemaVersion, 2);
+    assert.equal(save.active, "yuki");
+    assert.equal(pet.stage, "child");
+    assert.equal(pet.fullness, 33);
+    assert.equal(pet.happiness, 44);
+    assert.equal(pet.stamina, 55);
+    assert.equal(pet.bornAt, daysBefore(5));
+    assert.equal(pet.lastTickAt, daysBefore(1));
+    assert.deepEqual(save.dex.yuki, {
+      firstSeenAt: daysBefore(5),
+      maxStage: "child",
+    });
+  });
+});
+
+test("loadState switches to a frozen roster pet without catch-up decay", () => {
+  withTempDir((dir) => {
+    const path = join(dir, "state.json");
+    const config = makeConfig({
+      character: "nari",
+      economy: {
+        feedPerContrib: 0,
+        decayPerDay: 10,
+        happinessDecayPerDay: 10,
+        staminaDecayPerDay: 10,
+      },
+    });
+    const yuki = makeState(
+      { species: "yuki", stage: "child", fullness: 40, lastTickAt: daysBefore(2) },
+      makeConfig({ character: "yuki" })
+    );
+    const nari = makeState(
+      { species: "nari", stage: "baby", fullness: 77, lastTickAt: daysBefore(9) },
+      config
+    );
+    writeJson(
+      path,
+      makeSave(
+        {
+          active: "yuki",
+          pets: { yuki, nari },
+          dex: {
+            yuki: { firstSeenAt: yuki.bornAt, maxStage: "child" },
+            nari: { firstSeenAt: nari.bornAt, maxStage: "baby" },
+          },
+        },
+        makeConfig({ character: "yuki" })
+      )
+    );
+
+    const save = loadState(NOW, config, path);
+    const active = getActivePet(save);
+    assert.equal(save.active, "nari");
+    assert.equal(active.stage, "baby");
+    assert.equal(active.fullness, 77);
+    assert.equal(active.lastTickAt, NOW.toISOString());
+    assert.equal(save.pets.yuki.fullness, 40);
+    assert.equal(save.pets.yuki.lastTickAt, daysBefore(2));
+
+    const ticked = applyTick(active, makeActivity({ todayDate: "2026-01-16" }), NOW, config);
+    assert.equal(ticked.fullness, 77);
+  });
+});
+
+test("inactive roster pets do not decay when only the active pet is ticked", () => {
+  const config = makeConfig({
+    character: "yuki",
+    economy: {
+      feedPerContrib: 0,
+      decayPerDay: 10,
+      happinessDecayPerDay: 10,
+      staminaDecayPerDay: 10,
+    },
+  });
+  const active = makeState({ species: "yuki", fullness: 90, lastTickAt: daysBefore(1) }, config);
+  const inactive = makeState(
+    { species: "nari", fullness: 20, happiness: 21, stamina: 22, lastTickAt: daysBefore(30) },
+    makeConfig({ character: "nari" })
+  );
+  const save = makeSave(
+    {
+      active: "yuki",
+      pets: { yuki: active, nari: inactive },
+    },
+    config
+  );
+
+  const ticked = applyTick(getActivePet(save), makeActivity(), NOW, config);
+  const next = setActivePet(save, ticked);
+  assert.equal(next.pets.yuki.fullness, 80);
+  assert.deepEqual(next.pets.nari, inactive);
+});
+
+test("setActivePet raises dex maxStage without replacing firstSeenAt or lowering progress", () => {
+  const config = makeConfig({ character: "yuki" });
+  const firstSeenAt = "2026-01-01T00:00:00.000Z";
+  const save = makeSave(
+    {
+      active: "yuki",
+      pets: { yuki: makeState({ stage: "baby" }, config) },
+      dex: { yuki: { firstSeenAt, maxStage: "baby" } },
+    },
+    config
+  );
+
+  const raised = setActivePet(save, makeState({ stage: "teen" }, config));
+  assert.deepEqual(raised.dex.yuki, { firstSeenAt, maxStage: "teen" });
+
+  const lowered = setActivePet(raised, makeState({ stage: "child" }, config));
+  assert.deepEqual(lowered.dex.yuki, { firstSeenAt, maxStage: "teen" });
 });

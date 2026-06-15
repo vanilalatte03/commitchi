@@ -5,9 +5,9 @@
 Accepted. Phase 1 (data-driven character registry: manifest + `catalog.json` +
 `src/characters.ts`, `Species` as id, ghost as a render variant) is implemented and merged
 (#13). Additional registered characters, character validation CI, and config-based active
-character selection for the current single pet state are implemented. The remaining decisions (dex per-user
-progress, stage display-lock, multi-pet roster/switching, and `dex:assign`) are accepted
-direction, not yet built.
+character selection are implemented. The multi-pet roster/switching foundation and
+per-user dex progress tracking are implemented through `pet-state.json` schema v2. Stage
+display-lock, dex card display, and `dex:assign` remain accepted direction, not yet built.
 
 ## Context
 
@@ -208,22 +208,43 @@ the curation axis:
 
 ## Migration (required, not optional)
 
-The new `pet-state.json` adds fields (active-character pointer, per-character states,
-`dex`, `displayStage`). Existing users already have an old single-pet file committed, so
-the loader must upgrade it in place — never crash or reset to an egg:
+The new `pet-state.json` schema v2 adds an active-character pointer, per-character
+states, and `dex`. Existing users already have an old single-pet file committed, so the
+loader must upgrade it in place — never crash or reset the existing pet to an egg:
 
-- keep the existing pet as the **active Yuki** with its current stats;
-- seed `dex.yuki.maxStage` from its current stage (credit what's already raised);
-- fill any other new fields with sensible defaults.
+- keep the existing pet in the roster under `lockedSpecies`, its registered `species`,
+  or the default character id;
+- seed `dex[id].maxStage` from its current stage (credit what's already raised);
+- set `active` from `config.character`; if that differs from the migrated pet id,
+  create a fresh active egg and leave the migrated pet frozen.
 
 This is the same defensive-load pattern `loadState` already uses (`normalizeStat`
 fallbacks), applied to the new fields — a decided requirement, not a design choice.
 
 ## Open questions
 
-- Final field layout of the new `pet-state.json` (active pointer + per-character states +
-  `dex` + `displayStage`) and the exact `catalog.json` shape — settled when
-  implementation starts.
+- Final field layout of `pet-state.json` is settled for schema v2:
+
+  ```jsonc
+  {
+    "schemaVersion": 2,
+    "active": "<id>",
+    "pets": {
+      "<id>": {
+        // PetState unchanged
+      }
+    },
+    "dex": {
+      "<id>": {
+        "firstSeenAt": "<iso>",
+        "maxStage": "<stage>"
+      }
+    }
+  }
+  ```
+
+- The exact `catalog.json` assignment automation shape remains future work with
+  `dex:assign`.
 
 ## References
 

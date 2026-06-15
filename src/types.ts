@@ -67,6 +67,18 @@ export interface PetState {
   visitorInteractions: Record<string, VisitorInteractionRecord>;
 }
 
+export interface DexEntry {
+  firstSeenAt: string;
+  maxStage: Stage;
+}
+
+export interface SaveState {
+  schemaVersion: 2;
+  active: Species;
+  pets: Record<Species, PetState>;
+  dex: Record<Species, DexEntry>;
+}
+
 /** A snapshot of the user's GitHub activity: what the pet eats + how it evolves. */
 export interface Activity {
   /** Most recent day in the contribution calendar (YYYY-MM-DD). */
