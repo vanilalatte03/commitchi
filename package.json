@@ -8,7 +8,8 @@
     "tick": "node dist/index.js",
     "visitor": "node dist/visitor.js",
     "demo": "tsc && node dist/index.js",
-    "preview": "tsc && node dist/preview.js"
+    "preview": "tsc && node dist/preview.js",
+    "validate:characters": "tsc && node dist/validate-characters.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
