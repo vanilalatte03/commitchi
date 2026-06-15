@@ -108,8 +108,9 @@ function main(): void {
   const update = applyVisitorInteraction(getActivePet(save), action, actor, now, config);
 
   if (update.applied) {
-    saveState(setActivePet(save, update.state));
-    writeFileSync("pet.svg", renderSVG(update.state, config));
+    const next = setActivePet(save, update.state);
+    saveState(next);
+    writeFileSync("pet.svg", renderSVG(update.state, config, next.dex));
   }
 
   const result: InteractionResultFile = {

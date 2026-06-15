@@ -24,6 +24,7 @@ export interface Strings {
     fullyGrown: string;
     daysToNext: (days: number) => string;
   };
+  dexProgress: (collected: number, total: number) => string;
   /** Card footer combining the progress line with the pet's age. */
   footer: (progress: string, ageDays: number) => string;
   aria: (parts: {
@@ -35,6 +36,7 @@ export interface Strings {
     happiness: number;
     stamina: number;
     celebration: string | null;
+    dex: string | null;
   }) => string;
   evolutionCelebration: (stageLabel: string) => { title: string; detail: string };
   streakCelebration: (days: number) => { title: string; detail: string };
@@ -65,11 +67,12 @@ const ko: Strings = {
     fullyGrown: "다 자랐어요",
     daysToNext: (days) => `다음 진화까지 ${days}일`,
   },
+  dexProgress: (collected, total) => `도감 ${collected}/${total}`,
   footer: (progress, ageDays) => `${progress} · ${ageDays}일째`,
-  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration }) =>
+  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration, dex }) =>
     `${name}, ${stage} ${species}, ${mood}, 포만감 ${fullness}%, 행복도 ${happiness}%, 체력 ${stamina}%${
       celebration ? `, 축하 ${celebration}` : ""
-    }`,
+    }${dex ? `, ${dex}` : ""}`,
   evolutionCelebration: (stageLabel) => ({
     title: `${stageLabel} 진화`,
     detail: `새로운 ${stageLabel} 단계가 열렸어요`,
@@ -115,11 +118,12 @@ const en: Strings = {
     fullyGrown: "Fully grown",
     daysToNext: (days) => `${days} ${days === 1 ? "day" : "days"} to next evolution`,
   },
+  dexProgress: (collected, total) => `Dex ${collected}/${total}`,
   footer: (progress, ageDays) => `${progress} · day ${ageDays}`,
-  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration }) =>
+  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration, dex }) =>
     `${name}, ${stage} ${species}, ${mood}, fullness ${fullness}%, happiness ${happiness}%, stamina ${stamina}%${
       celebration ? `, celebration ${celebration}` : ""
-    }`,
+    }${dex ? `, ${dex.replace(/^Dex\b/, "dex")}` : ""}`,
   evolutionCelebration: (stageLabel) => ({
     title: `Evolved to ${stageLabel}`,
     detail: `Reached the ${stageLabel} stage`,

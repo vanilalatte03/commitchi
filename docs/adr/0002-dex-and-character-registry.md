@@ -6,8 +6,10 @@ Accepted. Phase 1 (data-driven character registry: manifest + `catalog.json` +
 `src/characters.ts`, `Species` as id, ghost as a render variant) is implemented and merged
 (#13). Additional registered characters, character validation CI, and config-based active
 character selection are implemented. The multi-pet roster/switching foundation and
-per-user dex progress tracking are implemented through `pet-state.json` schema v2. Stage
-display-lock, dex card display, and `dex:assign` remain accepted direction, not yet built.
+per-user dex progress tracking are implemented through `pet-state.json` schema v2. Dex
+card display is implemented (도감 카드 표시 구현됨) as raised characters / total catalog
+characters in the pet card footer. Stage display-lock remains unimplemented, and
+`dex:assign` remains accepted direction, not yet built.
 
 ## Context
 

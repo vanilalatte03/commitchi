@@ -33,8 +33,9 @@ async function main() {
 
   const save = loadState(now, config);
   const ticked = applyTick(getActivePet(save), activity, now, config);
-  saveState(setActivePet(save, ticked));
-  writeFileSync("pet.svg", renderSVG(ticked, config));
+  const next = setActivePet(save, ticked);
+  saveState(next);
+  writeFileSync("pet.svg", renderSVG(ticked, config, next.dex));
   const celebration = ticked.celebration ? ` · celebrating ${ticked.celebration.title}` : "";
   console.log(
     `Pet: ${ticked.stage}/${ticked.species} · ${ticked.mood} · fullness ${ticked.fullness}% · happiness ${ticked.happiness}% · stamina ${ticked.stamina}% · age ${ticked.ageDays}d${celebration}. Wrote pet.svg + pet-state.json.`
