@@ -1,8 +1,9 @@
 # Commitchi — PRD
 
 A Tamagotchi-style pixel pet that lives in a GitHub profile README and reacts to the
-owner's coding activity. The pet is **Yuki**, a snowy owl, with a **Yurei** ghost form for
-neglect. A scheduled GitHub Action regenerates the pet card and commits it back.
+owner's coding activity. The owner names their individual pet, while the fixed starter
+species is **Yuki**, a snowy owl, with a **Yurei** ghost form for neglect. A scheduled
+GitHub Action regenerates the pet card and commits it back.
 
 **Product principle:** it should feel like a small persistent profile game, not a status
 badge. Charm and "I don't want to lose my pet" attachment matter more than raw stats.
@@ -14,7 +15,7 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Area | Status |
 |---|---|
 | Core tick loop | ✅ GitHub Action (scheduled) → GraphQL fetch → update `pet-state.json` → render `pet.svg` → commit back |
-| Mascot | ✅ Yuki (snowy-owl pixel sprite), original art |
+| Mascot | ✅ user-named pet using the fixed Yuki species sprite line, original art |
 | Growth stages | ✅ egg → baby → child → teen → adult (by age) |
 | Stat: fullness (포만감) | ✅ fed by new contributions, decays over time |
 | Stat: happiness (행복도) | ✅ boosted by collaborative activity ratio (PRs, reviews, issues), decays over time |
@@ -24,7 +25,7 @@ badge. Charm and "I don't want to lose my pet" attachment matter more than raw s
 | Milestone celebrations | ✅ evolution and 7/30/100-day streak milestones render a one-tick celebration badge + sparkle effect |
 | Visitor feeding (issue-ops) | ✅ README Feed/Play issue links → `on: issues` workflow → title-only parser → once/day visitor rate limit → one-tick reaction badge/detail → comment + close |
 | Rendering | ✅ pixel PNG embedded as base64 in SVG card; `@3x` assets keep `pet.svg` ~15KB; bob animation; winter-themed card |
-| Owner config | ✅ optional `commitchi.config.json` for pet name, theme placeholder, stat economy/decay, and thresholds |
+| Owner config | ✅ optional `commitchi.config.json` for individual pet name, theme placeholder, stat economy/decay, and thresholds |
 | GitHub render | ✅ verified that the base64-in-SVG card renders through GitHub's image proxy |
 | Stack | ✅ TypeScript/Node, zero runtime deps, demo + preview scripts |
 

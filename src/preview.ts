@@ -1,13 +1,15 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { loadConfig } from "./config";
+import { getStrings } from "./i18n";
 import { renderSVG } from "./render";
 import { Mood, PetState, Stage } from "./types";
 
 const config = loadConfig();
+const s = getStrings(config.language);
 
 /** Generate the default mascot asset sheet into ./preview for eyeballing. */
 const base: PetState = {
-  name: config.name,
+  name: config.petName,
   species: "yuki",
   lockedSpecies: "",
   stage: "adult",
@@ -84,8 +86,7 @@ make("celebration-streak", {
   celebration: {
     kind: "streak",
     milestoneId: "streak:30",
-    title: "30일 연속",
-    detail: "30일 연속 기여를 달성했어요",
+    ...s.streakCelebration(30),
   },
   celebratedMilestones: ["streak:7", "streak:30"],
 });
@@ -100,8 +101,8 @@ make("visitor-feed", {
   celebration: {
     kind: "visitor",
     milestoneId: "visitor:feed:preview:octocat",
-    title: "냠냠!",
-    detail: "@octocat님이 밥을 줬어요 · 포만감 +18",
+    title: s.visitorReactionTitles.feed[0],
+    detail: s.visitorCelebrationDetail("feed", "octocat", 18),
   },
 });
 
@@ -115,8 +116,8 @@ make("visitor-play", {
   celebration: {
     kind: "visitor",
     milestoneId: "visitor:play:preview:octocat",
-    title: "신난다!",
-    detail: "@octocat님이 같이 놀아줬어요 · 행복도 +16",
+    title: s.visitorReactionTitles.play[0],
+    detail: s.visitorCelebrationDetail("play", "octocat", 16),
   },
 });
 

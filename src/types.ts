@@ -1,5 +1,8 @@
 export type Mood = "happy" | "hungry" | "sick";
 
+/** UI language for everything the pet card and visitor comments render. */
+export type Language = "ko" | "en";
+
 export type Theme = "winter";
 
 // Species expansion (dragon/chameleon/wolf/…) is parked while the default mascot
@@ -34,6 +37,7 @@ export interface VisitorInteractionRecord {
 
 /** The pet's persistent memory. Lives in pet-state.json, accumulates across ticks. */
 export interface PetState {
+  /** User-chosen individual pet name, distinct from the fixed species label. */
   name: string;
   /** Currently displayed species (may be "ghost" while neglected). */
   species: Species;
@@ -105,7 +109,10 @@ export interface ThresholdConfig {
 }
 
 export interface CommitchiConfig {
-  name: string;
+  /** User-chosen individual pet name. Species labels stay fixed in sprites.ts. */
+  petName: string;
+  /** Language for all card text and visitor comments. Defaults to "ko". */
+  language: Language;
   theme: Theme;
   economy: EconomyConfig;
   thresholds: ThresholdConfig;

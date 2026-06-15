@@ -1,17 +1,20 @@
 # 🐣 Commitchi
 
+**English** · [한국어](./README.ko.md)
+
 A Tamagotchi-style pet that lives in your GitHub profile README and feeds on your commits.
 
-The pet is **Yuki**, an original snowy-owl pixel sprite.
+Each owner can name their own individual pet. The fixed starter species is **Yuki**, an
+original snowy-owl pixel sprite.
 
-- **Commit** and Yuki gets full and happy.
-- **Go quiet** and Yuki gets hungry, then sick.
-- Collaborative work raises Yuki's **happiness**, while steady commit rhythm raises
+- **Commit** and your pet gets full and happy.
+- **Go quiet** and your pet gets hungry, then sick.
+- Collaborative work raises your pet's **happiness**, while steady commit rhythm raises
   **stamina**.
 - Visitors can help once per day with **Feed** / **Play** issue links; Commitchi applies
   the care action, replies, closes the issue, and updates the pet card.
-- **Disappear for 4+ days by default** and Yuki fades into **Yurei** (a ghost) — who returns the moment you commit again.
-- Yuki also **grows up** over time: egg → baby → child → teen → adult.
+- **Disappear for 4+ days by default** and your pet fades into **Yurei** (a ghost) — who returns the moment you commit again.
+- Your pet also **grows up** over time: egg → baby → child → teen → adult.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
   badge and sparkle effect.
 
@@ -69,9 +72,9 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
    Commitchi only acts on the exact issue titles `commitchi: feed` and `commitchi: play`.
    It ignores issue body text, lets each visitor help once per UTC day, comments a response,
    closes the interaction issue, and commits the updated `pet.svg` / `pet-state.json`.
-   Successful visits show a one-tick reaction such as `냠냠!` or `신난다!` on the card.
+   Successful visits show a one-tick reaction such as `Yum!` or `So fun!` on the card.
 5. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
-6. *(Optional)* Add `commitchi.config.json` to customize the pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
+6. *(Optional)* Add `commitchi.config.json` to customize the individual pet name and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
 
 ## Run locally
 
@@ -96,7 +99,8 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 
 ```json
 {
-  "name": "Yuki",
+  "petName": "Mochi",
+  "language": "ko",
   "theme": "winter",
   "economy": {
     "feedPerContrib": 12,
@@ -113,20 +117,26 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 }
 ```
 
+`petName` is the user-chosen name shown at the top of the card. The species label stays
+fixed as Yuki for the current sprite line, with Yurei used for the neglected ghost form.
+`language` switches **all** card text and visitor comments between fully Korean (`"ko"`)
+and fully English (`"en"`) — no mixing. It defaults to `"ko"`.
 Only the `winter` theme exists today; the field is there so more card themes can be added without changing the config shape.
 
 | Knob | Meaning | Default |
 |---|---|---|
+| `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
+| `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
 | `economy.happinessDecayPerDay` | happiness lost per elapsed day | 5 |
 | `economy.staminaDecayPerDay` | stamina lost per elapsed day | 4 |
 | `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
-| `thresholds.hungryFullness` | stat level at/below which Yuki becomes hungry | 45 |
-| `thresholds.sickFullness` | stat level at/below which Yuki becomes sick | 15 |
-| `thresholds.neglectDays` | days without contributions before Yuki becomes Yurei | 4 |
+| `thresholds.hungryFullness` | stat level at/below which the pet becomes hungry | 45 |
+| `thresholds.sickFullness` | stat level at/below which the pet becomes sick | 15 |
+| `thresholds.neglectDays` | days without contributions before the pet becomes Yurei | 4 |
 
-The config file is optional and partial overrides are supported. For example, `{ "name": "Mochi" }` only changes the displayed name.
+The config file is optional and partial overrides are supported. For example, `{ "petName": "Bori" }` only changes the displayed pet name.
 
 ## Project layout
 
@@ -140,6 +150,7 @@ src/
   evolution.ts  stage progression + neglect → ghost
   sprites.ts    maps stage/mood → the right pixel sprite, embeds it as base64
   render.ts     pet.svg card assembly (sprite, bob animation, celebration effects)
+  i18n.ts       Korean / English bundles for all user-facing text
   preview.ts    dev-only gallery generator
   types.ts      shared types
 assets/sprites/yuki/         the pixel sprites (PNG)

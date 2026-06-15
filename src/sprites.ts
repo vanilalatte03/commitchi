@@ -4,18 +4,7 @@ import { Mood, Species, Stage } from "./types";
 
 export const DEFAULT_SPECIES: Species = "yuki";
 
-export const SPECIES_LABEL: Record<Species, string> = {
-  yuki: "Yuki",
-  ghost: "Yurei",
-};
-
-export const STAGE_LABEL: Record<Stage, string> = {
-  egg: "Egg",
-  baby: "Baby",
-  child: "Child",
-  teen: "Teen",
-  adult: "Adult",
-};
+// Display labels for species/stage moved to i18n.ts so they can be localized.
 
 interface SpriteSpec {
   file: string;
