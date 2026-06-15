@@ -1,0 +1,9 @@
+{
+  "project": "commitchi",
+  "phase": "1-character-registry",
+  "steps": [
+    { "step": 0, "name": "manifest-and-catalog", "status": "pending" },
+    { "step": 1, "name": "registry-driven-sprites", "status": "pending" },
+    { "step": 2, "name": "species-id-and-ghost-variant", "status": "pending" }
+  ]
+}
