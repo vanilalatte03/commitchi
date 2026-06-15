@@ -1,9 +1,9 @@
 import { DEFAULT_CONFIG } from "./config";
-import { CommitchiConfig, PetState, Species, Theme } from "./types";
+import { CommitchiConfig, DexEntry, PetState, Species, Theme } from "./types";
 import { DEFAULT_SPECIES, spriteFor } from "./sprites";
 import { getStrings, Strings } from "./i18n";
 import { daysToNextStage } from "./evolution";
-import { getCharacter, RegisteredCharacter } from "./characters";
+import { getCharacter, listCharacters, RegisteredCharacter } from "./characters";
 
 const WINTER_PALETTE = {
   card: "#141323",
@@ -125,10 +125,22 @@ function progressLine(state: PetState, s: Strings): string {
   return left === null ? s.progress.fullyGrown : s.progress.daysToNext(left);
 }
 
-export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CONFIG): string {
+export function renderSVG(
+  state: PetState,
+  config: CommitchiConfig = DEFAULT_CONFIG,
+  dex?: Record<Species, DexEntry>
+): string {
   const palette = THEME_PALETTES[config.theme];
   const s = getStrings(config.language);
   const character = activeCharacter(state.species);
+  const characters = dex ? listCharacters() : [];
+  const catalogIds = new Set(characters.map((entry) => entry.id));
+  const dexText = dex
+    ? s.dexProgress(
+        Object.keys(dex).filter((id) => catalogIds.has(id)).length,
+        characters.length
+      )
+    : null;
   const f = Math.round(state.fullness);
   const happiness = Math.round(state.happiness);
   const stamina = Math.round(state.stamina);
@@ -149,6 +161,7 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
       happiness,
       stamina,
       celebration: state.celebration ? state.celebration.title : null,
+      dex: dexText,
     })
   );
   const moodText = escapeText(s.mood[state.mood]);
@@ -193,6 +206,7 @@ export function renderSVG(state: PetState, config: CommitchiConfig = DEFAULT_CON
   ${statRow(s.stat.happiness, happiness, 148)}
   ${statRow(s.stat.stamina, stamina, 175)}
   ${t(204, 194, palette.textMuted, 10)}${footerText}</text>
+  ${dexText ? `${t(448, 194, palette.textMuted, 10, "400", ' text-anchor="end"')}${escapeText(dexText)}</text>` : ""}
 </svg>
 `;
 

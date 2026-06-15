@@ -18,6 +18,7 @@ an original snowy-owl pixel sprite.
 - **Disappear for 4+ days by default** and your pet fades into that character's ghost form — who returns the moment you commit again.
 - Your pet also **grows up** over time: egg → baby → child → teen → adult.
 - Raised characters fill your personal dex progress as they reach later stages.
+- The pet card shows dex progress as raised characters / total catalog characters.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
   badge and sparkle effect.
 
