@@ -33,6 +33,9 @@ above and that it is your own work to give.
    field and in the dex.
 3. **Keep it appropriate.** No NSFW, hateful, or otherwise inappropriate content.
 
+See [MODERATION.md](./MODERATION.md) for the full content policy, reporting, and takedown
+process.
+
 ### What a submission looks like
 
 A PR that adds **one** character folder:
