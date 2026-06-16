@@ -1,0 +1,39 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: commitchi-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          # 22+: the test runner's "node --test" supports glob patterns,
+          # which "npm test" relies on (node 20 would not match the files).
+          node-version: 22
+      - name: Build and test
+        run: |
+          npm install
+          npm test
+          npm run build
+      - name: Tag v1 with built dist
+        run: |
+          git config user.name "commitchi-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f dist
+          git commit -m "chore(release): build dist for v1 🛠️"
+          git tag -f v1
+          git push -f origin v1
