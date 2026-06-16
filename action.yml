@@ -3,13 +3,21 @@ description: Render and commit a Commitchi pet for a GitHub profile README.
 
 inputs:
   mode:
-    description: Commitchi mode to run. Phase 1 supports tick.
+    description: Commitchi mode to run: tick or visitor.
     required: false
     default: "tick"
   github-token:
     description: GitHub token used to read contribution activity.
     required: false
     default: ${{ github.token }}
+  issue-title:
+    description: Issue title used for visitor mode interactions.
+    required: false
+    default: ${{ github.event.issue.title }}
+  issue-author:
+    description: Issue author login used for visitor mode interactions.
+    required: false
+    default: ${{ github.event.issue.user.login }}
 
 runs:
   using: "composite"
@@ -27,12 +35,9 @@ runs:
         npm run build
 
     - name: Tick the pet
+      if: ${{ inputs.mode == 'tick' }}
       shell: bash
       run: |
-        if [ "${{ inputs.mode }}" != "tick" ]; then
-          echo "::error::Commitchi action currently supports mode=tick only."
-          exit 1
-        fi
         node "$GITHUB_ACTION_PATH/dist/index.js"
       env:
         GH_USERNAME: ${{ github.repository_owner }}
@@ -40,6 +45,7 @@ runs:
         COMMITCHI_HOME: ${{ github.action_path }}
 
     - name: Commit the pet
+      if: ${{ inputs.mode == 'tick' }}
       shell: bash
       run: |
         git config user.name "commitchi-bot"
@@ -53,3 +59,57 @@ runs:
           git pull --rebase origin "${{ github.event.repository.default_branch }}"
           git push
         fi
+
+    - name: Run visitor interaction
+      id: visitor
+      if: ${{ inputs.mode == 'visitor' }}
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/dist/visitor.js"
+      env:
+        ISSUE_TITLE: ${{ inputs.issue-title }}
+        ISSUE_AUTHOR: ${{ inputs.issue-author }}
+        COMMITCHI_HOME: ${{ github.action_path }}
+
+    - name: Commit visitor interaction
+      if: ${{ inputs.mode == 'visitor' && steps.visitor.outputs.changed == 'true' }}
+      shell: bash
+      run: |
+        git config user.name "commitchi-bot"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add pet.svg
+        git add -f pet-state.json
+        if git diff --staged --quiet; then
+          echo "No change."
+        else
+          git commit -m "chore: apply visitor interaction"
+          git pull --rebase origin "${{ github.event.repository.default_branch }}"
+          git push
+        fi
+
+    - name: Comment on visitor issue
+      if: ${{ inputs.mode == 'visitor' && steps.visitor.outputs.recognized == 'true' }}
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require("fs");
+          const result = JSON.parse(fs.readFileSync("interaction-result.json", "utf8"));
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: result.comment,
+          });
+
+    - name: Close visitor issue
+      if: ${{ inputs.mode == 'visitor' && steps.visitor.outputs.recognized == 'true' }}
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          await github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            state: "closed",
+          });

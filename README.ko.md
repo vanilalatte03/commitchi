@@ -61,6 +61,10 @@ on:
 
 permissions: { contents: write }
 
+concurrency:
+  group: commitchi-pet-state
+  cancel-in-progress: false
+
 jobs:
   commitchi:
     runs-on: ubuntu-latest
@@ -80,6 +84,37 @@ jobs:
 `pet.svg`와 `pet-state.json`이 생성돼요. 이후에는 스케줄이 자동으로 펫을
 갱신합니다. 프로필 저장소에 이 저장소의 소스를 복사할 필요는 없고, `@v1`
 태그가 이동되면 워크플로가 최신 v1 엔진을 자동으로 사용해요.
+
+방문자가 이슈를 열어 펫에게 밥을 주거나 놀아줄 수 있게 하려면
+`.github/workflows/commitchi-visitor.yml`도 추가하세요:
+
+```yaml
+name: commitchi-visitor
+
+on:
+  issues:
+    types: [opened]
+
+permissions: { contents: write, issues: write }
+
+concurrency:
+  group: commitchi-pet-state
+  cancel-in-progress: false
+
+jobs:
+  visitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vanilalatte03/commitchi@v1
+        with: { mode: visitor }
+```
+
+README에 아래 이슈 링크를 넣으면 방문자가 워크플로를 실행할 수 있어요:
+[🍖 Feed](https://github.com/<owner>/<repo>/issues/new?title=commitchi%3A%20feed)
+/ [🎾 Play](https://github.com/<owner>/<repo>/issues/new?title=commitchi%3A%20play).
+Commitchi는 이슈 제목이 정확히 `commitchi: feed` 또는 `commitchi: play`일
+때만 반응합니다.
 
 선택 설정은 프로필 저장소 루트의 `commitchi.config.json`에 둡니다. 파일이
 없으면 기본값을 쓰며, 기본 캐릭터는 Yuki예요.

@@ -69,6 +69,10 @@ on:
 
 permissions: { contents: write }
 
+concurrency:
+  group: commitchi-pet-state
+  cancel-in-progress: false
+
 jobs:
   commitchi:
     runs-on: ubuntu-latest
@@ -88,6 +92,37 @@ Run the workflow once from the **Actions** tab (`workflow_dispatch`) to create
 your first `pet.svg` and `pet-state.json`. After that, the schedule updates the
 pet automatically. You do not need to copy this repository's source into your
 profile repo; when the `@v1` tag moves, your workflow uses the latest v1 engine.
+
+To let visitors feed or play with your pet by opening an issue, add
+`.github/workflows/commitchi-visitor.yml` too:
+
+```yaml
+name: commitchi-visitor
+
+on:
+  issues:
+    types: [opened]
+
+permissions: { contents: write, issues: write }
+
+concurrency:
+  group: commitchi-pet-state
+  cancel-in-progress: false
+
+jobs:
+  visitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vanilalatte03/commitchi@v1
+        with: { mode: visitor }
+```
+
+Add issue links like these to your README so visitors can trigger the workflow:
+[🍖 Feed](https://github.com/<owner>/<repo>/issues/new?title=commitchi%3A%20feed)
+/ [🎾 Play](https://github.com/<owner>/<repo>/issues/new?title=commitchi%3A%20play).
+Commitchi only responds to issue titles exactly `commitchi: feed` or
+`commitchi: play`.
 
 Optional config lives at `commitchi.config.json` in your profile repo. If the file
 is missing, Commitchi uses the built-in defaults, including Yuki as the default
