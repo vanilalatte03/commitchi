@@ -231,6 +231,7 @@ assets/sprites/<id>/character.json  per-character manifest (id, displayName, gho
 assets/sprites/<id>/         the pixel sprites (PNG) + character.json
 action.yml                   reusable composite action for scheduled ticks
 .github/workflows/character-validation.yml character catalog validation
+.github/workflows/release.yml  builds dist/ and force-moves the @v1 tag on merge to main
 ```
 
 > `pet-state.json` does not need to exist before the first run. Commitchi creates the

@@ -216,6 +216,7 @@ assets/sprites/<id>/character.json  캐릭터별 매니페스트 (id, displayNam
 assets/sprites/<id>/         픽셀 스프라이트 (PNG) + character.json
 action.yml                   스케줄 tick용 재사용 composite 액션
 .github/workflows/character-validation.yml 캐릭터 카탈로그 검증
+.github/workflows/release.yml  머지 시 dist/ 빌드 + @v1 태그 자동 이동
 ```
 
 > `pet-state.json`은 첫 실행 전에 없어도 돼요. Commitchi가 로스터와 활성 펫을
