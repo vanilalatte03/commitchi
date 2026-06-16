@@ -28,6 +28,9 @@ above and that it is your own work to give.
 1. **Original work only.** The art must be created by you. **Fan art or anything derived
    from existing copyrighted or trademarked characters is not accepted** and will be
    rejected — this protects you and the project legally.
+   AI-assisted output is acceptable only when it is based on your own original prompt and
+   direction, does not imitate existing IP or use a specific artist as the reference, and
+   can be licensed by you under CC BY 4.0.
 2. **License grant.** By submitting, you agree to license your art under **CC BY 4.0**.
    You keep the copyright; you'll be credited in the character's `character.json` `author`
    field and in the dex.
@@ -47,6 +50,9 @@ assets/sprites/<id>/
 ```
 
 - Don't assign a dex number yourself — it's assigned automatically at merge time.
+- If you are using AI-assisted art generation, start from the visual checklist in
+  [docs/sprite-style-guide.md](./docs/sprite-style-guide.md). It shows the complete
+  character sheet coverage expected before slicing sprites.
 - See ADR 0002 for the full sprite set and manifest contract.
 
 ### Review process

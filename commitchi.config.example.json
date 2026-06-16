@@ -2,6 +2,7 @@
   "petName": "Mochi",
   "character": "yuki",
   "language": "ko",
+  "displayStage": "auto",
   "theme": "dark",
   "economy": {
     "feedPerContrib": 12,

@@ -159,7 +159,9 @@ npm run build; npm run tick
 ```json
 {
   "petName": "Mochi",
+  "character": "yuki",
   "language": "ko",
+  "displayStage": "auto",
   "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
@@ -176,17 +178,12 @@ npm run build; npm run tick
 }
 ```
 
-`petName`은 카드 상단에 보이는 사용자 지정 이름이에요.
-이름은 `commitchi.config.json`의 `petName`에서 오며, `pet-state.json`의 `name`을 직접 고쳐도 다음 틱에 config 값으로 덮어써져요.
-`character`는 키울 활성 등록 캐릭터를 고릅니다. 값을 바꾸면 그 캐릭터의 로스터 펫으로 전환돼요. 이미 키운 펫은 동결된 상태에서 재개되고, 처음 고른 캐릭터는 알부터 시작해요. 비활성 펫은 decay되지 않으며, 각 캐릭터를 어디까지 키웠는지는 개인 도감에 기록돼요. 키울 캐릭터는 `catalog.json`에 등록된 id 중에서 고르면 돼요.
-`language`는 카드의 **모든** 텍스트와 방문자 댓글을 완전 한국어(`"ko"`) 또는 완전 영어(`"en"`)로 전환해요 — 섞이지 않아요. 기본값은 `"ko"`예요.
-`displayStage`는 카드에 표시할 단계 스프라이트를 고정하거나, `"auto"`로 실제 단계를 자동 표시합니다. 이 설정은 코스메틱 전용이라 나이·스탯·진화·방치는 계속 정상 진행돼요. 고정 단계는 해당 캐릭터의 개인 도감 `maxStage` 이하로 이미 도달한 경우에만 적용되고, 아직 풀리지 않은 단계는 무시되어 실제 단계가 표시됩니다. 활성 펫이 유령 상태라면 고정이 무시되고 유령 형태가 표시돼요.
-현재는 `dark` 테마만 있지만, 설정 형태를 바꾸지 않고도 카드 테마를 더 추가할 수 있도록 필드를 남겨 뒀어요.
+설정 파일은 선택이며 부분 오버라이드를 지원해요. 생략한 항목은 기본값을 사용합니다.
 
 | 항목 | 의미 | 기본값 |
 |---|---|---|
 | `petName` | 표시되는 개별 펫 이름; 구버전 `name` 키도 허용 | `Mochi` |
-| `character` | 활성 등록 캐릭터; 값을 바꾸면 로스터 펫 전환 | Yuki |
+| `character` | 활성 등록 캐릭터 id; 값을 바꾸면 로스터 펫 전환 | `yuki` |
 | `language` | 카드 + 댓글 언어: `"ko"`(완전 한국어) 또는 `"en"`(완전 영어) | `ko` |
 | `displayStage` | 카드에 고정 표시할 단계 스프라이트; `"auto"`는 실제 단계 자동 표시 | `auto` |
 | `economy.feedPerContrib` | 새 기여 1건당 오르는 포만감 | 12 |
@@ -197,8 +194,6 @@ npm run build; npm run tick
 | `thresholds.hungryFullness` | 이 스탯 값 이하에서 펫이 배고파짐 | 45 |
 | `thresholds.sickFullness` | 이 스탯 값 이하에서 펫이 아파짐 | 15 |
 | `thresholds.neglectDays` | 활성 펫이 유령 형태가 되기까지 기여 없는 일수 | 4 |
-
-설정 파일은 선택이며 부분 오버라이드를 지원해요. 예를 들어 `{ "petName": "Bori" }`는 표시되는 펫 이름만 바꿔요.
 
 ## 프로젝트 구조
 
