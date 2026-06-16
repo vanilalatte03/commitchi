@@ -18,6 +18,7 @@ import type {
 interface ConfigOverrides {
   petName?: string;
   character?: Species;
+  displayStage?: CommitchiConfig["displayStage"];
   language?: Language;
   theme?: Theme;
   economy?: Partial<EconomyConfig>;

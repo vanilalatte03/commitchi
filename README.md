@@ -132,6 +132,7 @@ character.
 {
   "petName": "Mochi",
   "language": "ko",
+  "displayStage": "auto",
   "theme": "winter",
   "economy": {
     "feedPerContrib": 12,
@@ -190,6 +191,12 @@ dex records how far each character has been raised. Pick any character id listed
 `catalog.json`.
 `language` switches **all** card text and visitor comments between fully Korean (`"ko"`)
 and fully English (`"en"`) — no mixing. It defaults to `"ko"`.
+`displayStage` can pin the card to show a reached stage sprite, or `"auto"` to
+follow the pet's real stage. This is cosmetic only: age, stats, evolution, and
+neglect continue to simulate normally. A pinned stage is used only when it is at
+or below that character's personal dex `maxStage`; locked stages are ignored and
+the real stage is shown instead. If the active pet is a ghost, the pin is ignored
+and the ghost form is shown.
 Only the `winter` theme exists today; the field is there so more card themes can be added without changing the config shape.
 
 | Knob | Meaning | Default |
@@ -197,6 +204,7 @@ Only the `winter` theme exists today; the field is there so more card themes can
 | `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
 | `character` | active registered character; changing it switches roster pets | Yuki |
 | `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
+| `displayStage` | stage sprite to pin on the card; `"auto"` follows the real stage | `auto` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
 | `economy.happinessDecayPerDay` | happiness lost per elapsed day | 5 |

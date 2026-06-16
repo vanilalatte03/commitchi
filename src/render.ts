@@ -1,8 +1,8 @@
 import { DEFAULT_CONFIG } from "./config";
-import { CommitchiConfig, DexEntry, PetState, Species, Theme } from "./types";
+import { CommitchiConfig, DexEntry, PetState, Species, Stage, Theme } from "./types";
 import { DEFAULT_SPECIES, spriteFor } from "./sprites";
 import { getStrings, Strings } from "./i18n";
-import { daysToNextStage } from "./evolution";
+import { daysToNextStage, isStageUnlocked } from "./evolution";
 import { getCharacter, listCharacters, RegisteredCharacter } from "./characters";
 
 const WINTER_PALETTE = {
@@ -111,11 +111,16 @@ function celebrationBadge(state: PetState, palette: Palette, s: Strings): string
 </g>`;
 }
 
-function subtitle(state: PetState, character: RegisteredCharacter, s: Strings): string {
-  if (state.stage === "egg") return s.subtitle.egg(character.displayName);
-  if (state.stage === "baby") return s.subtitle.baby(character.displayName);
+function subtitle(
+  state: PetState,
+  character: RegisteredCharacter,
+  s: Strings,
+  stage: Stage
+): string {
+  if (stage === "egg") return s.subtitle.egg(character.displayName);
+  if (stage === "baby") return s.subtitle.baby(character.displayName);
   if (state.isGhost) return s.subtitle.ghost(character.ghostName);
-  return s.subtitle.default(character.displayName, s.stage[state.stage]);
+  return s.subtitle.default(character.displayName, s.stage[stage]);
 }
 
 function progressLine(state: PetState, s: Strings): string {
@@ -123,6 +128,18 @@ function progressLine(state: PetState, s: Strings): string {
   if (state.isGhost) return s.progress.ghost;
   const left = daysToNextStage(state.ageDays);
   return left === null ? s.progress.fullyGrown : s.progress.daysToNext(left);
+}
+
+export function resolveDisplayStage(
+  config: CommitchiConfig,
+  state: PetState,
+  dex?: Record<Species, DexEntry>
+): Stage {
+  if (config.displayStage === "auto") return state.stage;
+  if (state.isGhost) return state.stage;
+  const max = dex?.[state.species]?.maxStage;
+  if (!max) return state.stage;
+  return isStageUnlocked(config.displayStage, max) ? config.displayStage : state.stage;
 }
 
 export function renderSVG(
@@ -145,16 +162,17 @@ export function renderSVG(
   const happiness = Math.round(state.happiness);
   const stamina = Math.round(state.stamina);
   const ghost = state.isGhost;
-  const ghostFloat = ghost && state.stage !== "egg" && state.stage !== "baby";
+  const displayStage = resolveDisplayStage(config, state, dex);
+  const ghostFloat = ghost && displayStage !== "egg" && displayStage !== "baby";
   const bob = ghostFloat ? "0,-8" : "0,-4";
-  const sprite = spriteFor(state.stage, character.id, state.mood, ghost);
+  const sprite = spriteFor(displayStage, character.id, state.mood, ghost);
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
-  const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, character, s))}`;
+  const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, character, s, displayStage))}`;
   const ariaLabel = escapeAttr(
     s.aria({
       name: state.name,
-      stage: s.stage[state.stage],
+      stage: s.stage[displayStage],
       species: ghost ? character.ghostName : character.displayName,
       mood: s.mood[state.mood],
       fullness: f,
@@ -170,7 +188,7 @@ export function renderSVG(
     state.celebration?.kind === "visitor"
       ? progressText
       : s.footer(progressText, state.ageDays);
-  const subtitleText = escapeText(subtitle(state, character, s));
+  const subtitleText = escapeText(subtitle(state, character, s, displayStage));
   const nameText = escapeText(state.name);
   const t = (x: number, y: number, fill: string, size: number, weight = "400", extra = "") =>
     `<text x="${x}" y="${y}" fill="${fill}" font-family="'Segoe UI',system-ui,sans-serif" font-size="${size}"${weight !== "400" ? ` font-weight="${weight}"` : ""}${extra}>`;
