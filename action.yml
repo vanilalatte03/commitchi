@@ -1,0 +1,55 @@
+name: Commitchi
+description: Render and commit a Commitchi pet for a GitHub profile README.
+
+inputs:
+  mode:
+    description: Commitchi mode to run. Phase 1 supports tick.
+    required: false
+    default: "tick"
+  github-token:
+    description: GitHub token used to read contribution activity.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Build Commitchi engine
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        npm install
+        npm run build
+
+    - name: Tick the pet
+      shell: bash
+      run: |
+        if [ "${{ inputs.mode }}" != "tick" ]; then
+          echo "::error::Commitchi action currently supports mode=tick only."
+          exit 1
+        fi
+        node "$GITHUB_ACTION_PATH/dist/index.js"
+      env:
+        GH_USERNAME: ${{ github.repository_owner }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        COMMITCHI_HOME: ${{ github.action_path }}
+
+    - name: Commit the pet
+      shell: bash
+      run: |
+        git config user.name "commitchi-bot"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add pet.svg
+        git add -f pet-state.json
+        if git diff --staged --quiet; then
+          echo "No change."
+        else
+          git commit -m "chore: tick the pet 🐣"
+          git pull --rebase origin "${{ github.event.repository.default_branch }}"
+          git push
+        fi

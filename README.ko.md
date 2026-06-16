@@ -48,31 +48,53 @@ README가 pet.svg 를 임베드
 
 ## 설정 방법
 
-1. 이 저장소에서 **Use this template**을 눌러 본인 계정 아래에 프로필 저장소
-   (`<your-username>/<your-username>`)를 만드세요.
-2. 프로필 `README.md`에 펫을 임베드하세요:
+본인 프로필 저장소(`<your-username>/<your-username>`)에
+`.github/workflows/commitchi.yml`을 추가하세요:
 
-   ```md
-   ![my pet](./pet.svg)
-   ```
+```yaml
+name: commitchi
 
-   템플릿에는 `pet-state.json`이 들어 있지 않아서, 새 저장소는 fresh egg에서 시작해요.
-   첫 실행 전까지 커밋된 `pet.svg`는 기본 Yuki 알 자리표시자예요.
-3. 본인 저장소의 **Actions** 탭에서 **commitchi tick**을 한 번 실행(`workflow_dispatch`)해
-   라이브 `pet.svg`와 `pet-state.json`을 초기 생성하세요. 이후엔 스케줄 워크플로가 본인 저장소에서 자동 실행돼요.
-4. 펫 근처에 방문자 상호작용 버튼을 추가하세요. 프로필 README라면 실제 프로필 저장소 URL을 쓰세요:
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
 
-   ```md
-   [🍖 밥주기](https://github.com/YOUR_USERNAME/YOUR_USERNAME/issues/new?title=commitchi%3A%20feed)
-   [🎮 놀아주기](https://github.com/YOUR_USERNAME/YOUR_USERNAME/issues/new?title=commitchi%3A%20play)
-   ```
+permissions: { contents: write }
 
-   Commitchi는 정확히 `commitchi: feed`와 `commitchi: play` 이슈 제목에만 반응해요.
-   이슈 본문 텍스트는 무시하고, 방문자마다 UTC 기준 하루 한 번 도울 수 있게 하며, 응답 댓글을 달고,
-   상호작용 이슈를 닫은 뒤 갱신된 `pet.svg` / `pet-state.json`을 커밋해요.
-   성공한 방문은 카드에 `냠냠!`이나 `신난다!` 같은 한 틱짜리 반응을 보여줘요.
-5. *(선택)* **비공개** 기여까지 세려면 `read:user` 권한의 PAT를 만들어 `PET_TOKEN`이라는 저장소 시크릿으로 추가하세요. 없으면 기본 `GITHUB_TOKEN`이 공개 기여를 커버해요.
-6. *(선택)* 개별 펫 이름, 활성 캐릭터, 이코노미를 바꾸려면 `commitchi.config.json`을 추가하세요. 파일이 없으면 Commitchi는 `commitchi.config.example.json`에 보이는 기본값을 사용해요.
+jobs:
+  commitchi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vanilalatte03/commitchi@v1
+        # with: { github-token: ${{ secrets.PET_TOKEN }} }  # 비공개 기여까지 세려면
+```
+
+그다음 프로필 `README.md`에 펫을 임베드하세요:
+
+```md
+![pet](./pet.svg)
+```
+
+**Actions** 탭에서 워크플로를 한 번 수동 실행(`workflow_dispatch`)하면 첫
+`pet.svg`와 `pet-state.json`이 생성돼요. 이후에는 스케줄이 자동으로 펫을
+갱신합니다. 프로필 저장소에 이 저장소의 소스를 복사할 필요는 없고, `@v1`
+태그가 이동되면 워크플로가 최신 v1 엔진을 자동으로 사용해요.
+
+선택 설정은 프로필 저장소 루트의 `commitchi.config.json`에 둡니다. 파일이
+없으면 기본값을 쓰며, 기본 캐릭터는 Yuki예요.
+
+```json
+{
+  "petName": "Mochi",
+  "language": "ko",
+  "theme": "winter",
+  "economy": {
+    "feedPerContrib": 12,
+    "decayPerDay": 22
+  }
+}
+```
 
 ## 로컬에서 실행
 
@@ -98,7 +120,6 @@ npm run build; npm run tick
 ```json
 {
   "petName": "Mochi",
-  "character": "yuki",
   "language": "ko",
   "theme": "winter",
   "economy": {
@@ -125,7 +146,7 @@ npm run build; npm run tick
 | 항목 | 의미 | 기본값 |
 |---|---|---|
 | `petName` | 표시되는 개별 펫 이름; 구버전 `name` 키도 허용 | `Mochi` |
-| `character` | 활성 등록 캐릭터; 값을 바꾸면 로스터 펫 전환 | `yuki` |
+| `character` | 활성 등록 캐릭터; 값을 바꾸면 로스터 펫 전환 | Yuki |
 | `language` | 카드 + 댓글 언어: `"ko"`(완전 한국어) 또는 `"en"`(완전 영어) | `ko` |
 | `economy.feedPerContrib` | 새 기여 1건당 오르는 포만감 | 12 |
 | `economy.decayPerDay` | 먹이 없이 하루당 줄어드는 포만감 | 22 |
@@ -155,15 +176,17 @@ src/
   i18n.ts       일반 UI 문구의 한국어/영어 번들 (캐릭터 이름은 character.json에서)
   preview.ts    개발 전용 갤러리 생성기
   types.ts      공용 타입
-catalog.json                 도감 레지스트리: 도감 번호 → 캐릭터 id (Yuki = #1)
+catalog.json                 도감 레지스트리: 도감 번호 → 캐릭터 id
 assets/sprites/<id>/character.json  캐릭터별 매니페스트 (id, displayName, ghostName, author, license)
 assets/sprites/<id>/         픽셀 스프라이트 (PNG) + character.json
-.github/workflows/tick.yml   스케줄 잡
-.github/workflows/visitor.yml 이슈 생성 시 방문자 상호작용
+action.yml                   스케줄 tick용 재사용 composite 액션
+.github/workflows/character-validation.yml 캐릭터 카탈로그 검증
 ```
 
-> `pet-state.json`은 이 템플릿에 **커밋되지 않아요** — 첫 실행 때 로스터와 활성 펫이 만들어지고, 이후 GitHub Actions가 생성된 상태를 사용자의 저장소에 커밋해요. 나중에 Commitchi를 업데이트할 때는 저장소의 `pet-state.json`을 유지해야 로스터와 도감 진행도가 처음부터 다시 시작하지 않아요.
-> 그 전까지 커밋된 `pet.svg`는 알 자리표시자일 뿐이에요.
+> `pet-state.json`은 첫 실행 전에 없어도 돼요. Commitchi가 로스터와 활성 펫을
+> 만든 뒤 생성된 `pet.svg`와 `pet-state.json`을 프로필 저장소에 커밋합니다.
+> 나중에 Commitchi를 업데이트할 때는 저장소의 `pet-state.json`을 유지해야
+> 로스터와 도감 진행도가 처음부터 다시 시작하지 않아요.
 
 ## 라이선스
 
