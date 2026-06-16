@@ -69,10 +69,13 @@ function readCharacterByNumber(value: number): Species {
   }
   try {
     return getCharacterByNumber(value).id;
-  } catch {
-    throw new Error(
-      `${CONFIG_PATH}: character No.${value} is not in the catalog (use a dex number shown on the card).`
-    );
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("no character with number")) {
+      throw new Error(
+        `${CONFIG_PATH}: character No.${value} is not in the catalog (use a dex number shown on the card).`
+      );
+    }
+    throw error;
   }
 }
 
