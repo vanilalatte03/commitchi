@@ -13,9 +13,9 @@ test("renderSVG shows Korean dex progress when dex is provided", () => {
   const config = makeConfig({ language: "ko" });
   const svg = renderSVG(makeState({}, config), config, oneCollectedDex);
 
-  assert.match(svg, /도감 1\/2/);
-  assert.match(svg, />도감 1\/2<\/text>/);
-  assert.match(svg, /aria-label="[^"]*, 도감 1\/2"/);
+  assert.match(svg, /도감 1\/3/);
+  assert.match(svg, />도감 1\/3<\/text>/);
+  assert.match(svg, /aria-label="[^"]*, 도감 1\/3"/);
 });
 
 test("renderSVG hides visual dex progress during celebrations", () => {
@@ -36,8 +36,8 @@ test("renderSVG hides visual dex progress during celebrations", () => {
     oneCollectedDex
   );
 
-  assert.doesNotMatch(svg, />도감 1\/2<\/text>/);
-  assert.match(svg, /aria-label="[^"]*, 도감 1\/2"/);
+  assert.doesNotMatch(svg, />도감 1\/3<\/text>/);
+  assert.match(svg, /aria-label="[^"]*, 도감 1\/3"/);
 });
 
 test("renderSVG omits dex progress when dex is not provided", () => {
@@ -51,8 +51,8 @@ test("renderSVG localizes dex progress in English", () => {
   const config = makeConfig({ language: "en" });
   const svg = renderSVG(makeState({}, config), config, oneCollectedDex);
 
-  assert.match(svg, /Dex 1\/2/);
-  assert.match(svg, /aria-label="[^"]*, dex 1\/2"/);
+  assert.match(svg, /Dex 1\/3/);
+  assert.match(svg, /aria-label="[^"]*, dex 1\/3"/);
 });
 
 test("resolveDisplayStage follows auto, unlocked pins, dex, ghost, and max-stage equality", () => {
