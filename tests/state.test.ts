@@ -55,8 +55,10 @@ test("applyTick feeds only newly counted contributions for the same UTC day", ()
 
   const first = applyTick(state, activity, NOW, config);
   assert.equal(first.fullness, 70);
-  assert.equal(first.happiness, 60);
-  assert.equal(first.stamina, 60);
+  // happiness: 50 + 2 * (4 + 0.5 * 4) = 62
+  assert.equal(first.happiness, 62);
+  // stamina: 50 + (4 + min(16, streak 1)) = 55
+  assert.equal(first.stamina, 55);
   assert.equal(first.lastDayCounted, 2);
 
   const second = applyTick(first, activity, NOW, config);
@@ -64,6 +66,40 @@ test("applyTick feeds only newly counted contributions for the same UTC day", ()
   assert.equal(second.happiness, first.happiness);
   assert.equal(second.stamina, first.stamina);
   assert.equal(second.lastDayCounted, 2);
+});
+
+test("applyTick lets a solo committer climb happiness; stamina scales with streak", () => {
+  const config = makeConfig({
+    economy: {
+      feedPerContrib: 0,
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+  });
+  const state = makeState(
+    {
+      fullness: 50,
+      happiness: 50,
+      stamina: 50,
+      lastTickAt: NOW.toISOString(),
+      lastDayDate: "2026-01-14",
+      lastDayCounted: 0,
+    },
+    config
+  );
+  const solo = makeActivity({
+    todayDate: "2026-01-15",
+    todayCount: 3,
+    streak: 5,
+    collabRatio: 0,
+  });
+
+  const next = applyTick(state, solo, NOW, config);
+  // happiness rises on activity alone: 50 + 3 * (4 + 0 * 4) = 62 (collab only adds on top)
+  assert.equal(next.happiness, 62);
+  // stamina tracks the streak: 50 + (4 + min(16, streak 5)) = 59
+  assert.equal(next.stamina, 59);
 });
 
 test("applyTick caps burst stamina penalty on high-contribution days", () => {
@@ -94,7 +130,8 @@ test("applyTick caps burst stamina penalty on high-contribution days", () => {
 
   const next = applyTick(state, activity, NOW, config);
 
-  assert.equal(next.stamina, 62);
+  // stamina: 50 + (4 + min(16, streak 30)) - min(14, (52-6)*2) = 50 + 20 - 14 = 56
+  assert.equal(next.stamina, 56);
   assert.ok(next.stamina > state.stamina);
   assert.notEqual(next.mood, "sick");
 });
@@ -344,8 +381,9 @@ test("applyVisitorInteraction decays elapsed stats before applying a bonus", () 
   );
 
   const update = applyVisitorInteraction(state, "feed", "Alice", NOW, config);
-  assert.equal(update.state.fullness, 58);
-  assert.equal(update.state.happiness, 49);
+  // decay 1 day (fullness -10, happiness -5, stamina -4) then feed bonus (+10/+2/+0)
+  assert.equal(update.state.fullness, 50);
+  assert.equal(update.state.happiness, 47);
   assert.equal(update.state.stamina, 46);
 });
 

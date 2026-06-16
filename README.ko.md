@@ -164,8 +164,8 @@ npm run build; npm run tick
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
-    "happinessDecayPerDay": 5,
-    "staminaDecayPerDay": 4,
+    "happinessDecayPerDay": 8,
+    "staminaDecayPerDay": 8,
     "startFullness": 60
   },
   "thresholds": {
@@ -191,8 +191,8 @@ npm run build; npm run tick
 | `displayStage` | 카드에 고정 표시할 단계 스프라이트; `"auto"`는 실제 단계 자동 표시 | `auto` |
 | `economy.feedPerContrib` | 새 기여 1건당 오르는 포만감 | 12 |
 | `economy.decayPerDay` | 먹이 없이 하루당 줄어드는 포만감 | 22 |
-| `economy.happinessDecayPerDay` | 하루당 줄어드는 행복도 | 5 |
-| `economy.staminaDecayPerDay` | 하루당 줄어드는 체력 | 4 |
+| `economy.happinessDecayPerDay` | 하루당 줄어드는 행복도 | 8 |
+| `economy.staminaDecayPerDay` | 하루당 줄어드는 체력 | 8 |
 | `economy.startFullness` | 갓 태어났을 때 포만감·행복도·체력의 시작값 | 60 |
 | `thresholds.hungryFullness` | 이 스탯 값 이하에서 펫이 배고파짐 | 45 |
 | `thresholds.sickFullness` | 이 스탯 값 이하에서 펫이 아파짐 | 15 |
