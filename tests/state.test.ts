@@ -192,6 +192,22 @@ test("applyTick derives happy, hungry, and sick moods from thresholds and neglec
   );
   assert.equal(hungry.mood, "hungry");
 
+  const tiredButHealthy = applyTick(
+    makeState({ fullness: 100, happiness: 100, stamina: 31 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(tiredButHealthy.mood, "happy");
+
+  const sickByStamina = applyTick(
+    makeState({ fullness: 100, happiness: 100, stamina: 30 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(sickByStamina.mood, "sick");
+
   const sickByStat = applyTick(
     makeState({ fullness: 15, happiness: 80, stamina: 80 }, config),
     makeActivity(),
@@ -341,6 +357,36 @@ test("applyVisitorInteraction applies feed and play bonuses", () => {
     feedCount: 0,
     playCount: 1,
   });
+});
+
+test("applyVisitorInteraction marks a full pet sick when stamina is 30 or below", () => {
+  const config = makeConfig({
+    economy: {
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+    thresholds: {
+      hungryFullness: 45,
+      sickFullness: 15,
+      neglectDays: 4,
+    },
+  });
+  const state = makeState(
+    {
+      fullness: 100,
+      happiness: 100,
+      stamina: 28,
+      lastTickAt: NOW.toISOString(),
+    },
+    config
+  );
+
+  const update = applyVisitorInteraction(state, "feed", "Alice", NOW, config);
+  assert.equal(update.state.fullness, 100);
+  assert.equal(update.state.happiness, 100);
+  assert.equal(update.state.stamina, 28);
+  assert.equal(update.state.mood, "sick");
 });
 
 test("applyVisitorInteraction rate limits the same actor on the same UTC date", () => {

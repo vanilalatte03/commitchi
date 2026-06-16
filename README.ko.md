@@ -29,7 +29,7 @@ GitHub Action이 스케줄에 맞춰 틱을 돌려 `pet.svg`와 `dex.svg`를 새
 | 청소년 (teen) | 7일차+ |
 | 성체 (adult) | 14일차+ |
 
-기분(`기분 좋음` / `배고픔` / `아파요`)은 포만감·행복도·체력과 가장 최근 커밋 시점에 따라 정해져요. 각 단계마다 고유한 기분 스프라이트가 있어요. 방치(기본 4일 이상 기여 없음) 시에는 활성 캐릭터의 유령 변형이 표시돼요.
+기분(`기분 좋음` / `배고픔` / `아파요`)은 포만감, 치명적으로 낮은 스탯, 체력 30 이하, 가장 최근 커밋 시점에 따라 정해져요. 각 단계마다 고유한 기분 스프라이트가 있어요. 방치(기본 4일 이상 기여 없음) 시에는 활성 캐릭터의 유령 변형이 표시돼요.
 
 > 캐릭터 시스템은 **데이터 주도**(`catalog.json` + 캐릭터별 `character.json` 레지스트리)라, 새 캐릭터를 데이터로 추가할 수 있어요. config 기반 캐릭터 선택은 지금 사용할 수 있고, 코딩 패턴 기반 종족 선택(`pickSpecies`)은 나중의 특수/한정 캐릭터 규칙을 위해 보류되어 있어요.
 
@@ -191,8 +191,8 @@ npm run build; npm run tick
 | `economy.happinessDecayPerDay` | 하루당 줄어드는 행복도 | 8 |
 | `economy.staminaDecayPerDay` | 하루당 줄어드는 체력 | 8 |
 | `economy.startFullness` | 갓 태어났을 때 포만감·행복도·체력의 시작값 | 60 |
-| `thresholds.hungryFullness` | 이 스탯 값 이하에서 펫이 배고파짐 | 45 |
-| `thresholds.sickFullness` | 이 스탯 값 이하에서 펫이 아파짐 | 15 |
+| `thresholds.hungryFullness` | 포만감이 이 값 이하일 때 펫이 배고파짐 | 45 |
+| `thresholds.sickFullness` | 이 스탯 값 이하에서 펫이 아파짐; 체력은 30 이하에서도 아파짐 | 15 |
 | `thresholds.neglectDays` | 활성 펫이 유령 형태가 되기까지 기여 없는 일수 | 4 |
 
 ## 프로젝트 구조
