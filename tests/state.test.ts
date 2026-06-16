@@ -66,6 +66,39 @@ test("applyTick feeds only newly counted contributions for the same UTC day", ()
   assert.equal(second.lastDayCounted, 2);
 });
 
+test("applyTick caps burst stamina penalty on high-contribution days", () => {
+  const config = makeConfig({
+    economy: {
+      feedPerContrib: 0,
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+  });
+  const state = makeState(
+    {
+      fullness: 80,
+      happiness: 80,
+      stamina: 50,
+      lastTickAt: NOW.toISOString(),
+      lastDayDate: "2026-01-14",
+      lastDayCounted: 0,
+    },
+    config
+  );
+  const activity = makeActivity({
+    todayDate: "2026-01-15",
+    todayCount: 52,
+    streak: 30,
+  });
+
+  const next = applyTick(state, activity, NOW, config);
+
+  assert.equal(next.stamina, 62);
+  assert.ok(next.stamina > state.stamina);
+  assert.notEqual(next.mood, "sick");
+});
+
 test("applyTick applies elapsed-day decay before gains", () => {
   const config = makeConfig({
     economy: {

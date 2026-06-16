@@ -130,6 +130,7 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 ```
 
 `petName` is the user-chosen name shown at the top of the card.
+The name comes from `petName` in `commitchi.config.json`; editing `name` directly in `pet-state.json` is overwritten by the config value on the next tick.
 `character` chooses the active registered character to raise. Changing it switches to
 that character's roster pet: an existing pet resumes from its frozen state, while a
 newly chosen character starts as an egg. Inactive pets do not decay, and your personal
