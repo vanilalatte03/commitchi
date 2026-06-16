@@ -169,7 +169,9 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 ```json
 {
   "petName": "Mochi",
+  "character": "yuki",
   "language": "ko",
+  "displayStage": "auto",
   "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
@@ -186,27 +188,13 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 }
 ```
 
-`petName` is the user-chosen name shown at the top of the card.
-The name comes from `petName` in `commitchi.config.json`; editing `name` directly in `pet-state.json` is overwritten by the config value on the next tick.
-`character` chooses the active registered character to raise. Changing it switches to
-that character's roster pet: an existing pet resumes from its frozen state, while a
-newly chosen character starts as an egg. Inactive pets do not decay, and your personal
-dex records how far each character has been raised. Pick any character id listed in
-`catalog.json`.
-`language` switches **all** card text and visitor comments between fully Korean (`"ko"`)
-and fully English (`"en"`) — no mixing. It defaults to `"ko"`.
-`displayStage` can pin the card to show a reached stage sprite, or `"auto"` to
-follow the pet's real stage. This is cosmetic only: age, stats, evolution, and
-neglect continue to simulate normally. A pinned stage is used only when it is at
-or below that character's personal dex `maxStage`; locked stages are ignored and
-the real stage is shown instead. If the active pet is a ghost, the pin is ignored
-and the ghost form is shown.
-Only the `dark` theme exists today; the field is there so more card themes can be added without changing the config shape.
+The config file is optional and partial overrides are supported. Missing fields use the
+defaults below.
 
 | Knob | Meaning | Default |
 |---|---|---|
 | `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
-| `character` | active registered character; changing it switches roster pets | Yuki |
+| `character` | active registered character id; changing it switches roster pets | `yuki` |
 | `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
 | `displayStage` | stage sprite to pin on the card; `"auto"` follows the real stage | `auto` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
@@ -217,8 +205,6 @@ Only the `dark` theme exists today; the field is there so more card themes can b
 | `thresholds.hungryFullness` | stat level at/below which the pet becomes hungry | 45 |
 | `thresholds.sickFullness` | stat level at/below which the pet becomes sick | 15 |
 | `thresholds.neglectDays` | days without contributions before the active pet becomes a ghost | 4 |
-
-The config file is optional and partial overrides are supported. For example, `{ "petName": "Bori" }` only changes the displayed pet name.
 
 ## Project layout
 

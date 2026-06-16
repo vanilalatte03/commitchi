@@ -8,6 +8,24 @@ Only swap the *palette, theme, and signature charm* per creature.
 
 ---
 
+## Quick visual target
+
+![Complete character sheet reference](assets/character-sheet-reference.png)
+
+Use this sheet as the visual coverage target for a complete character. AI-assisted,
+hand-drawn, and mixed workflows are all expected to produce the same state coverage:
+
+- `egg`
+- `baby`, `baby-hungry`, `baby-sick`
+- `child`, `child-hungry`, `child-sick`
+- `teen`, `teen-hungry`, `teen-sick`
+- `adult-happy`, `adult-hungry`, `adult-sick`
+- `ghost`
+
+The reference image is for required poses, scale relationships, mood readability, and
+file naming only. Do not clone the subject, costume, or exact design; every submitted
+character must be original, IP-safe, and licenseable under CC BY 4.0.
+
 ## 1. Style block (fixed — use for every character)
 
 ```
@@ -42,7 +60,13 @@ the style block above.
 
 ## 3. Sheet layout
 
-Every stage except `egg` needs **happy / hungry / sick** moods, so plan for two sheets.
+Every stage except `egg` needs **happy / hungry / sick** moods. You can generate one
+combined reference sheet like the image above, or split the work into two generation
+sheets and combine/slice them later.
+
+For AI generation, treat labels and grid lines as planning aids only. The final sliced
+runtime PNGs must contain no text labels, no grid, and no visible sheet background; each
+file should be the isolated character/state sprite.
 
 **Sheet 1 — growth + adult moods + ghost**
 
@@ -77,9 +101,9 @@ watermark, busy background, scenery, harsh outline, inconsistent scale, off-mode
 
 ## 5. Consistency tips
 
-- **Attach the existing Yuki sheet as a reference image** and say "match this exact art
-  style / proportions / background, new creature: …". This beats text alone for series
-  consistency.
+- **Attach a complete approved character sheet as a reference image** and say "match this
+  exact art style / proportions / background, new creature: …". This beats text alone for
+  series consistency.
 - **Lock the seed** and keep the same background color (#141323) across characters.
 - **Generate large, then downscale:** ~1024px per cell (or a ~3072² sheet), then downscale
   to ~192px and optimize with `pngquant` / `oxipng` to produce the `@3x` runtime assets.
