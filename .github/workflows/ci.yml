@@ -1,0 +1,27 @@
+name: ci
+
+# PR-stage gate: build + test before merge, so main stays green and release.yml
+# (which moves @v1 only when tests/build pass) never fails on a broken merge.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # 22+: "npm test" runs "node --test" with glob patterns (node 21+).
+          node-version: 22
+      - run: npm install
+      - run: npm test
+      - run: npm run build
