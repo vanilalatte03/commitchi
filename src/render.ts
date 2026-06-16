@@ -18,11 +18,15 @@ const WINTER_PALETTE = {
   snow: "#9DB7D1",
 };
 
-type Palette = typeof WINTER_PALETTE;
+export type Palette = typeof WINTER_PALETTE;
 
 const THEME_PALETTES: Record<Theme, Palette> = {
   winter: WINTER_PALETTE,
 };
+
+export function paletteFor(theme: Theme): Palette {
+  return THEME_PALETTES[theme];
+}
 
 const XML_TEXT_ESCAPES: Record<string, string> = {
   "&": "&amp;",
@@ -147,7 +151,7 @@ export function renderSVG(
   config: CommitchiConfig = DEFAULT_CONFIG,
   dex?: Record<Species, DexEntry>
 ): string {
-  const palette = THEME_PALETTES[config.theme];
+  const palette = paletteFor(config.theme);
   const s = getStrings(config.language);
   const character = activeCharacter(state.species);
   const characters = dex ? listCharacters() : [];
