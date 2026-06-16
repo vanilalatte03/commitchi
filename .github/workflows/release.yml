@@ -21,7 +21,9 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 22+: the test runner's "node --test" supports glob patterns,
+          # which "npm test" relies on (node 20 would not match the files).
+          node-version: 22
       - name: Build and test
         run: |
           npm install
