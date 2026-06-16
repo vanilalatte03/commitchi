@@ -25,8 +25,8 @@ export const DEFAULT_CONFIG: CommitchiConfig = {
   economy: {
     feedPerContrib: 12,
     decayPerDay: 22,
-    happinessDecayPerDay: 5,
-    staminaDecayPerDay: 4,
+    happinessDecayPerDay: 8,
+    staminaDecayPerDay: 8,
     startFullness: 60,
   },
   thresholds: {

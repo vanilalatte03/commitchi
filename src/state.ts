@@ -30,8 +30,8 @@ export const VISITOR_ACTION_BONUS: Record<
   VisitorAction,
   { fullness: number; happiness: number; stamina: number }
 > = {
-  feed: { fullness: 18, happiness: 4, stamina: 0 },
-  play: { fullness: 3, happiness: 16, stamina: 3 },
+  feed: { fullness: 10, happiness: 2, stamina: 0 },
+  play: { fullness: 2, happiness: 8, stamina: 2 },
 };
 
 function normalizeStat(value: unknown, fallback: number): number {
@@ -496,11 +496,15 @@ export function applyTick(
 
   const fullness = clamp(decayed.fullness + newContribs * config.economy.feedPerContrib, 0, 100);
 
-  const happinessGain = newContribs > 0 ? newContribs * (2 + a.collabRatio * 6) : 0;
+  // Happiness rises with activity (so a solo committer can max it) plus a
+  // collaboration bonus on top; collaborators climb faster, but no one is gated.
+  const happinessGain = newContribs > 0 ? newContribs * (4 + a.collabRatio * 4) : 0;
   const happiness = clamp(decayed.happiness + happinessGain, 0, 100);
 
+  // Stamina mirrors consistency: a longer streak lifts it more, and it sags when
+  // the streak is short or broken (decay now meaningfully outpaces a single day).
   const consistencyGain =
-    newContribs > 0 ? 8 + Math.min(18, Math.max(0, a.streak) * 2) : 0;
+    newContribs > 0 ? 4 + Math.min(16, Math.max(0, a.streak)) : 0;
   const burstPenalty = Math.min(BURST_PENALTY_CAP, Math.max(0, newContribs - 6) * 2);
   const stamina = clamp(
     decayed.stamina + consistencyGain - burstPenalty,

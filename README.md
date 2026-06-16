@@ -174,8 +174,8 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
-    "happinessDecayPerDay": 5,
-    "staminaDecayPerDay": 4,
+    "happinessDecayPerDay": 8,
+    "staminaDecayPerDay": 8,
     "startFullness": 60
   },
   "thresholds": {
@@ -211,8 +211,8 @@ Only the `dark` theme exists today; the field is there so more card themes can b
 | `displayStage` | stage sprite to pin on the card; `"auto"` follows the real stage | `auto` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
-| `economy.happinessDecayPerDay` | happiness lost per elapsed day | 5 |
-| `economy.staminaDecayPerDay` | stamina lost per elapsed day | 4 |
+| `economy.happinessDecayPerDay` | happiness lost per elapsed day | 8 |
+| `economy.staminaDecayPerDay` | stamina lost per elapsed day | 8 |
 | `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
 | `thresholds.hungryFullness` | stat level at/below which the pet becomes hungry | 45 |
 | `thresholds.sickFullness` | stat level at/below which the pet becomes sick | 15 |
