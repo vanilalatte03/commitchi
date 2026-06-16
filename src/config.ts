@@ -32,6 +32,7 @@ export const DEFAULT_CONFIG: CommitchiConfig = {
   thresholds: {
     hungryFullness: 45,
     sickFullness: 15,
+    sickStamina: 30,
     neglectDays: 4,
   },
 };
@@ -181,6 +182,12 @@ function readThresholds(source: Record<string, unknown>): ThresholdConfig {
       thresholds,
       "sickFullness",
       DEFAULT_CONFIG.thresholds.sickFullness,
+      { min: 0, max: 100 }
+    ),
+    sickStamina: readNumber(
+      thresholds,
+      "sickStamina",
+      DEFAULT_CONFIG.thresholds.sickStamina,
       { min: 0, max: 100 }
     ),
     neglectDays: readNumber(thresholds, "neglectDays", DEFAULT_CONFIG.thresholds.neglectDays, {

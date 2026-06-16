@@ -113,10 +113,12 @@ export interface EconomyConfig {
 }
 
 export interface ThresholdConfig {
-  /** At or below this lowest stat value, the pet is hungry. */
+  /** At or below this fullness value, the pet is hungry. */
   hungryFullness: number;
-  /** At or below this lowest stat value, or after neglectDays, the pet is sick. */
+  /** At or below this lowest stat value, after neglectDays, or at low stamina, the pet is sick. */
   sickFullness: number;
+  /** At or below this stamina value, the pet is sick (run-down), independent of fullness. */
+  sickStamina: number;
   /** Whole days without contributions before the pet becomes its ghost variant. */
   neglectDays: number;
 }

@@ -369,11 +369,12 @@ function moodFor(
   const lowestStat = Math.min(fullness, happiness, stamina);
   if (
     daysSinceLastContribution >= config.thresholds.neglectDays ||
-    lowestStat <= config.thresholds.sickFullness
+    lowestStat <= config.thresholds.sickFullness ||
+    stamina <= config.thresholds.sickStamina
   ) {
     return "sick";
   }
-  if (lowestStat <= config.thresholds.hungryFullness) return "hungry";
+  if (fullness <= config.thresholds.hungryFullness) return "hungry";
   return "happy";
 }
 

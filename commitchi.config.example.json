@@ -14,6 +14,7 @@
   "thresholds": {
     "hungryFullness": 45,
     "sickFullness": 15,
+    "sickStamina": 30,
     "neglectDays": 4
   }
 }

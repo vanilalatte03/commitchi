@@ -34,10 +34,10 @@ Stages advance purely with age:
 | teen | day 7+ |
 | adult | day 14+ |
 
-Moods (`happy` / `hungry` / `sick`) are driven by fullness, happiness, stamina,
-and how recently you committed. Each stage has its own mood sprite. Neglect
-(4+ days with no contributions by default) shows the active character's ghost
-variant.
+Moods (`happy` / `hungry` / `sick`) are driven by fullness, critically low stats,
+stamina at 30 or below, and how recently you committed. Each stage has its own
+mood sprite. Neglect (4+ days with no contributions by default) shows the active
+character's ghost variant.
 
 > The character system is **data-driven** (a registry over `catalog.json` + per-character `character.json`), so new characters can be added as data. Config-based character selection is available today; coding-pattern-based species selection (`pickSpecies`) stays parked for later special/limited character rules.
 
@@ -183,6 +183,7 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
   "thresholds": {
     "hungryFullness": 45,
     "sickFullness": 15,
+    "sickStamina": 30,
     "neglectDays": 4
   }
 }
@@ -202,8 +203,9 @@ defaults below.
 | `economy.happinessDecayPerDay` | happiness lost per elapsed day | 8 |
 | `economy.staminaDecayPerDay` | stamina lost per elapsed day | 8 |
 | `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
-| `thresholds.hungryFullness` | stat level at/below which the pet becomes hungry | 45 |
+| `thresholds.hungryFullness` | fullness level at/below which the pet becomes hungry | 45 |
 | `thresholds.sickFullness` | stat level at/below which the pet becomes sick | 15 |
+| `thresholds.sickStamina` | stamina level at/below which the pet becomes sick (run-down), independent of fullness | 30 |
 | `thresholds.neglectDays` | days without contributions before the active pet becomes a ghost | 4 |
 
 ## Project layout
