@@ -13,8 +13,6 @@ an original snowy-owl pixel sprite.
 - **Go quiet** and your pet gets hungry, then sick.
 - Collaborative work raises your pet's **happiness**, while steady commit rhythm raises
   **stamina**.
-- Visitors can help once per day with **Feed** / **Play** issue links; Commitchi applies
-  the care action, replies, closes the issue, and updates the pet card.
 - **Disappear for 4+ days by default** and your pet fades into that character's ghost form — who returns the moment you commit again.
 - Your pet also **grows up** over time: egg → baby → child → teen → adult.
 - Raised characters fill your personal dex progress as they reach later stages.
@@ -58,34 +56,54 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
 
 ## Setup
 
-1. Click **Use this template** on this repository and create your profile repo
-   (`<your-username>/<your-username>`) under your own account.
-2. Embed the pet in your profile `README.md`:
+Add `.github/workflows/commitchi.yml` to your profile repository
+(`<your-username>/<your-username>`):
 
-   ```md
-   ![my pet](./pet.svg)
-   ```
+```yaml
+name: commitchi
 
-   The template does not include `pet-state.json`, so your repo starts from a
-   fresh egg. Until your first run, the committed `pet.svg` is only the default
-   Yuki egg placeholder.
-3. Open your repo's **Actions** tab and run **commitchi tick** once
-   (`workflow_dispatch`) to seed your live `pet.svg` and `pet-state.json`.
-   After that, the scheduled workflow runs automatically in your repo.
-4. Add visitor interaction buttons near the pet. For a profile README, use your actual
-   profile repo URL:
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
 
-   ```md
-   [🍖 Feed](https://github.com/YOUR_USERNAME/YOUR_USERNAME/issues/new?title=commitchi%3A%20feed)
-   [🎮 Play](https://github.com/YOUR_USERNAME/YOUR_USERNAME/issues/new?title=commitchi%3A%20play)
-   ```
+permissions: { contents: write }
 
-   Commitchi only acts on the exact issue titles `commitchi: feed` and `commitchi: play`.
-   It ignores issue body text, lets each visitor help once per UTC day, comments a response,
-   closes the interaction issue, and commits the updated `pet.svg` / `pet-state.json`.
-   Successful visits show a one-tick reaction such as `Yum!` or `So fun!` on the card.
-5. *(Optional)* To count **private** contributions too, create a PAT with the `read:user` scope and add it as a repo secret named `PET_TOKEN`. Without it, the built-in `GITHUB_TOKEN` covers public contributions.
-6. *(Optional)* Add `commitchi.config.json` to customize the individual pet name, active character, and economy. If the file is missing, Commitchi uses the defaults shown in `commitchi.config.example.json`.
+jobs:
+  commitchi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vanilalatte03/commitchi@v1
+        # with: { github-token: ${{ secrets.PET_TOKEN }} }  # To count private contributions too.
+```
+
+Then embed the pet in your profile `README.md`:
+
+```md
+![pet](./pet.svg)
+```
+
+Run the workflow once from the **Actions** tab (`workflow_dispatch`) to create
+your first `pet.svg` and `pet-state.json`. After that, the schedule updates the
+pet automatically. You do not need to copy this repository's source into your
+profile repo; when the `@v1` tag moves, your workflow uses the latest v1 engine.
+
+Optional config lives at `commitchi.config.json` in your profile repo. If the file
+is missing, Commitchi uses the built-in defaults, including Yuki as the default
+character.
+
+```json
+{
+  "petName": "Mochi",
+  "language": "ko",
+  "theme": "winter",
+  "economy": {
+    "feedPerContrib": 12,
+    "decayPerDay": 22
+  }
+}
+```
 
 ## Run locally
 
@@ -111,7 +129,6 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 ```json
 {
   "petName": "Mochi",
-  "character": "yuki",
   "language": "ko",
   "theme": "winter",
   "economy": {
@@ -143,7 +160,7 @@ Only the `winter` theme exists today; the field is there so more card themes can
 | Knob | Meaning | Default |
 |---|---|---|
 | `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
-| `character` | active registered character; changing it switches roster pets | `yuki` |
+| `character` | active registered character; changing it switches roster pets | Yuki |
 | `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |
 | `economy.decayPerDay` | fullness lost per day with no feeding | 22 |
@@ -174,18 +191,17 @@ src/
                 from character.json)
   preview.ts    dev-only gallery generator
   types.ts      shared types
-catalog.json                 dex registry: dex number → character id (Yuki = #1)
+catalog.json                 dex registry: dex number → character id
 assets/sprites/<id>/character.json  per-character manifest (id, displayName, ghostName, author, license)
 assets/sprites/<id>/         the pixel sprites (PNG) + character.json
-.github/workflows/tick.yml   the scheduled job
-.github/workflows/visitor.yml issue-opened visitor interactions
+action.yml                   reusable composite action for scheduled ticks
+.github/workflows/character-validation.yml character catalog validation
 ```
 
-> `pet-state.json` is **not committed** in this template — the first run creates the
-> roster and active pet, then GitHub Actions commits that generated state into the user's
-> own repo. When updating Commitchi later, keep your repo's `pet-state.json` so roster and
-> dex progress do not restart.
-> The committed `pet.svg` is just an egg placeholder until then.
+> `pet-state.json` does not need to exist before the first run. Commitchi creates the
+> roster and active pet, then commits the generated `pet.svg` and `pet-state.json` into
+> your profile repo. Keep that `pet-state.json` when updating Commitchi so roster and dex
+> progress do not restart.
 
 ## License
 

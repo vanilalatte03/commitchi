@@ -1,10 +1,12 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-export const CATALOG_PATH = "catalog.json";
+const ENGINE_ROOT = process.env.COMMITCHI_HOME ?? process.cwd();
+const SPRITE_ROOT = join(ENGINE_ROOT, "assets", "sprites");
+
+export const CATALOG_PATH = join(ENGINE_ROOT, "catalog.json");
 export const CHARACTER_MANIFEST_FILE = "character.json";
 
-const SPRITE_ROOT = join(process.cwd(), "assets", "sprites");
 const CHARACTER_ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 const CHARACTER_LICENSE = "CC-BY-4.0";
 
