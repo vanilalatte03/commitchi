@@ -173,6 +173,7 @@ npm run build; npm run tick
   "thresholds": {
     "hungryFullness": 45,
     "sickFullness": 15,
+    "sickStamina": 30,
     "neglectDays": 4
   }
 }
@@ -192,7 +193,8 @@ npm run build; npm run tick
 | `economy.staminaDecayPerDay` | 하루당 줄어드는 체력 | 8 |
 | `economy.startFullness` | 갓 태어났을 때 포만감·행복도·체력의 시작값 | 60 |
 | `thresholds.hungryFullness` | 포만감이 이 값 이하일 때 펫이 배고파짐 | 45 |
-| `thresholds.sickFullness` | 이 스탯 값 이하에서 펫이 아파짐; 체력은 30 이하에서도 아파짐 | 15 |
+| `thresholds.sickFullness` | 이 스탯 값 이하에서 펫이 아파짐 | 15 |
+| `thresholds.sickStamina` | 체력이 이 값 이하면 펫이 아파짐(쇠약); 포만감과 무관 | 30 |
 | `thresholds.neglectDays` | 활성 펫이 유령 형태가 되기까지 기여 없는 일수 | 4 |
 
 ## 프로젝트 구조

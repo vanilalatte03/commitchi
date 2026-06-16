@@ -23,7 +23,6 @@ const LEGACY_GHOST_SPECIES = "ghost";
 const DAY_MS = 86_400_000;
 const STREAK_MILESTONES = [7, 30, 100];
 const BURST_PENALTY_CAP = 14;
-const SICK_STAMINA_THRESHOLD = 30;
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
@@ -371,7 +370,7 @@ function moodFor(
   if (
     daysSinceLastContribution >= config.thresholds.neglectDays ||
     lowestStat <= config.thresholds.sickFullness ||
-    stamina <= SICK_STAMINA_THRESHOLD
+    stamina <= config.thresholds.sickStamina
   ) {
     return "sick";
   }

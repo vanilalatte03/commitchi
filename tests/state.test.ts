@@ -225,6 +225,36 @@ test("applyTick derives happy, hungry, and sick moods from thresholds and neglec
   assert.equal(sickByNeglect.mood, "sick");
 });
 
+test("applyTick honors a custom sickStamina threshold", () => {
+  const config = makeConfig({
+    economy: {
+      feedPerContrib: 0,
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+    thresholds: { sickStamina: 50 },
+  });
+
+  // stamina 45 (<= custom 50) → sick, even with full fullness/happiness
+  const sick = applyTick(
+    makeState({ fullness: 100, happiness: 100, stamina: 45 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(sick.mood, "sick");
+
+  // stamina 55 (> 50) → not sick
+  const ok = applyTick(
+    makeState({ fullness: 100, happiness: 100, stamina: 55 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(ok.mood, "happy");
+});
+
 test("applyTick advances stage, follows configured species, and locks species at adult", () => {
   const config = makeConfig({
     character: "nari",

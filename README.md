@@ -183,6 +183,7 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
   "thresholds": {
     "hungryFullness": 45,
     "sickFullness": 15,
+    "sickStamina": 30,
     "neglectDays": 4
   }
 }
@@ -203,7 +204,8 @@ defaults below.
 | `economy.staminaDecayPerDay` | stamina lost per elapsed day | 8 |
 | `economy.startFullness` | newborn starting value for fullness, happiness, and stamina | 60 |
 | `thresholds.hungryFullness` | fullness level at/below which the pet becomes hungry | 45 |
-| `thresholds.sickFullness` | stat level at/below which the pet becomes sick; stamina also becomes sick at 30 or below | 15 |
+| `thresholds.sickFullness` | stat level at/below which the pet becomes sick | 15 |
+| `thresholds.sickStamina` | stamina level at/below which the pet becomes sick (run-down), independent of fullness | 30 |
 | `thresholds.neglectDays` | days without contributions before the active pet becomes a ghost | 4 |
 
 ## Project layout

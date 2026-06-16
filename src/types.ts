@@ -117,6 +117,8 @@ export interface ThresholdConfig {
   hungryFullness: number;
   /** At or below this lowest stat value, after neglectDays, or at low stamina, the pet is sick. */
   sickFullness: number;
+  /** At or below this stamina value, the pet is sick (run-down), independent of fullness. */
+  sickStamina: number;
   /** Whole days without contributions before the pet becomes its ghost variant. */
   neglectDays: number;
 }
