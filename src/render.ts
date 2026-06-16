@@ -172,6 +172,9 @@ export function renderSVG(
   const sprite = spriteFor(displayStage, character.id, state.mood, ghost);
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
+  // The card grew (200 -> 222) to fit the reason line; nudge the whole art block
+  // (halo, sprite, shadow, sparkles) down so it stays vertically centered.
+  const artShiftY = 14;
   const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, character, s, displayStage))}`;
   const reasonText = state.note ? s.reason(state.note) : null;
   const ariaLabel = escapeAttr(
@@ -212,16 +215,18 @@ export function renderSVG(
   <title>${titleText}</title>
   <rect x="0.5" y="0.5" width="479" height="221" rx="16" fill="${palette.card}" stroke="${palette.cardEdge}"/>
   ${stars(palette)}
+  ${celebrationBadge(state, palette, s)}
+  <g transform="translate(0,${artShiftY})">
   <circle cx="112" cy="104" r="68" fill="${palette.halo}" opacity="0.58"/>
   <path d="M84,52 h56 M74,68 h76 M64,84 h96 M58,100 h108 M64,116 h96 M74,132 h76 M84,148 h56" stroke="${palette.snow}" stroke-width="1" opacity="0.08"/>
   ${celebrationEffects(palette, Boolean(state.celebration))}
-  ${celebrationBadge(state, palette, s)}
   <ellipse cx="112" cy="170" rx="${Math.round(sprite.displaySize * 0.34)}" ry="10" fill="#050611" opacity="0.42"/>
   <g>
     <g>
       <animateTransform attributeName="transform" type="translate" values="0,0; ${bob}; 0,0" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
       <image href="${sprite.href}" x="${spriteX}" y="${spriteY}" width="${sprite.displaySize}" height="${sprite.displaySize}" preserveAspectRatio="xMidYMid meet"/>
     </g>
+  </g>
   </g>
   ${t(204, 44, palette.textMain, 24, "700")}${nameText}</text>
   ${t(204, 68, palette.textMuted, 13)}${subtitleText}</text>
