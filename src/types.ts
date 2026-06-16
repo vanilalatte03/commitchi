@@ -1,5 +1,23 @@
 export type Mood = "happy" | "hungry" | "sick";
 
+export type ReasonCode =
+  | "ghost_neglect"
+  | "sick_exhausted"
+  | "sick_starving"
+  | "sick_lonely"
+  | "hungry"
+  | "happy_collab"
+  | "happy_active"
+  | "content";
+
+export interface StateNote {
+  code: ReasonCode;
+  /** Whole days since the latest contribution, used for user-facing copy. */
+  days: number;
+  /** ISO timestamp when this note was derived. */
+  at: string;
+}
+
 /** UI language for everything the pet card and visitor comments render. */
 export type Language = "ko" | "en";
 
@@ -54,6 +72,10 @@ export interface PetState {
   /** 0-100. Driven by consistent activity; big bursts are less efficient. */
   stamina: number;
   mood: Mood;
+  /** Current reason for the pet's rendered state. */
+  note?: StateNote;
+  /** Recent state-reason changes, newest last. */
+  log?: StateNote[];
   /** The milestone being celebrated on this rendered tick, if any. */
   celebration: CelebrationMoment | null;
   /** Stable milestone ids that have already been celebrated. */

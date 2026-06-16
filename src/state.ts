@@ -6,9 +6,11 @@ import {
   DexEntry,
   Mood,
   PetState,
+  ReasonCode,
   SaveState,
   Species,
   Stage,
+  StateNote,
   VisitorAction,
   VisitorInteractionRecord,
 } from "./types";
@@ -23,6 +25,18 @@ const LEGACY_GHOST_SPECIES = "ghost";
 const DAY_MS = 86_400_000;
 const STREAK_MILESTONES = [7, 30, 100];
 const BURST_PENALTY_CAP = 14;
+const NOTE_LOG_LIMIT = 8;
+const COLLAB_NOTE_THRESHOLD = 0.34;
+const REASON_CODES: ReasonCode[] = [
+  "ghost_neglect",
+  "sick_exhausted",
+  "sick_starving",
+  "sick_lonely",
+  "hungry",
+  "happy_collab",
+  "happy_active",
+  "content",
+];
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
@@ -93,6 +107,10 @@ function normalizeMood(value: unknown, fallback: Mood): Mood {
   return value === "happy" || value === "hungry" || value === "sick" ? value : fallback;
 }
 
+function isReasonCode(value: unknown): value is ReasonCode {
+  return typeof value === "string" && REASON_CODES.includes(value as ReasonCode);
+}
+
 function normalizeText(value: unknown, fallback: string): string {
   const text = typeof value === "string" ? value.trim() : "";
   return text || fallback;
@@ -139,8 +157,38 @@ function normalizeVisitorInteractions(value: unknown): Record<string, VisitorInt
   return result;
 }
 
+function contentNote(now: Date): StateNote {
+  return { code: "content", days: 0, at: now.toISOString() };
+}
+
+function normalizeStateNote(value: unknown, fallback: StateNote): StateNote {
+  if (!isRecord(value)) return fallback;
+  return {
+    code: isReasonCode(value.code) ? value.code : fallback.code,
+    days: normalizeCount(value.days),
+    at: normalizeText(value.at, fallback.at),
+  };
+}
+
+function normalizeLog(value: unknown, fallbackAt: string): StateNote[] {
+  if (!Array.isArray(value)) return [];
+
+  const log: StateNote[] = [];
+  for (const item of value) {
+    if (!isRecord(item) || !isReasonCode(item.code)) continue;
+    log.push({
+      code: item.code,
+      days: normalizeCount(item.days),
+      at: normalizeText(item.at, fallbackAt),
+    });
+  }
+
+  return log.slice(-NOTE_LOG_LIMIT);
+}
+
 function freshPet(now: Date, config: CommitchiConfig, species: Species): PetState {
   const iso = now.toISOString();
+  const note = contentNote(now);
   return {
     name: config.petName,
     species,
@@ -153,6 +201,8 @@ function freshPet(now: Date, config: CommitchiConfig, species: Species): PetStat
     happiness: config.economy.startFullness,
     stamina: config.economy.startFullness,
     mood: "happy",
+    note,
+    log: [],
     celebration: null,
     celebratedMilestones: [],
     ageDays: 0,
@@ -174,6 +224,8 @@ function normalizePetState(
   const fallback = freshPet(now, config, rosterSpecies);
   const lockedSpecies = normalizeLockedSpecies(value.lockedSpecies);
   const bornAt = normalizeText(value.bornAt, fallback.bornAt);
+  const note = normalizeStateNote(value.note, fallback.note ?? contentNote(now));
+  const lastTickAt = normalizeText(value.lastTickAt, fallback.lastTickAt);
 
   return {
     name: isActive ? config.petName : normalizeText(value.name, config.petName),
@@ -182,11 +234,13 @@ function normalizePetState(
     lockedSpecies,
     stage: normalizeStage(value.stage, fallback.stage),
     bornAt,
-    lastTickAt: normalizeText(value.lastTickAt, fallback.lastTickAt),
+    lastTickAt,
     fullness: normalizeStat(value.fullness, config.economy.startFullness),
     happiness: normalizeStat(value.happiness, config.economy.startFullness),
     stamina: normalizeStat(value.stamina, config.economy.startFullness),
     mood: normalizeMood(value.mood, fallback.mood),
+    note,
+    log: normalizeLog(value.log, lastTickAt),
     celebration: null,
     celebratedMilestones: normalizeMilestones(value.celebratedMilestones),
     ageDays: normalizeCount(value.ageDays),
@@ -378,6 +432,47 @@ function moodFor(
   return "happy";
 }
 
+function appendLog(previous: StateNote[] | undefined, note: StateNote): StateNote[] {
+  const log = previous ?? [];
+  if (log.at(-1)?.code === note.code) return log;
+  return [...log, note].slice(-NOTE_LOG_LIMIT);
+}
+
+function deriveNote(
+  mood: Mood,
+  isGhost: boolean,
+  activity: { daysSinceLastContribution: number; newContribs: number; collabRatio: number },
+  stats: { fullness: number; happiness: number; stamina: number },
+  config: CommitchiConfig,
+  now: Date
+): StateNote {
+  let code: ReasonCode;
+
+  if (isGhost) {
+    code = "ghost_neglect";
+  } else if (mood === "sick") {
+    if (stats.stamina <= config.thresholds.sickStamina) {
+      code = "sick_exhausted";
+    } else if (stats.fullness <= config.thresholds.sickFullness) {
+      code = "sick_starving";
+    } else {
+      code = "sick_lonely";
+    }
+  } else if (mood === "hungry") {
+    code = "hungry";
+  } else if (activity.newContribs > 0) {
+    code = activity.collabRatio >= COLLAB_NOTE_THRESHOLD ? "happy_collab" : "happy_active";
+  } else {
+    code = "content";
+  }
+
+  return {
+    code,
+    days: normalizeCount(activity.daysSinceLastContribution),
+    at: now.toISOString(),
+  };
+}
+
 function evolutionCelebration(stage: Stage, s: Strings): CelebrationMoment | null {
   if (stage === "egg") return null;
   const { title, detail } = s.evolutionCelebration(s.stage[stage]);
@@ -525,6 +620,19 @@ export function applyTick(
     evo.isGhost
       ? { celebration: null, celebratedMilestones: state.celebratedMilestones }
       : resolveCelebration(state, evo.stage, a.streak, getStrings(config.language));
+  const nextMood = moodFor(fullness, happiness, stamina, a.daysSinceLastContribution, config);
+  const note = deriveNote(
+    nextMood,
+    evo.isGhost,
+    {
+      daysSinceLastContribution: a.daysSinceLastContribution,
+      newContribs,
+      collabRatio: a.collabRatio,
+    },
+    { fullness, happiness, stamina },
+    config,
+    now
+  );
 
   return {
     ...state,
@@ -532,7 +640,9 @@ export function applyTick(
     fullness: Math.round(fullness),
     happiness: Math.round(happiness),
     stamina: Math.round(stamina),
-    mood: moodFor(fullness, happiness, stamina, a.daysSinceLastContribution, config),
+    mood: nextMood,
+    note,
+    log: appendLog(state.log, note),
     celebration: celebration.celebration,
     celebratedMilestones: celebration.celebratedMilestones,
     ageDays,
@@ -597,6 +707,15 @@ export function applyVisitorInteraction(
       playCount: (previous?.playCount ?? 0) + (action === "play" ? 1 : 0),
     },
   };
+  const nextMood = moodAfterVisitorInteraction(state, fullness, happiness, stamina, config);
+  const note = deriveNote(
+    nextMood,
+    state.isGhost,
+    { daysSinceLastContribution: 0, newContribs: 0, collabRatio: 0 },
+    { fullness, happiness, stamina },
+    config,
+    now
+  );
 
   return {
     state: {
@@ -605,7 +724,9 @@ export function applyVisitorInteraction(
       fullness: Math.round(fullness),
       happiness: Math.round(happiness),
       stamina: Math.round(stamina),
-      mood: moodAfterVisitorInteraction(state, fullness, happiness, stamina, config),
+      mood: nextMood,
+      note,
+      log: appendLog(state.log, note),
       celebration: visitorCelebration(action, actorKey, today, getStrings(config.language)),
       visitorInteractions,
       lastTickAt: now.toISOString(),

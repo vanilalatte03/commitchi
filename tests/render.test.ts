@@ -55,6 +55,29 @@ test("renderSVG localizes dex progress in English", () => {
   assert.match(svg, /aria-label="[^"]*, dex 1\/3"/);
 });
 
+test("renderSVG shows the current reason line in Korean and aria", () => {
+  const config = makeConfig({ language: "ko" });
+  const svg = renderSVG(
+    makeState({ note: { code: "hungry", days: 3, at: firstSeenAt } }, config),
+    config
+  );
+
+  assert.match(svg, /<svg width="480" height="222" viewBox="0 0 480 222"/);
+  assert.match(svg, />3일째 새 커밋 없음 · 커밋하면 배불러요<\/text>/);
+  assert.match(svg, /aria-label="[^"]*3일째 새 커밋 없음 · 커밋하면 배불러요/);
+});
+
+test("renderSVG localizes the current reason line in English", () => {
+  const config = makeConfig({ language: "en" });
+  const svg = renderSVG(
+    makeState({ note: { code: "sick_exhausted", days: 0, at: firstSeenAt } }, config),
+    config
+  );
+
+  assert.match(svg, />Low stamina · streaks restore it<\/text>/);
+  assert.match(svg, /aria-label="[^"]*Low stamina · streaks restore it/);
+});
+
 test("resolveDisplayStage follows auto, unlocked pins, dex, ghost, and max-stage equality", () => {
   const adultState = makeState({ stage: "adult", species: "yuki" });
   const teenState = makeState({ stage: "teen", species: "yuki" });

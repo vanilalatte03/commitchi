@@ -173,6 +173,7 @@ export function renderSVG(
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
   const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, character, s, displayStage))}`;
+  const reasonText = state.note ? s.reason(state.note) : null;
   const ariaLabel = escapeAttr(
     s.aria({
       name: state.name,
@@ -184,6 +185,7 @@ export function renderSVG(
       stamina,
       celebration: state.celebration ? state.celebration.title : null,
       dex: dexText,
+      reason: reasonText,
     })
   );
   const moodText = escapeText(s.mood[state.mood]);
@@ -192,6 +194,7 @@ export function renderSVG(
     state.celebration?.kind === "visitor"
       ? progressText
       : s.footer(progressText, state.ageDays);
+  const reasonLine = reasonText ? escapeText(reasonText) : "";
   const subtitleText = escapeText(subtitle(state, character, s, displayStage));
   const nameText = escapeText(state.name);
   const t = (x: number, y: number, fill: string, size: number, weight = "400", extra = "") =>
@@ -205,9 +208,9 @@ export function renderSVG(
   ${t(448, y, palette.textMain, 11, "600", ' text-anchor="end"')}${safeValue}%</text>`;
   };
 
-  const svg = `<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${ariaLabel}">
+  const svg = `<svg width="480" height="222" viewBox="0 0 480 222" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${ariaLabel}">
   <title>${titleText}</title>
-  <rect x="0.5" y="0.5" width="479" height="199" rx="16" fill="${palette.card}" stroke="${palette.cardEdge}"/>
+  <rect x="0.5" y="0.5" width="479" height="221" rx="16" fill="${palette.card}" stroke="${palette.cardEdge}"/>
   ${stars(palette)}
   <circle cx="112" cy="104" r="68" fill="${palette.halo}" opacity="0.58"/>
   <path d="M84,52 h56 M74,68 h76 M64,84 h96 M58,100 h108 M64,116 h96 M74,132 h76 M84,148 h56" stroke="${palette.snow}" stroke-width="1" opacity="0.08"/>
@@ -229,6 +232,7 @@ export function renderSVG(
   ${statRow(s.stat.stamina, stamina, 175)}
   ${t(204, 194, palette.textMuted, 10)}${footerText}</text>
   ${dexText && !state.celebration ? `${t(448, 194, palette.textMuted, 10, "400", ' text-anchor="end"')}${escapeText(dexText)}</text>` : ""}
+  ${reasonLine ? `${t(204, 214, palette.textMuted, 10)}${reasonLine}</text>` : ""}
 </svg>
 `;
 
