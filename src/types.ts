@@ -126,6 +126,8 @@ export interface CommitchiConfig {
   petName: string;
   /** Active character id to raise until adulthood locks it. Defaults to Yuki. */
   character: Species;
+  /** Cosmetic-only stage sprite pin. "auto" follows the real stage. */
+  displayStage: "auto" | Stage;
   /** Language for all card text and visitor comments. Defaults to "ko". */
   language: Language;
   theme: Theme;

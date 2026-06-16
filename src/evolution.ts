@@ -30,6 +30,10 @@ function stageRank(stage: Stage): number {
   return STAGE_THRESHOLDS.findIndex((entry) => entry.stage === stage);
 }
 
+export function isStageUnlocked(stage: Stage, maxStage: Stage): boolean {
+  return stageRank(stage) <= stageRank(maxStage);
+}
+
 export function laterStage(a: Stage, b: Stage): Stage {
   return stageRank(a) >= stageRank(b) ? a : b;
 }

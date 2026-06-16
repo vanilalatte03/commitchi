@@ -1,13 +1,25 @@
 import { existsSync, readFileSync } from "node:fs";
 import { getCharacter } from "./characters";
 import { DEFAULT_SPECIES } from "./sprites";
-import { CommitchiConfig, EconomyConfig, Language, Species, ThresholdConfig, Theme } from "./types";
+import {
+  CommitchiConfig,
+  EconomyConfig,
+  Language,
+  Species,
+  Stage,
+  ThresholdConfig,
+  Theme,
+} from "./types";
 
 export const CONFIG_PATH = "commitchi.config.json";
+
+const DISPLAY_STAGE_VALUES = ["auto", "egg", "baby", "child", "teen", "adult"] as const;
+const STAGE_VALUES: Stage[] = ["egg", "baby", "child", "teen", "adult"];
 
 export const DEFAULT_CONFIG: CommitchiConfig = {
   petName: "Mochi",
   character: DEFAULT_SPECIES,
+  displayStage: "auto",
   language: "ko",
   theme: "winter",
   economy: {
@@ -87,6 +99,17 @@ function readLanguage(source: Record<string, unknown>): Language {
     throw new Error(`${CONFIG_PATH}: language must be "ko" or "en".`);
   }
   return source.language;
+}
+
+function readDisplayStage(source: Record<string, unknown>): CommitchiConfig["displayStage"] {
+  if (!("displayStage" in source)) return DEFAULT_CONFIG.displayStage;
+
+  const value = source.displayStage;
+  if (value === "auto" || STAGE_VALUES.includes(value as Stage)) return value as "auto" | Stage;
+
+  throw new Error(
+    `${CONFIG_PATH}: displayStage "${String(value)}" must be one of: ${DISPLAY_STAGE_VALUES.join(", ")}.`
+  );
 }
 
 function readNumber(
@@ -183,6 +206,7 @@ export function loadConfig(path = CONFIG_PATH): CommitchiConfig {
   return {
     petName: readPetName(parsed),
     character: readCharacter(parsed),
+    displayStage: readDisplayStage(parsed),
     language: readLanguage(parsed),
     theme: readTheme(parsed),
     economy: readEconomy(parsed),

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { renderSVG } from "../src/render";
+import { renderSVG, resolveDisplayStage } from "../src/render";
 import type { DexEntry, Species } from "../src/types";
 import { makeConfig, makeState } from "./helpers";
 
@@ -53,4 +53,37 @@ test("renderSVG localizes dex progress in English", () => {
 
   assert.match(svg, /Dex 1\/2/);
   assert.match(svg, /aria-label="[^"]*, dex 1\/2"/);
+});
+
+test("resolveDisplayStage follows auto, unlocked pins, dex, ghost, and max-stage equality", () => {
+  const adultState = makeState({ stage: "adult", species: "yuki" });
+  const teenState = makeState({ stage: "teen", species: "yuki" });
+  const ghostState = makeState({ stage: "adult", species: "yuki", isGhost: true });
+  const dexAdult: Record<Species, DexEntry> = {
+    yuki: { firstSeenAt, maxStage: "adult" },
+  };
+  const dexChild: Record<Species, DexEntry> = {
+    yuki: { firstSeenAt, maxStage: "child" },
+  };
+
+  assert.equal(resolveDisplayStage(makeConfig({ displayStage: "auto" }), adultState, dexAdult), "adult");
+  assert.equal(resolveDisplayStage(makeConfig({ displayStage: "baby" }), adultState, dexAdult), "baby");
+  assert.equal(resolveDisplayStage(makeConfig({ displayStage: "teen" }), adultState, dexChild), "adult");
+  assert.equal(resolveDisplayStage(makeConfig({ displayStage: "baby" }), adultState, undefined), "adult");
+  assert.equal(resolveDisplayStage(makeConfig({ displayStage: "baby" }), ghostState, dexAdult), "adult");
+  assert.equal(resolveDisplayStage(makeConfig({ displayStage: "teen" }), teenState, { yuki: { firstSeenAt, maxStage: "teen" } }), "teen");
+});
+
+test("renderSVG uses an unlocked displayStage only for visual stage output", () => {
+  const config = makeConfig({ displayStage: "baby", language: "en" });
+  const dex: Record<Species, DexEntry> = {
+    yuki: { firstSeenAt, maxStage: "adult" },
+  };
+  const svg = renderSVG(makeState({ stage: "adult", ageDays: 30, species: "yuki" }, config), config, dex);
+
+  assert.match(svg, /width="118" height="118"/);
+  assert.doesNotMatch(svg, /width="158" height="158"/);
+  assert.match(svg, /Yuki baby · growing/);
+  assert.match(svg, /aria-label="Mochi, Baby Yuki,/);
+  assert.match(svg, /Fully grown · day 30/);
 });

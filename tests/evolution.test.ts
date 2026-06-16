@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { daysToNextStage, laterStage, resolveEvolution, stageFor } from "../src/evolution";
+import {
+  daysToNextStage,
+  isStageUnlocked,
+  laterStage,
+  resolveEvolution,
+  stageFor,
+} from "../src/evolution";
 import { makeActivity } from "./helpers";
 
 test("stageFor maps boundary ages and in-between ages", () => {
@@ -34,6 +40,12 @@ test("laterStage keeps the later stage in the shared growth order", () => {
   assert.equal(laterStage("egg", "baby"), "baby");
   assert.equal(laterStage("teen", "child"), "teen");
   assert.equal(laterStage("adult", "adult"), "adult");
+});
+
+test("isStageUnlocked compares stages in the shared growth order", () => {
+  assert.equal(isStageUnlocked("baby", "child"), true);
+  assert.equal(isStageUnlocked("teen", "teen"), true);
+  assert.equal(isStageUnlocked("adult", "teen"), false);
 });
 
 test("resolveEvolution uses active character before adult and locks at adult", () => {

@@ -19,6 +19,30 @@ test("loadConfig accepts registered character ids", () => {
   });
 });
 
+test("loadConfig accepts auto and stage displayStage values", () => {
+  withTempDir((dir) => {
+    const auto = join(dir, "auto-display-stage.json");
+    writeJson(auto, { displayStage: "auto" });
+    assert.equal(loadConfig(auto).displayStage, "auto");
+
+    const baby = join(dir, "baby-display-stage.json");
+    writeJson(baby, { displayStage: "baby" });
+    assert.equal(loadConfig(baby).displayStage, "baby");
+  });
+});
+
+test("loadConfig rejects invalid displayStage values", () => {
+  withTempDir((dir) => {
+    const invalid = join(dir, "invalid-display-stage.json");
+    writeJson(invalid, { displayStage: "future" });
+
+    assert.throws(
+      () => loadConfig(invalid),
+      /displayStage "future" must be one of: auto, egg, baby, child, teen, adult\./
+    );
+  });
+});
+
 test("loadConfig rejects unknown, non-string, and empty character values", () => {
   withTempDir((dir) => {
     const unknown = join(dir, "unknown.json");
