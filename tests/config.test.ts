@@ -75,7 +75,7 @@ test("loadConfig rejects invalid theme and language values", () => {
   withTempDir((dir) => {
     const theme = join(dir, "theme.json");
     writeJson(theme, { theme: "summer" });
-    assert.throws(() => loadConfig(theme), /theme must be "winter"/);
+    assert.throws(() => loadConfig(theme), /theme must be "dark"/);
 
     const language = join(dir, "language.json");
     writeJson(language, { language: "jp" });

@@ -5,7 +5,7 @@ import { getStrings, Strings } from "./i18n";
 import { daysToNextStage, isStageUnlocked } from "./evolution";
 import { getCharacter, listCharacters, RegisteredCharacter } from "./characters";
 
-const WINTER_PALETTE = {
+const DARK_PALETTE = {
   card: "#141323",
   cardEdge: "#302D50",
   textMain: "#F4F1FF",
@@ -18,10 +18,10 @@ const WINTER_PALETTE = {
   snow: "#9DB7D1",
 };
 
-export type Palette = typeof WINTER_PALETTE;
+export type Palette = typeof DARK_PALETTE;
 
 const THEME_PALETTES: Record<Theme, Palette> = {
-  winter: WINTER_PALETTE,
+  dark: DARK_PALETTE,
 };
 
 export function paletteFor(theme: Theme): Palette {

@@ -3,7 +3,7 @@ export type Mood = "happy" | "hungry" | "sick";
 /** UI language for everything the pet card and visitor comments render. */
 export type Language = "ko" | "en";
 
-export type Theme = "winter";
+export type Theme = "dark";
 
 /** Registered character id. */
 export type Species = string;

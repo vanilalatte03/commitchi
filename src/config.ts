@@ -21,7 +21,7 @@ export const DEFAULT_CONFIG: CommitchiConfig = {
   character: DEFAULT_SPECIES,
   displayStage: "auto",
   language: "ko",
-  theme: "winter",
+  theme: "dark",
   economy: {
     feedPerContrib: 12,
     decayPerDay: 22,
@@ -87,8 +87,8 @@ function readCharacter(source: Record<string, unknown>): Species {
 
 function readTheme(source: Record<string, unknown>): Theme {
   if (!("theme" in source)) return DEFAULT_CONFIG.theme;
-  if (source.theme !== "winter") {
-    throw new Error(`${CONFIG_PATH}: theme must be "winter".`);
+  if (source.theme !== "dark") {
+    throw new Error(`${CONFIG_PATH}: theme must be "dark".`);
   }
   return source.theme;
 }

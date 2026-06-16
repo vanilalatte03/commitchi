@@ -2,7 +2,7 @@
   "petName": "Mochi",
   "character": "yuki",
   "language": "ko",
-  "theme": "winter",
+  "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
