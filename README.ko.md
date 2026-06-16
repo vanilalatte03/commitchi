@@ -127,7 +127,7 @@ Commitchi는 이슈 제목이 정확히 `commitchi: feed` 또는 `commitchi: pla
   "petName": "Mochi",
   "language": "ko",
   "displayStage": "auto",
-  "theme": "winter",
+  "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22
@@ -160,7 +160,7 @@ npm run build; npm run tick
 {
   "petName": "Mochi",
   "language": "ko",
-  "theme": "winter",
+  "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
@@ -181,7 +181,7 @@ npm run build; npm run tick
 `character`는 키울 활성 등록 캐릭터를 고릅니다. 값을 바꾸면 그 캐릭터의 로스터 펫으로 전환돼요. 이미 키운 펫은 동결된 상태에서 재개되고, 처음 고른 캐릭터는 알부터 시작해요. 비활성 펫은 decay되지 않으며, 각 캐릭터를 어디까지 키웠는지는 개인 도감에 기록돼요. 키울 캐릭터는 `catalog.json`에 등록된 id 중에서 고르면 돼요.
 `language`는 카드의 **모든** 텍스트와 방문자 댓글을 완전 한국어(`"ko"`) 또는 완전 영어(`"en"`)로 전환해요 — 섞이지 않아요. 기본값은 `"ko"`예요.
 `displayStage`는 카드에 표시할 단계 스프라이트를 고정하거나, `"auto"`로 실제 단계를 자동 표시합니다. 이 설정은 코스메틱 전용이라 나이·스탯·진화·방치는 계속 정상 진행돼요. 고정 단계는 해당 캐릭터의 개인 도감 `maxStage` 이하로 이미 도달한 경우에만 적용되고, 아직 풀리지 않은 단계는 무시되어 실제 단계가 표시됩니다. 활성 펫이 유령 상태라면 고정이 무시되고 유령 형태가 표시돼요.
-현재는 `winter` 테마만 있지만, 설정 형태를 바꾸지 않고도 카드 테마를 더 추가할 수 있도록 필드를 남겨 뒀어요.
+현재는 `dark` 테마만 있지만, 설정 형태를 바꾸지 않고도 카드 테마를 더 추가할 수 있도록 필드를 남겨 뒀어요.
 
 | 항목 | 의미 | 기본값 |
 |---|---|---|

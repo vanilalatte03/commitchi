@@ -137,7 +137,7 @@ character.
   "petName": "Mochi",
   "language": "ko",
   "displayStage": "auto",
-  "theme": "winter",
+  "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22
@@ -170,7 +170,7 @@ Create `commitchi.config.json` at the repo root when you want to customize the d
 {
   "petName": "Mochi",
   "language": "ko",
-  "theme": "winter",
+  "theme": "dark",
   "economy": {
     "feedPerContrib": 12,
     "decayPerDay": 22,
@@ -201,7 +201,7 @@ neglect continue to simulate normally. A pinned stage is used only when it is at
 or below that character's personal dex `maxStage`; locked stages are ignored and
 the real stage is shown instead. If the active pet is a ghost, the pin is ignored
 and the ghost form is shown.
-Only the `winter` theme exists today; the field is there so more card themes can be added without changing the config shape.
+Only the `dark` theme exists today; the field is there so more card themes can be added without changing the config shape.
 
 | Knob | Meaning | Default |
 |---|---|---|
