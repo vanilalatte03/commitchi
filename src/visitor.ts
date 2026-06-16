@@ -2,6 +2,7 @@ import { appendFileSync, writeFileSync } from "node:fs";
 import { loadConfig } from "./config";
 import { getStrings, Strings } from "./i18n";
 import { renderSVG } from "./render";
+import { renderDexSVG } from "./render-dex";
 import {
   applyVisitorInteraction,
   getActivePet,
@@ -111,6 +112,7 @@ function main(): void {
     const next = setActivePet(save, update.state);
     saveState(next);
     writeFileSync("pet.svg", renderSVG(update.state, config, next.dex));
+    writeFileSync("dex.svg", renderDexSVG(next.dex, config));
   }
 
   const result: InteractionResultFile = {
@@ -127,7 +129,7 @@ function main(): void {
   writeResult(result);
   console.log(
     `${actionLabel(action)} interaction from @${update.actor}: ${update.reason}${
-      update.applied ? "; wrote pet.svg + pet-state.json." : "."
+      update.applied ? "; wrote pet.svg + dex.svg + pet-state.json." : "."
     }`
   );
 }

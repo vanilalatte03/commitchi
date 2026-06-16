@@ -2,6 +2,7 @@ import { writeFileSync } from "node:fs";
 import { fetchActivity } from "./github";
 import { applyTick, getActivePet, loadState, saveState, setActivePet } from "./state";
 import { renderSVG } from "./render";
+import { renderDexSVG } from "./render-dex";
 import { Activity } from "./types";
 import { loadConfig } from "./config";
 
@@ -36,9 +37,10 @@ async function main() {
   const next = setActivePet(save, ticked);
   saveState(next);
   writeFileSync("pet.svg", renderSVG(ticked, config, next.dex));
+  writeFileSync("dex.svg", renderDexSVG(next.dex, config));
   const celebration = ticked.celebration ? ` · celebrating ${ticked.celebration.title}` : "";
   console.log(
-    `Pet: ${ticked.stage}/${ticked.species} · ${ticked.mood} · fullness ${ticked.fullness}% · happiness ${ticked.happiness}% · stamina ${ticked.stamina}% · age ${ticked.ageDays}d${celebration}. Wrote pet.svg + pet-state.json.`
+    `Pet: ${ticked.stage}/${ticked.species} · ${ticked.mood} · fullness ${ticked.fullness}% · happiness ${ticked.happiness}% · stamina ${ticked.stamina}% · age ${ticked.ageDays}d${celebration}. Wrote pet.svg + dex.svg + pet-state.json.`
   );
 }
 

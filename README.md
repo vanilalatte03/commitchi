@@ -20,7 +20,7 @@ an original snowy-owl pixel sprite.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
   badge and sparkle effect.
 
-A GitHub Action ticks on a schedule, regenerates `pet.svg`, and commits it back so your README always shows the current pet.
+A GitHub Action ticks on a schedule, regenerates `pet.svg` and `dex.svg`, and commits them back so your README always shows the current pet and collection progress.
 
 ## Growth stages
 
@@ -47,9 +47,9 @@ variant.
 GitHub Actions (scheduled)
   → fetch your contribution activity (GraphQL)
   → update pet-state.json   (roster memory: active pet, stats, stage, milestones, dex)
-  → render pet.svg          (SVG card + the matching pixel sprite, embedded as a base64 PNG)
-  → commit pet.svg + pet-state.json back to the repo
-README embeds pet.svg
+  → render pet.svg + dex.svg (SVGs + matching pixel sprites, embedded as base64 PNGs)
+  → commit pet.svg + dex.svg + pet-state.json back to the repo
+README embeds pet.svg + dex.svg
 ```
 
 The sprite is embedded into the SVG as a base64 data URI on purpose — relative/external image references inside an SVG don't survive GitHub's image proxy, but a self-contained SVG renders reliably.
@@ -86,12 +86,16 @@ Then embed the pet in your profile `README.md`:
 
 ```md
 ![pet](./pet.svg)
+![dex](./dex.svg)
 ```
 
 Run the workflow once from the **Actions** tab (`workflow_dispatch`) to create
-your first `pet.svg` and `pet-state.json`. After that, the schedule updates the
-pet automatically. You do not need to copy this repository's source into your
-profile repo; when the `@v1` tag moves, your workflow uses the latest v1 engine.
+your first `pet.svg`, `dex.svg`, and `pet-state.json`. After that, the schedule
+updates the pet automatically. You do not need to copy this repository's source
+into your profile repo; when the `@v1` tag moves, your workflow uses the latest
+v1 engine.
+The dex gallery is generated alongside the pet and shows collection progress for
+the full catalog; uncollected entries appear as silhouettes with `???`.
 
 To let visitors feed or play with your pet by opening an issue, add
 `.github/workflows/commitchi-visitor.yml` too:
@@ -145,7 +149,7 @@ character.
 
 ```bash
 npm install
-npm run demo      # DEMO mode: sample data → writes pet.svg + pet-state.json
+npm run demo      # DEMO mode: sample data → writes pet.svg + dex.svg + pet-state.json
 npm run visitor   # issue-op mode: reads ISSUE_TITLE + ISSUE_AUTHOR, updates the pet if recognized
 npm run preview   # renders every stage + mood (+ ghost) to ./preview/*.svg
 ```
@@ -230,6 +234,7 @@ src/
                 and each assets/sprites/<id>/character.json
   sprites.ts    maps stage/mood → the right pixel sprite (per character), embeds as base64
   render.ts     pet.svg card assembly (sprite, bob animation, celebration effects)
+  render-dex.ts dex.svg collection gallery assembly
   i18n.ts       Korean / English bundles for generic UI text (character names come
                 from character.json)
   preview.ts    dev-only gallery generator
@@ -243,7 +248,7 @@ action.yml                   reusable composite action for scheduled ticks
 ```
 
 > `pet-state.json` does not need to exist before the first run. Commitchi creates the
-> roster and active pet, then commits the generated `pet.svg` and `pet-state.json` into
+> roster and active pet, then commits the generated `pet.svg`, `dex.svg`, and `pet-state.json` into
 > your profile repo. Keep that `pet-state.json` when updating Commitchi so roster and dex
 > progress do not restart.
 
