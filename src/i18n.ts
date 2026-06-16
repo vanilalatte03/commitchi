@@ -61,15 +61,19 @@ const ko: Strings = {
     const days = Math.max(0, Math.floor(note.days));
     switch (note.code) {
       case "ghost_neglect":
-        return `${days}일 무소식 · 커밋하면 돌아와요`;
+        return days < 1
+          ? "유령 상태 · 커밋하면 돌아와요"
+          : `${days}일 무소식 · 커밋하면 돌아와요`;
       case "sick_exhausted":
         return "체력 낮음 · 연속 커밋으로 회복해요";
       case "sick_starving":
         return "포만감 낮음 · 커밋하면 회복해요";
       case "sick_lonely":
-        return "행복도 낮음 · PR·리뷰로 회복해요";
+        return "행복도 낮음 · 커밋·협업으로 회복해요";
       case "hungry":
-        return `${days}일째 새 커밋 없음 · 커밋하면 배불러요`;
+        return days < 1
+          ? "배고파요 · 커밋하면 배불러요"
+          : `${days}일째 새 커밋 없음 · 커밋하면 배불러요`;
       case "happy_collab":
         return "협업 기여로 행복해요";
       case "happy_active":
@@ -136,15 +140,19 @@ const en: Strings = {
     const days = Math.max(0, Math.floor(note.days));
     switch (note.code) {
       case "ghost_neglect":
-        return `${days}d quiet · commit to return`;
+        return days < 1
+          ? "Ghosted · commit to return"
+          : `${days}d quiet · commit to return`;
       case "sick_exhausted":
         return "Low stamina · streaks restore it";
       case "sick_starving":
         return "Low fullness · commit to feed";
       case "sick_lonely":
-        return "Low happiness · PRs/reviews help";
+        return "Low happiness · commits & PRs help";
       case "hungry":
-        return `${days}d no new commits · commit to feed`;
+        return days < 1
+          ? "Hungry · commit to feed"
+          : `${days}d no new commits · commit to feed`;
       case "happy_collab":
         return "Collaboration made it happy";
       case "happy_active":

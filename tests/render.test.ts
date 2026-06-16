@@ -78,6 +78,17 @@ test("renderSVG localizes the footer reason in English", () => {
   assert.match(svg, /aria-label="[^"]*Low stamina · streaks restore it/);
 });
 
+test("renderSVG drops the day count from the reason when days is 0", () => {
+  const config = makeConfig({ language: "ko" });
+  const svg = renderSVG(
+    makeState({ note: { code: "hungry", days: 0, at: firstSeenAt } }, config),
+    config
+  );
+
+  assert.match(svg, /배고파요 · 커밋하면 배불러요/);
+  assert.doesNotMatch(svg, /0일째 새 커밋 없음/);
+});
+
 test("resolveDisplayStage follows auto, unlocked pins, dex, ghost, and max-stage equality", () => {
   const adultState = makeState({ stage: "adult", species: "yuki" });
   const teenState = makeState({ stage: "teen", species: "yuki" });
