@@ -3,7 +3,7 @@ description: Render and commit a Commitchi pet for a GitHub profile README.
 
 inputs:
   mode:
-    description: Commitchi mode to run: tick or visitor.
+    description: "Commitchi mode to run: tick or visitor."
     required: false
     default: "tick"
   github-token:
