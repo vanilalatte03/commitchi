@@ -206,7 +206,7 @@ export function renderSVG(
   ${statRow(s.stat.happiness, happiness, 148)}
   ${statRow(s.stat.stamina, stamina, 175)}
   ${t(204, 194, palette.textMuted, 10)}${footerText}</text>
-  ${dexText ? `${t(448, 194, palette.textMuted, 10, "400", ' text-anchor="end"')}${escapeText(dexText)}</text>` : ""}
+  ${dexText && !state.celebration ? `${t(448, 194, palette.textMuted, 10, "400", ' text-anchor="end"')}${escapeText(dexText)}</text>` : ""}
 </svg>
 `;
 

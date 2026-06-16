@@ -14,6 +14,29 @@ test("renderSVG shows Korean dex progress when dex is provided", () => {
   const svg = renderSVG(makeState({}, config), config, oneCollectedDex);
 
   assert.match(svg, /도감 1\/2/);
+  assert.match(svg, />도감 1\/2<\/text>/);
+  assert.match(svg, /aria-label="[^"]*, 도감 1\/2"/);
+});
+
+test("renderSVG hides visual dex progress during celebrations", () => {
+  const config = makeConfig({ language: "ko" });
+  const svg = renderSVG(
+    makeState(
+      {
+        celebration: {
+          kind: "visitor",
+          milestoneId: "visitor:alice:feed",
+          title: "냠냠!",
+          detail: "Alice가 밥을 줬어요",
+        },
+      },
+      config
+    ),
+    config,
+    oneCollectedDex
+  );
+
+  assert.doesNotMatch(svg, />도감 1\/2<\/text>/);
   assert.match(svg, /aria-label="[^"]*, 도감 1\/2"/);
 });
 

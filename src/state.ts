@@ -22,6 +22,7 @@ const LEGACY_GHOST_SPECIES = "ghost";
 
 const DAY_MS = 86_400_000;
 const STREAK_MILESTONES = [7, 30, 100];
+const BURST_PENALTY_CAP = 14;
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
@@ -500,7 +501,7 @@ export function applyTick(
 
   const consistencyGain =
     newContribs > 0 ? 8 + Math.min(18, Math.max(0, a.streak) * 2) : 0;
-  const burstPenalty = Math.max(0, newContribs - 6) * 2;
+  const burstPenalty = Math.min(BURST_PENALTY_CAP, Math.max(0, newContribs - 6) * 2);
   const stamina = clamp(
     decayed.stamina + consistencyGain - burstPenalty,
     0,
