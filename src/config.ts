@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { getCharacter } from "./characters";
+import { getCharacter, getCharacterByNumber } from "./characters";
 import { DEFAULT_SPECIES } from "./sprites";
 import {
   CommitchiConfig,
@@ -63,11 +63,34 @@ function readPetName(source: Record<string, unknown>): string {
   return name;
 }
 
+function readCharacterByNumber(value: number): Species {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`${CONFIG_PATH}: character number must be a positive integer.`);
+  }
+  try {
+    return getCharacterByNumber(value).id;
+  } catch {
+    throw new Error(
+      `${CONFIG_PATH}: character No.${value} is not in the catalog (use a dex number shown on the card).`
+    );
+  }
+}
+
 function readCharacter(source: Record<string, unknown>): Species {
   if (!("character" in source)) return DEFAULT_CONFIG.character;
 
   const value = source.character;
-  if (typeof value !== "string") throw new Error(`${CONFIG_PATH}: character must be a string.`);
+
+  // A dex number (e.g. 3 or "3") selects the character at that catalog number — the
+  // same number shown on the dex card, so it can be chosen without knowing the id.
+  if (typeof value === "number") return readCharacterByNumber(value);
+  if (typeof value === "string" && /^\d+$/.test(value.trim())) {
+    return readCharacterByNumber(Number.parseInt(value.trim(), 10));
+  }
+
+  if (typeof value !== "string") {
+    throw new Error(`${CONFIG_PATH}: character must be a string id or a dex number.`);
+  }
 
   const character = value.trim();
   if (!character) throw new Error(`${CONFIG_PATH}: character must not be empty.`);

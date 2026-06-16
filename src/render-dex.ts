@@ -71,10 +71,9 @@ export function renderDexSVG(
       const imageX = x + (cellW - thumbnail) / 2;
       const imageY = y + 4;
       const labelX = x + cellW / 2;
-      const number = String(character.number).padStart(3, "0");
       const label1 = collectedCharacter
-        ? `#${number} ${character.displayName}`
-        : `#${number} ???`;
+        ? `No.${character.number} ${character.displayName}`
+        : `No.${character.number} ???`;
       const label2 = collectedCharacter
         ? `${s.stage[repStage]}${repStage === "adult" ? " ★" : ""}`
         : "—";

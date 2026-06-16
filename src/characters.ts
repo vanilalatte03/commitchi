@@ -215,6 +215,13 @@ export function getCharacter(id: string): RegisteredCharacter {
   return character;
 }
 
+export function getCharacterByNumber(number: number): RegisteredCharacter {
+  for (const character of getRegistry().values()) {
+    if (character.number === number) return character;
+  }
+  throw new Error(`${CATALOG_PATH}: no character with number ${number}.`);
+}
+
 export function getCharacterSpriteDir(id: string): string {
   return getCharacter(id).spriteDir;
 }

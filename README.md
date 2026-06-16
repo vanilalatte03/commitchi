@@ -105,7 +105,9 @@ updates the pet automatically. You do not need to copy this repository's source
 into your profile repo; when the `@v1` tag moves, your workflow uses the latest
 v1 engine.
 The dex gallery is generated alongside the pet and shows collection progress for
-the full catalog; uncollected entries appear as silhouettes with `???`.
+the full catalog; uncollected entries appear as silhouettes with `???`. To raise an
+uncollected one, set `character` to its dex number (e.g. `"character": 3`) — you'll
+discover who it is as it grows.
 
 To let visitors feed or play with your pet by opening an issue, add
 `.github/workflows/commitchi-visitor.yml` too:
@@ -205,7 +207,7 @@ defaults below.
 | Knob | Meaning | Default |
 |---|---|---|
 | `petName` | displayed individual pet name; legacy `name` is still accepted | `Mochi` |
-| `character` | active registered character id; changing it switches roster pets | `yuki` |
+| `character` | which character to raise: the **dex number** shown on the card (e.g. `3`) or a registered id (e.g. `"yuki"`); changing it switches roster pets | `yuki` |
 | `language` | card + comment language: `"ko"` (fully Korean) or `"en"` (fully English) | `ko` |
 | `displayStage` | stage sprite to pin on the card; `"auto"` follows the real stage | `auto` |
 | `economy.feedPerContrib` | fullness gained per new contribution | 12 |

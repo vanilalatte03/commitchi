@@ -43,15 +43,31 @@ test("loadConfig rejects invalid displayStage values", () => {
   });
 });
 
-test("loadConfig rejects unknown, non-string, and empty character values", () => {
+test("loadConfig selects a character by dex number (number or numeric string)", () => {
+  withTempDir((dir) => {
+    const byNumber = join(dir, "by-number.json");
+    writeJson(byNumber, { character: 1 });
+    assert.equal(loadConfig(byNumber).character, "yuki");
+
+    const byNumericString = join(dir, "by-numeric-string.json");
+    writeJson(byNumericString, { character: "3" });
+    assert.equal(loadConfig(byNumericString).character, "yoru");
+
+    const outOfRange = join(dir, "out-of-range.json");
+    writeJson(outOfRange, { character: 99 });
+    assert.throws(() => loadConfig(outOfRange), /No\.99 is not in the catalog/);
+  });
+});
+
+test("loadConfig rejects unknown, wrong-type, and empty character values", () => {
   withTempDir((dir) => {
     const unknown = join(dir, "unknown.json");
     writeJson(unknown, { character: "missing" });
     assert.throws(() => loadConfig(unknown), /character "missing" is not a registered character/);
 
-    const nonString = join(dir, "non-string.json");
-    writeJson(nonString, { character: 1 });
-    assert.throws(() => loadConfig(nonString), /character must be a string/);
+    const wrongType = join(dir, "wrong-type.json");
+    writeJson(wrongType, { character: true });
+    assert.throws(() => loadConfig(wrongType), /character must be a string id or a dex number/);
 
     const empty = join(dir, "empty.json");
     writeJson(empty, { character: "  " });
