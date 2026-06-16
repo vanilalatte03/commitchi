@@ -62,6 +62,10 @@ The sprite is embedded into the SVG as a base64 data URI on purpose — relative
 
 ## Setup
 
+> **Prefer one paste?** If you use an AI coding agent (Codex / Claude Code), see
+> [Install with an AI agent](./docs/install-with-ai-agent.md) — it sets everything up
+> from a single prompt. The manual steps are below.
+
 Add `.github/workflows/commitchi.yml` to your profile repository
 (`<your-username>/<your-username>`):
 

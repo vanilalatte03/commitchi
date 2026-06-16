@@ -54,6 +54,10 @@ README가 pet.svg + dex.svg 를 임베드
 
 ## 설정 방법
 
+> **붙여넣기 한 번으로 끝내고 싶다면?** Codex / Claude Code 같은 AI 에이전트를 쓴다면
+> [AI 에이전트로 설치](./docs/install-with-ai-agent.md)를 참고하세요 — 프롬프트 하나로 전부 설정돼요.
+> 아래는 수동 단계입니다.
+
 본인 프로필 저장소(`<your-username>/<your-username>`)에
 `.github/workflows/commitchi.yml`을 추가하세요:
 
