@@ -231,6 +231,6 @@ action.yml                   스케줄 tick용 재사용 composite 액션
 ## 라이선스
 
 - 소스 코드: [MIT](./LICENSE)
-- 캐릭터/스프라이트 아트: [CC BY 4.0](./LICENSE-ASSETS.md)
+- 캐릭터/스프라이트 아트: [CC BY 4.0](./LICENSE-ASSETS.md) — [재사용·어트리뷰션 안내](./docs/asset-attribution.md)
 
 직접 만든 캐릭터를 추가하고 싶다면 [CONTRIBUTING.md](./CONTRIBUTING.md)를 참고하세요.

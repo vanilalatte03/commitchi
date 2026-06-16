@@ -243,6 +243,6 @@ action.yml                   reusable composite action for scheduled ticks
 ## License
 
 - Source code: [MIT](./LICENSE)
-- Character/sprite art: [CC BY 4.0](./LICENSE-ASSETS.md)
+- Character/sprite art: [CC BY 4.0](./LICENSE-ASSETS.md) — see the [reuse & attribution guide](./docs/asset-attribution.md)
 
 Want to add your own character? See [CONTRIBUTING.md](./CONTRIBUTING.md).
