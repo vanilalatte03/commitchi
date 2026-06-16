@@ -1,5 +1,8 @@
 name: Commitchi
 description: Render and commit a Commitchi pet for a GitHub profile README.
+branding:
+  icon: heart
+  color: purple
 
 inputs:
   mode:
