@@ -73,7 +73,7 @@ switch per day) can be added later if churn becomes a problem.
 Two distinct layers:
 
 - **Global catalog** (in-repo, single source of truth): every character that exists,
-  each with a stable **dex number** (`#001 Yuki`, …). Numbers are assigned at
+  each with a stable **dex number** (`No.1 Yuki`, …). Numbers are assigned at
   acceptance time, sequential, and **never reused**.
 - **Per-user unlock progress** (in `pet-state.json`): which characters/stages this user
   has **actually raised** — an entry fills as the active pet reaches each stage.
