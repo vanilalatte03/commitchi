@@ -22,6 +22,12 @@ an original snowy-owl pixel sprite.
 
 A GitHub Action ticks on a schedule, regenerates `pet.svg` and `dex.svg`, and commits them back so your README always shows the current pet and collection progress.
 
+<p align="center">
+  <img src="./docs/assets/ghost-nari.svg" alt="Commitchi ghost form — Nari fades into Yeong when neglected" width="480" />
+  <br/>
+  <sub>Go quiet too long and your pet fades into a ghost form (here: Nari → Yeong) — it returns the moment you commit again.</sub>
+</p>
+
 ## Growth stages
 
 Stages advance purely with age:
