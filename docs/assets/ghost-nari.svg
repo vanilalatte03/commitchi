@@ -1,6 +1,6 @@
-<svg width="480" height="200" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nari, Adult Yeong, Sick, fullness 0%, happiness 20%, stamina 8%">
+<svg width="480" height="222" viewBox="0 0 480 222" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nari, Adult Yeong, Sick, fullness 0%, happiness 20%, stamina 8%, 7d quiet · commit to return">
   <title>Nari — Yeong · waiting for commits</title>
-  <rect x="0.5" y="0.5" width="479" height="199" rx="16" fill="#141323" stroke="#302D50"/>
+  <rect x="0.5" y="0.5" width="479" height="221" rx="16" fill="#141323" stroke="#302D50"/>
   <path d="M34,27 L35.5,30.5 L39,32 L35.5,33.5 L34,37 L32.5,33.5 L29,32 L32.5,30.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="3.8s" repeatCount="indefinite"/></path><path d="M58,149 L59.5,152.5 L63,154 L59.5,155.5 L58,159 L56.5,155.5 L53,154 L56.5,152.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="4.8s" repeatCount="indefinite"/></path><path d="M165,30 L166.5,33.5 L170,35 L166.5,36.5 L165,40 L163.5,36.5 L160,35 L163.5,33.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="3s" repeatCount="indefinite"/></path><path d="M448,37 L449.5,40.5 L453,42 L449.5,43.5 L448,47 L446.5,43.5 L443,42 L446.5,40.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="3.4s" repeatCount="indefinite"/></path><path d="M430,127 L431.5,130.5 L435,132 L431.5,133.5 L430,137 L428.5,133.5 L425,132 L428.5,130.5 Z" fill="#F6C85F" opacity="0.62"><animate attributeName="opacity" values="0.25;0.82;0.25" dur="4.2s" repeatCount="indefinite"/></path>
   <circle cx="112" cy="104" r="68" fill="#2A2453" opacity="0.58"/>
   <path d="M84,52 h56 M74,68 h76 M64,84 h96 M58,100 h108 M64,116 h96 M74,132 h76 M84,148 h56" stroke="#9DB7D1" stroke-width="1" opacity="0.08"/>
@@ -28,4 +28,5 @@
   <rect x="276" y="166" width="12" height="8" rx="4" fill="#E46A6A"/>
   <text x="448" y="175" fill="#F4F1FF" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" font-weight="600" text-anchor="end">8%</text>
   <text x="204" y="194" fill="#AAA4D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="10">Commit to wake it back up · day 20</text>
+  <text x="204" y="214" fill="#AAA4D6" font-family="'Segoe UI',system-ui,sans-serif" font-size="10">7d quiet · commit to return</text>
 </svg>
