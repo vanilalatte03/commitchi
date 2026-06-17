@@ -156,9 +156,13 @@ assets/sprites/<species>/
 |---|---|
 | `id` | unique species id (folder name), lowercase |
 | `displayName` | shown on the card / dex |
+| `ghostName` | name shown in the neglect/ghost form |
 | `author` | contributor credit (GitHub handle) |
-| `license` | must affirm original work + project license grant |
-| `evolution` | (optional) per-stage age thresholds; defaults to the shared curve |
+| `license` | must affirm original work + project license grant (`CC-BY-4.0`) |
+| `evolution` | *(proposed, not implemented)* per-stage age thresholds; today all characters use the shared curve |
+
+> Implemented manifest fields are `id`, `displayName`, `ghostName`, `author`, `license`
+> (see `src/characters.ts`). [CONTRIBUTING.md](../../CONTRIBUTING.md) is the contributor-facing contract.
 
 **Required sprite set:** 5 stages × mood variants where applicable + ghost, each with an
 `@3x` variant, transparent background, fixed source canvas (e.g. 192px), under a size cap.
