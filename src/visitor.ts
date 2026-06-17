@@ -11,7 +11,7 @@ import {
   setActivePet,
   VISITOR_ACTION_BONUS,
 } from "./state";
-import { VisitorAction } from "./types";
+import { StateNote, VisitorAction } from "./types";
 
 const RESULT_PATH = "interaction-result.json";
 
@@ -35,7 +35,13 @@ function actionLabel(action: VisitorAction): string {
   return action === "feed" ? "Feed" : "Play";
 }
 
-function appliedComment(action: VisitorAction, actor: string, petName: string, s: Strings): string {
+function appliedComment(
+  action: VisitorAction,
+  actor: string,
+  petName: string,
+  note: StateNote | undefined,
+  s: Strings
+): string {
   const bonus = VISITOR_ACTION_BONUS[action];
   const label = s.visitor.statLabel;
   const parts =
@@ -45,8 +51,9 @@ function appliedComment(action: VisitorAction, actor: string, petName: string, s
   if (bonus.stamina) parts.push(`${label.stamina} +${bonus.stamina}`);
   const stats = parts.join(", ");
   const intro = s.visitor.appliedIntro(action, actor, petName);
+  const reason = note ? s.reason(note) : null;
 
-  return s.visitor.appliedComment(intro, stats);
+  return s.visitor.appliedComment(intro, stats, reason);
 }
 
 function rateLimitedComment(actor: string, petName: string, s: Strings): string {
@@ -122,7 +129,7 @@ function main(): void {
     action,
     actor: update.actor,
     comment: update.applied
-      ? appliedComment(action, update.actor, update.state.name, s)
+      ? appliedComment(action, update.actor, update.state.name, update.state.note, s)
       : rateLimitedComment(update.actor, update.state.name, s),
   };
 

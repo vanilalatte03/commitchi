@@ -17,6 +17,7 @@ an original snowy-owl pixel sprite.
 - Your pet also **grows up** over time: egg → baby → child → teen → adult.
 - Raised characters fill your personal dex progress as they reach later stages.
 - The pet card shows dex progress as raised characters / total catalog characters.
+- The pet card explains why the current state happened and what helps it recover.
 - Evolution and 7/30/100-day streak milestones trigger a one-tick **celebration**
   badge and sparkle effect.
 
@@ -52,13 +53,15 @@ character's ghost variant.
 ```
 GitHub Actions (scheduled)
   → fetch your contribution activity (GraphQL)
-  → update pet-state.json   (roster memory: active pet, stats, stage, milestones, dex)
+  → update pet-state.json   (roster memory: active pet, stats, stage, milestones, dex, state log)
   → render pet.svg + dex.svg (SVGs + matching pixel sprites, embedded as base64 PNGs)
   → commit pet.svg + dex.svg + pet-state.json back to the repo
 README embeds pet.svg + dex.svg
 ```
 
 The sprite is embedded into the SVG as a base64 data URI on purpose — relative/external image references inside an SVG don't survive GitHub's image proxy, but a self-contained SVG renders reliably.
+
+Current-state reasons are stored as structured notes in `pet-state.json`, and recent reason changes are kept as a short log.
 
 ## Setup
 
@@ -228,7 +231,7 @@ src/
   index.ts      orchestrates a tick
   visitor.ts    issue-op visitor feeding/play CLI
   github.ts     GraphQL fetch → contribution activity
-  state.ts      load / update / save pet-state.json  (stats + economy)
+  state.ts      load / update / save pet-state.json  (stats + economy + state-reason log)
   evolution.ts  stage progression + neglect → ghost variant
   characters.ts data-driven character registry: loads + validates catalog.json
                 and each assets/sprites/<id>/character.json
@@ -250,7 +253,7 @@ action.yml                   reusable composite action for scheduled ticks
 > `pet-state.json` does not need to exist before the first run. Commitchi creates the
 > roster and active pet, then commits the generated `pet.svg`, `dex.svg`, and `pet-state.json` into
 > your profile repo. Keep that `pet-state.json` when updating Commitchi so roster and dex
-> progress do not restart.
+> progress do not restart. It also keeps the active pet's recent state-reason log.
 
 ## License
 

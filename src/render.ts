@@ -173,6 +173,7 @@ export function renderSVG(
   const spriteX = Math.round(112 - sprite.displaySize / 2);
   const spriteY = Math.round(166 - sprite.displaySize);
   const titleText = `${escapeText(state.name)} — ${escapeText(subtitle(state, character, s, displayStage))}`;
+  const reasonText = state.note ? s.reason(state.note) : null;
   const ariaLabel = escapeAttr(
     s.aria({
       name: state.name,
@@ -184,10 +185,16 @@ export function renderSVG(
       stamina,
       celebration: state.celebration ? state.celebration.title : null,
       dex: dexText,
+      reason: reasonText,
     })
   );
   const moodText = escapeText(s.mood[state.mood]);
-  const progressText = escapeText(progressLine(state, s));
+  // The footer status line carries the reason ("why + how to recover"); during a
+  // celebration the celebration detail takes over, and reason falls back to the
+  // stage/ghost progress text when a pet has no note yet (legacy state).
+  const progressText = escapeText(
+    state.celebration ? progressLine(state, s) : reasonText ?? progressLine(state, s)
+  );
   const footerText =
     state.celebration?.kind === "visitor"
       ? progressText
@@ -220,6 +227,7 @@ export function renderSVG(
       <image href="${sprite.href}" x="${spriteX}" y="${spriteY}" width="${sprite.displaySize}" height="${sprite.displaySize}" preserveAspectRatio="xMidYMid meet"/>
     </g>
   </g>
+  <g transform="translate(0,-8)">
   ${t(204, 44, palette.textMain, 24, "700")}${nameText}</text>
   ${t(204, 68, palette.textMuted, 13)}${subtitleText}</text>
   ${t(204, 94, palette.textMuted, 12)}${escapeText(s.moodHeading)}</text>
@@ -229,6 +237,7 @@ export function renderSVG(
   ${statRow(s.stat.stamina, stamina, 175)}
   ${t(204, 194, palette.textMuted, 10)}${footerText}</text>
   ${dexText && !state.celebration ? `${t(448, 194, palette.textMuted, 10, "400", ' text-anchor="end"')}${escapeText(dexText)}</text>` : ""}
+  </g>
 </svg>
 `;
 

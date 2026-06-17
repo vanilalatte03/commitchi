@@ -18,6 +18,7 @@ import {
   writeJson,
   writeText,
 } from "./helpers";
+import type { StateNote } from "../src/types";
 
 const DAY_MS = 86_400_000;
 const NOW = new Date("2026-01-15T00:00:00.000Z");
@@ -225,6 +226,144 @@ test("applyTick derives happy, hungry, and sick moods from thresholds and neglec
   assert.equal(sickByNeglect.mood, "sick");
 });
 
+test("applyTick records reason notes for mood causes", () => {
+  const config = makeConfig({
+    economy: {
+      feedPerContrib: 0,
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+    thresholds: {
+      hungryFullness: 45,
+      sickFullness: 15,
+      sickStamina: 30,
+      neglectDays: 4,
+    },
+  });
+
+  const hungry = applyTick(
+    makeState({ fullness: 45, happiness: 80, stamina: 80 }, config),
+    makeActivity({ daysSinceLastContribution: 2 }),
+    NOW,
+    config
+  );
+  assert.equal(hungry.note?.code, "hungry");
+  assert.equal(hungry.note?.days, 2);
+
+  const exhausted = applyTick(
+    makeState({ fullness: 100, happiness: 100, stamina: 30 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(exhausted.note?.code, "sick_exhausted");
+
+  const starving = applyTick(
+    makeState({ fullness: 15, happiness: 80, stamina: 80 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(starving.note?.code, "sick_starving");
+
+  const lonely = applyTick(
+    makeState({ fullness: 80, happiness: 15, stamina: 80 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(lonely.note?.code, "sick_lonely");
+
+  const ghost = applyTick(
+    makeState({ fullness: 90, happiness: 90, stamina: 90 }, config),
+    makeActivity({ daysSinceLastContribution: 4 }),
+    NOW,
+    config
+  );
+  assert.equal(ghost.isGhost, true);
+  assert.equal(ghost.note?.code, "ghost_neglect");
+  assert.equal(ghost.note?.days, 4);
+
+  const collab = applyTick(
+    makeState({ fullness: 90, happiness: 90, stamina: 90 }, config),
+    makeActivity({ todayCount: 1, collabRatio: 0.5 }),
+    NOW,
+    config
+  );
+  assert.equal(collab.note?.code, "happy_collab");
+
+  const active = applyTick(
+    makeState({ fullness: 90, happiness: 90, stamina: 90 }, config),
+    makeActivity({ todayCount: 1, collabRatio: 0 }),
+    NOW,
+    config
+  );
+  assert.equal(active.note?.code, "happy_active");
+
+  const content = applyTick(
+    makeState({ fullness: 90, happiness: 90, stamina: 90 }, config),
+    makeActivity(),
+    NOW,
+    config
+  );
+  assert.equal(content.note?.code, "content");
+});
+
+test("applyTick appends reason changes without repeated same-code entries and caps log", () => {
+  const config = makeConfig({
+    economy: {
+      feedPerContrib: 0,
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+  });
+  const base = makeState({ fullness: 90, happiness: 90, stamina: 90, log: [] }, config);
+
+  const first = applyTick(base, makeActivity(), NOW, config);
+  assert.equal(first.note?.code, "content");
+  assert.equal(first.log?.length, 1);
+
+  const second = applyTick(first, makeActivity({ todayDate: "2026-01-16" }), NOW, config);
+  assert.equal(second.note?.code, "content");
+  assert.equal(second.log?.length, 1);
+
+  const third = applyTick(
+    second,
+    makeActivity({ todayDate: "2026-01-17", todayCount: 1 }),
+    NOW,
+    config
+  );
+  assert.equal(third.note?.code, "happy_active");
+  assert.deepEqual(
+    third.log?.map((note) => note.code),
+    ["content", "happy_active"]
+  );
+
+  const fullLog: StateNote[] = ([
+    "ghost_neglect",
+    "sick_exhausted",
+    "sick_starving",
+    "sick_lonely",
+    "hungry",
+    "happy_collab",
+    "happy_active",
+    "content",
+  ] as StateNote["code"][]).map((code, index) => ({ code, days: index, at: daysBefore(8 - index) }));
+  const capped = applyTick(
+    makeState({ fullness: 45, happiness: 90, stamina: 90, log: fullLog }, config),
+    makeActivity({ daysSinceLastContribution: 1 }),
+    NOW,
+    config
+  );
+
+  assert.equal(capped.note?.code, "hungry");
+  assert.equal(capped.log?.length, 8);
+  assert.equal(capped.log?.[0].code, "sick_exhausted");
+  assert.equal(capped.log?.[7].code, "hungry");
+});
+
 test("applyTick honors a custom sickStamina threshold", () => {
   const config = makeConfig({
     economy: {
@@ -389,6 +528,39 @@ test("applyVisitorInteraction applies feed and play bonuses", () => {
   });
 });
 
+test("applyVisitorInteraction refreshes note and appends log", () => {
+  const config = makeConfig({
+    economy: {
+      decayPerDay: 0,
+      happinessDecayPerDay: 0,
+      staminaDecayPerDay: 0,
+    },
+  });
+  const hungryNote: StateNote = { code: "hungry", days: 2, at: daysBefore(2) };
+  const base = makeState(
+    {
+      fullness: 45,
+      happiness: 80,
+      stamina: 80,
+      mood: "hungry",
+      note: hungryNote,
+      log: [hungryNote],
+    },
+    config
+  );
+
+  const update = applyVisitorInteraction(base, "feed", "Alice", NOW, config);
+
+  assert.equal(update.applied, true);
+  assert.equal(update.state.mood, "happy");
+  assert.equal(update.state.note?.code, "content");
+  assert.equal(update.state.note?.days, 0);
+  assert.deepEqual(
+    update.state.log?.map((note) => note.code),
+    ["hungry", "content"]
+  );
+});
+
 test("applyVisitorInteraction marks a full pet sick when stamina is 30 or below", () => {
   const config = makeConfig({
     economy: {
@@ -478,6 +650,8 @@ test("loadState returns a fresh egg when the state file is missing", () => {
     assert.equal(state.isGhost, false);
     assert.equal(state.bornAt, NOW.toISOString());
     assert.equal(state.lastTickAt, NOW.toISOString());
+    assert.deepEqual(state.note, { code: "content", days: 0, at: NOW.toISOString() });
+    assert.deepEqual(state.log, []);
     assert.deepEqual(save.dex.nari, { firstSeenAt: NOW.toISOString(), maxStage: "egg" });
   });
 });
@@ -542,6 +716,33 @@ test("loadState clamps out-of-range stats and falls back for unusable stats", ()
     assert.equal(state.fullness, 100);
     assert.equal(state.happiness, 60);
     assert.equal(state.stamina, 0);
+  });
+});
+
+test("loadState normalizes note and log fields", () => {
+  withTempDir((dir) => {
+    const path = join(dir, "state.json");
+    const config = makeConfig();
+    const raw = {
+      ...makeState({}, config),
+      note: { code: "hungry", days: 2.8, at: "2026-01-14T00:00:00.000Z" },
+      log: [
+        { code: "unknown", days: 9, at: "2026-01-10T00:00:00.000Z" },
+        { code: "happy_active", days: 1.8, at: "" },
+      ],
+    };
+    writeJson(path, raw);
+
+    const state = getActivePet(loadState(NOW, config, path));
+
+    assert.deepEqual(state.note, {
+      code: "hungry",
+      days: 2,
+      at: "2026-01-14T00:00:00.000Z",
+    });
+    assert.deepEqual(state.log, [
+      { code: "happy_active", days: 1, at: raw.lastTickAt },
+    ]);
   });
 });
 

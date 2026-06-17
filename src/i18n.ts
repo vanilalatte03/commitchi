@@ -1,4 +1,4 @@
-import { Language, Mood, Stage, VisitorAction } from "./types";
+import { Language, Mood, Stage, StateNote, VisitorAction } from "./types";
 
 /**
  * All user-facing text lives here, keyed by language. The rest of the codebase
@@ -10,6 +10,8 @@ export interface Strings {
   stage: Record<Stage, string>;
   /** Heading shown above the mood value on the card. */
   moodHeading: string;
+  /** One-line explanation for why the pet is in its current state. */
+  reason: (note: StateNote) => string;
   stat: { fullness: string; happiness: string; stamina: string };
   /** Wraps a milestone title in the celebration badge (e.g. "Hooray! 7-day streak"). */
   celebrationBadge: (title: string) => string;
@@ -37,6 +39,7 @@ export interface Strings {
     stamina: number;
     celebration: string | null;
     dex: string | null;
+    reason: string | null;
   }) => string;
   evolutionCelebration: (stageLabel: string) => { title: string; detail: string };
   streakCelebration: (days: number) => { title: string; detail: string };
@@ -45,7 +48,7 @@ export interface Strings {
   visitor: {
     statLabel: { fullness: string; happiness: string; stamina: string };
     appliedIntro: (action: VisitorAction, actor: string, petName: string) => string;
-    appliedComment: (intro: string, stats: string) => string;
+    appliedComment: (intro: string, stats: string, reason: string | null) => string;
     rateLimited: (actor: string, petName: string) => string;
   };
 }
@@ -54,6 +57,31 @@ const ko: Strings = {
   mood: { happy: "기분 좋음", hungry: "배고픔", sick: "아파요" },
   stage: { egg: "알", baby: "아기", child: "어린이", teen: "청소년", adult: "성체" },
   moodHeading: "기분",
+  reason: (note) => {
+    const days = Math.max(0, Math.floor(note.days));
+    switch (note.code) {
+      case "ghost_neglect":
+        return days < 1
+          ? "유령 상태 · 커밋하면 돌아와요"
+          : `${days}일 무소식 · 커밋하면 돌아와요`;
+      case "sick_exhausted":
+        return "체력 낮음 · 연속 커밋으로 회복해요";
+      case "sick_starving":
+        return "포만감 낮음 · 커밋하면 회복해요";
+      case "sick_lonely":
+        return "행복도 낮음 · 커밋·협업으로 회복해요";
+      case "hungry":
+        return days < 1
+          ? "배고파요 · 커밋하면 배불러요"
+          : `${days}일째 새 커밋 없음 · 커밋하면 배불러요`;
+      case "happy_collab":
+        return "협업 기여로 행복해요";
+      case "happy_active":
+        return "새 커밋을 먹고 기운났어요";
+      case "content":
+        return "안정적이에요 · 꾸준히 돌봐주세요";
+    }
+  },
   stat: { fullness: "포만감", happiness: "행복도", stamina: "체력" },
   celebrationBadge: (title) => `축하! ${title}`,
   subtitle: {
@@ -69,10 +97,10 @@ const ko: Strings = {
   },
   dexProgress: (collected, total) => `도감 ${collected}/${total}`,
   footer: (progress, ageDays) => `${progress} · ${ageDays}일째`,
-  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration, dex }) =>
+  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration, dex, reason }) =>
     `${name}, ${stage} ${species}, ${mood}, 포만감 ${fullness}%, 행복도 ${happiness}%, 체력 ${stamina}%${
       celebration ? `, 축하 ${celebration}` : ""
-    }${dex ? `, ${dex}` : ""}`,
+    }${reason ? `, ${reason}` : ""}${dex ? `, ${dex}` : ""}`,
   evolutionCelebration: (stageLabel) => ({
     title: `${stageLabel} 진화`,
     detail: `새로운 ${stageLabel} 단계가 열렸어요`,
@@ -95,7 +123,10 @@ const ko: Strings = {
       action === "feed"
         ? `🍖 @${actor}님이 ${petName}에게 밥을 줬어요.`
         : `🎮 @${actor}님이 ${petName}와 같이 놀아줬어요.`,
-    appliedComment: (intro, stats) => `${intro}\n\n${stats}. 내일 또 돌봐줄 수 있어요.`,
+    appliedComment: (intro, stats, reason) =>
+      `${intro}\n\n${stats}. 내일 또 돌봐줄 수 있어요.${
+        reason ? `\n\n지금: ${reason}` : ""
+      }`,
     rateLimited: (actor, petName) =>
       `@${actor}님, ${petName}는 오늘 이미 돌봄을 받았어요.\n\n내일 다시 도와주세요.`,
   },
@@ -105,6 +136,31 @@ const en: Strings = {
   mood: { happy: "Happy", hungry: "Hungry", sick: "Sick" },
   stage: { egg: "Egg", baby: "Baby", child: "Child", teen: "Teen", adult: "Adult" },
   moodHeading: "Mood",
+  reason: (note) => {
+    const days = Math.max(0, Math.floor(note.days));
+    switch (note.code) {
+      case "ghost_neglect":
+        return days < 1
+          ? "Ghosted · commit to return"
+          : `${days}d quiet · commit to return`;
+      case "sick_exhausted":
+        return "Low stamina · streaks restore it";
+      case "sick_starving":
+        return "Low fullness · commit to feed";
+      case "sick_lonely":
+        return "Low happiness · commits & PRs help";
+      case "hungry":
+        return days < 1
+          ? "Hungry · commit to feed"
+          : `${days}d no new commits · commit to feed`;
+      case "happy_collab":
+        return "Collaboration made it happy";
+      case "happy_active":
+        return "New commits boosted it";
+      case "content":
+        return "Steady · keep checking in";
+    }
+  },
   stat: { fullness: "Fullness", happiness: "Happiness", stamina: "Stamina" },
   celebrationBadge: (title) => `Hooray! ${title}`,
   subtitle: {
@@ -120,10 +176,10 @@ const en: Strings = {
   },
   dexProgress: (collected, total) => `Dex ${collected}/${total}`,
   footer: (progress, ageDays) => `${progress} · day ${ageDays}`,
-  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration, dex }) =>
+  aria: ({ name, stage, species, mood, fullness, happiness, stamina, celebration, dex, reason }) =>
     `${name}, ${stage} ${species}, ${mood}, fullness ${fullness}%, happiness ${happiness}%, stamina ${stamina}%${
       celebration ? `, celebration ${celebration}` : ""
-    }${dex ? `, ${dex.replace(/^Dex\b/, "dex")}` : ""}`,
+    }${reason ? `, ${reason}` : ""}${dex ? `, ${dex.replace(/^Dex\b/, "dex")}` : ""}`,
   evolutionCelebration: (stageLabel) => ({
     title: `Evolved to ${stageLabel}`,
     detail: `Reached the ${stageLabel} stage`,
@@ -146,8 +202,10 @@ const en: Strings = {
       action === "feed"
         ? `🍖 @${actor} fed ${petName}.`
         : `🎮 @${actor} played with ${petName}.`,
-    appliedComment: (intro, stats) =>
-      `${intro}\n\nApplied ${stats}. Come back tomorrow to help again.`,
+    appliedComment: (intro, stats, reason) =>
+      `${intro}\n\nApplied ${stats}. Come back tomorrow to help again.${
+        reason ? `\n\nNow: ${reason}` : ""
+      }`,
     rateLimited: (actor, petName) =>
       `@${actor}, ${petName} already got a visit from you today.\n\nCome back tomorrow to help again.`,
   },

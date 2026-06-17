@@ -71,6 +71,8 @@ export function makeState(
     happiness: config.economy.startFullness,
     stamina: config.economy.startFullness,
     mood: "happy",
+    note: { code: "content", days: 0, at: iso },
+    log: [],
     celebration: null,
     celebratedMilestones: [],
     ageDays: 0,
