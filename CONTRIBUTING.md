@@ -79,6 +79,10 @@ Tip: generate large, then downscale to ~192px and optimize with `pngquant`/`oxip
 | `author` | your GitHub handle |
 | `license` | `CC-BY-4.0` |
 
+> All five fields are required strings — trimmed, non-empty, and **64 characters or
+> fewer**. `id` must also match the pattern above and equal the folder name; `license`
+> must be exactly `CC-BY-4.0`.
+
 ```json
 {
   "id": "yourchar",
