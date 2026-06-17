@@ -1,0 +1,68 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEFAULT_SPECIES = void 0;
+exports.spriteFor = spriteFor;
+const node_fs_1 = require("node:fs");
+const node_path_1 = require("node:path");
+const characters_1 = require("./characters");
+exports.DEFAULT_SPECIES = "yuki";
+// We embed the "@3x" variants: ~192px, display-optimized PNGs (~8-10KB each).
+// They are crisp at our ~158px display size and keep pet.svg ~20x smaller than
+// the full-resolution source sprites.
+const VARIANT_SUFFIX = "@3x";
+const STAGE_SPRITES = {
+    egg: { file: "egg.png", displaySize: 96 },
+    baby: { file: "baby.png", displaySize: 118 },
+    child: { file: "child.png", displaySize: 136 },
+    teen: { file: "teen.png", displaySize: 150 },
+    adult: { file: "adult.png", displaySize: 158 },
+};
+const ADULT_MOOD_SPRITES = {
+    happy: { file: "adult-happy.png", displaySize: 158 },
+    hungry: { file: "adult-hungry.png", displaySize: 158 },
+    sick: { file: "adult-sick.png", displaySize: 158 },
+};
+const STAGE_MOOD_SPRITES = {
+    baby: {
+        hungry: { file: "baby-hungry.png", displaySize: 126 },
+        sick: { file: "baby-sick.png", displaySize: 126 },
+    },
+    child: {
+        hungry: { file: "child-hungry.png", displaySize: 142 },
+        sick: { file: "child-sick.png", displaySize: 142 },
+    },
+    teen: {
+        hungry: { file: "teen-hungry.png", displaySize: 154 },
+        sick: { file: "teen-sick.png", displaySize: 154 },
+    },
+};
+const GHOST_SPRITE = { file: "ghost.png", displaySize: 158 };
+const dataUriCache = new Map();
+function variantFile(file) {
+    return file.replace(/\.png$/, `${VARIANT_SUFFIX}.png`);
+}
+function spriteDataUri(species, file) {
+    const cacheKey = `${species}:${file}`;
+    const cached = dataUriCache.get(cacheKey);
+    if (cached)
+        return cached;
+    const path = (0, node_path_1.join)((0, characters_1.getCharacterSpriteDir)(species), variantFile(file));
+    if (!(0, node_fs_1.existsSync)(path)) {
+        throw new Error(`Missing sprite asset: ${path}`);
+    }
+    const encoded = (0, node_fs_1.readFileSync)(path).toString("base64");
+    const href = `data:image/png;base64,${encoded}`;
+    dataUriCache.set(cacheKey, href);
+    return href;
+}
+function spriteFor(stage, species, mood, ghost = false) {
+    const spec = ghost && stage !== "egg"
+        ? GHOST_SPRITE
+        : stage === "adult"
+            ? ADULT_MOOD_SPRITES[mood]
+            : STAGE_MOOD_SPRITES[stage]?.[mood] ?? STAGE_SPRITES[stage];
+    return {
+        ...spec,
+        href: spriteDataUri(species, spec.file),
+    };
+}
