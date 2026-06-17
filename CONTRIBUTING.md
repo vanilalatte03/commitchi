@@ -111,9 +111,18 @@ assets/sprites/<id>/
 1. Draw the 14 states in any pixel style.
 2. Export each as `name.png` + `name@3x.png` with the exact names above.
 3. Add `character.json` with the fields above.
-4. Open a PR adding **only** your `assets/sprites/<id>/` folder.
-   **Do not** edit `catalog.json` or pick a dex number — a maintainer assigns it at merge
-   (this avoids collisions between PRs).
+4. Register the character in [`catalog.json`](./catalog.json): append one entry to the
+   `characters` array using the **next unused number**:
+
+   ```json
+   { "number": 4, "id": "yourchar" }
+   ```
+
+   Every character folder must have a catalog entry, so CI fails without it. Numbers are
+   ordered and never reused (gaps are fine). If two PRs happen to grab the same number, a
+   maintainer will renumber yours at merge — so don't worry about racing.
+5. Open a PR with your `assets/sprites/<id>/` folder **and** that one-line `catalog.json`
+   change.
 
 Check it locally before opening the PR:
 
@@ -126,9 +135,9 @@ npm run validate:characters
 1. **CI** checks the *technical contract* only — required files present and named
    correctly, PNG transparency/size, manifest schema, id↔folder, and dex uniqueness.
    It cannot judge art style or appropriateness.
-2. A **maintainer** reviews for originality/IP-safety, quality, and moderation.
-3. On merge, the character is assigned its dex number and becomes selectable (by that
-   number or its `id`).
+2. A **maintainer** reviews for originality/IP-safety, quality, and moderation (and
+   confirms/adjusts your catalog number).
+3. On merge, the character becomes selectable — by its dex number or its `id`.
 
 Background on why the system is shaped this way:
 [ADR 0002](docs/adr/0002-dex-and-character-registry.md).

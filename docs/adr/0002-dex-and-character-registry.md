@@ -81,10 +81,15 @@ Two distinct layers:
 **Recording format:**
 
 - Dex numbers live in an append-only `catalog.json` registry (the source of truth for
-  numbers), *not* in each `character.json` — so concurrent PRs don't fight over the next
-  number. A build script (`npm run dex:assign`, run at merge) finds folders missing a
-  catalog entry and appends the next number; CI checks the sequence is unique, gap-free,
-  and that every id maps to a real folder. No manual numbering by contributors.
+  numbers), *not* in each `character.json`. CI checks that numbers are **ordered and
+  unique — gaps are allowed** (a retired number leaves a permanent gap and is never
+  reused), that every catalog id maps to a real folder, and that every character folder
+  has a catalog entry.
+- **Future direction:** a `npm run dex:assign` script (not yet built) could append the
+  next number automatically at merge, so contributors never touch `catalog.json` and
+  concurrent PRs can't collide over a number. Until it exists, the catalog entry is added
+  by hand — by the contributor in their PR (a maintainer renumbers on merge if two PRs
+  picked the same number).
 - Per-user progress is stored under `pet-state.json` as `dex[id]`. Because stages are
   linear (egg < baby < child < teen < adult), a single `maxStage` per character is
   enough:
@@ -142,11 +147,13 @@ assets/sprites/<species>/
 
 ### 6. Community contribution flow
 
-- Contributor opens a PR adding one `assets/sprites/<species>/` folder + manifest.
+- Contributor opens a PR adding one `assets/sprites/<species>/` folder + manifest, plus a
+  `catalog.json` entry (required until `dex:assign` automation exists).
 - **CI validates the technical contract only** (see below) — it cannot judge art.
 - **Human (maintainer) is the acceptance gate** for taste, IP-safety, and moderation.
-- Dex number is assigned by the maintainer / a script **at merge time**, not chosen in
-  the PR (avoids collisions between concurrent PRs).
+- Dex number: the **target** is automatic assignment at merge (`dex:assign`, future) to
+  avoid collisions between concurrent PRs. **Currently** the contributor picks the next
+  number in their PR and a maintainer renumbers on merge if two PRs collided.
 
 ## Character contract
 

@@ -131,8 +131,8 @@ watermark, busy background, scenery, harsh outline, inconsistent scale, off-mode
    `@3x`). The renderer embeds the `@3x` versions, and CI only validates those (transparent
    PNG, 32–320px, ≤80KB each).
 4. Drop them under `assets/sprites/<id>/`, alongside a `character.json` manifest
-   (`id`, `displayName`, `ghostName`, `author`, `license`). The registry
-   (`src/characters.ts`) discovers and validates them — no code changes, and **don't add a
-   `catalog.json` entry yourself** (a maintainer assigns the dex number at merge).
+   (`id`, `displayName`, `ghostName`, `author`, `license`), and add a one-line
+   `catalog.json` entry with the next number (`{ "number": N, "id": "<id>" }`). The
+   registry (`src/characters.ts`) discovers and validates them — no code changes needed.
    [CONTRIBUTING.md](../CONTRIBUTING.md) is the full contract.
 5. Keep the full-resolution masters and source sheets under `assets/source/` (gitignored).
