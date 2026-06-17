@@ -116,7 +116,8 @@ assets/sprites/<id>/
 2. Export each as `name.png` + `name@3x.png` with the exact names above.
 3. Add `character.json` with the fields above.
 4. Register the character in [`catalog.json`](./catalog.json): append one entry to the
-   `characters` array using the **next unused number**:
+   `characters` array, numbered **one higher than the highest number already in the
+   catalog** (don't reuse a gap from a retired character):
 
    ```json
    { "number": 4, "id": "yourchar" }
