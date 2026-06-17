@@ -1,10 +1,14 @@
 # Sprite Style Guide
 
+> **Optional.** You do **not** have to match Yuki's look — any clean pixel art is welcome
+> (see [CONTRIBUTING.md](../CONTRIBUTING.md) for the actual requirements). This guide only
+> helps if you *want* a cohesive, Yuki-style set or are generating art with an AI tool.
+
 How to generate new character sheets that match Yuki's look, so every creature feels like
 part of one world.
 
-**Core rule:** keep the *rendering technique, proportions, background, and finish* fixed.
-Only swap the *palette, theme, and signature charm* per creature.
+**If you want that cohesion:** keep the *rendering technique, proportions, background, and
+finish* fixed. Only swap the *palette, theme, and signature charm* per creature.
 
 ---
 
@@ -112,7 +116,7 @@ watermark, busy background, scenery, harsh outline, inconsistent scale, off-mode
 ## 6. From sheet to assets
 
 1. Slice each cell into its own PNG.
-2. Name to match the sprite map in `src/sprites.ts`. Full set per creature (14 files):
+2. Name to match the sprite map in `src/sprites.ts`. **14 sprite states**:
 
    - [ ] `egg.png`
    - [ ] `baby.png` · `baby-hungry.png` · `baby-sick.png`
@@ -123,10 +127,12 @@ watermark, busy background, scenery, harsh outline, inconsistent scale, off-mode
 
    (`egg` has no mood variants; the adult default is `adult-happy`. `baby.png` /
    `child.png` / `teen.png` are the happy/default mood for those stages.)
-3. Produce the optimized `@3x` variants (~192px) — those are what the renderer embeds.
+3. Produce the optimized `@3x` variant of each (~192px) — so **28 files total** (base +
+   `@3x`). The renderer embeds the `@3x` versions, and CI only validates those (transparent
+   PNG, 32–320px, ≤80KB each).
 4. Drop them under `assets/sprites/<id>/`, alongside a `character.json` manifest
-   (`id`, `displayName`, `ghostName`, `author`, `license`), and add a `catalog.json` entry.
-   The character registry (`src/characters.ts`) discovers and validates them — no code
-   changes needed. See [CONTRIBUTING.md](../CONTRIBUTING.md) and
-   [ADR 0002](adr/0002-dex-and-character-registry.md) for the full contract.
+   (`id`, `displayName`, `ghostName`, `author`, `license`), and add a one-line
+   `catalog.json` entry with the next number (`{ "number": N, "id": "<id>" }`). The
+   registry (`src/characters.ts`) discovers and validates them — no code changes needed.
+   [CONTRIBUTING.md](../CONTRIBUTING.md) is the full contract.
 5. Keep the full-resolution masters and source sheets under `assets/source/` (gitignored).
